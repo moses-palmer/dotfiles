@@ -17,6 +17,22 @@ from typing import Callable, Optional, Set, Union
 
 from .configuration import Configuration
 
+#: The path to feature modules.
+FEATURE_PATH = os.path.join(
+    os.path.dirname(__file__),
+    os.path.pardir,
+    os.path.pardir,
+    os.path.pardir,
+    'features')
+
+__path__ = (
+    os.path.dirname(__file__),
+    FEATURE_PATH)
+__all__ = tuple(
+    name.split('.', 1)[0]
+    for name in os.listdir(FEATURE_PATH)
+    if name[0] not in '._')
+
 
 #: The regex used to extract feature modules.
 MODULE_RE = re.compile(r'[a-zA-Z][a-zA-Z0-9_]*?\.py')
