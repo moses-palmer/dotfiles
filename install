@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# The directory containing this script
+ROOT="$(dirname "$0")"
+
+# A list of potential binary names for Python 3
+PYTHON3_EXES="python3 python"
+
+##
+# The git hook directory.
+HOOK_DIR="$ROOT/.git/hooks"
+
+##
+# The post-merge hook.
+HOOK="$HOOK_DIR/post-merge"
+
+
+##
+# Installs a post-merge hook to automatically call this script after git pull.
+#
+# If the hook already exists, no action is performed, otherwise a script
+# calling this script, with the current arguments, is created.
+install_hook() {
+    if ! [ -x "$HOOK" ]; then
+        mkdir -p "$HOOK_DIR"
+        cat >"$HOOK" <<EOF
+#!/bin/sh
+
+./install $@
+EOF
+        chmod a+x "$HOOK"
+        echo
+        echo "Installed git hook to $HOOK"
+    fi
+}
+
+
+for exe in $PYTHON3_EXES; do
+    if which $exe >/dev/null && $exe --version | grep 'Python 3' >/dev/null
+    then
+        PYTHONPATH="$ROOT/src" $exe -m dotfiles "$ROOT" $@
+        ret="$?"
+        install_hook
+        exit $ret
+    fi
+done
+
+
+echo "Python 3 is not available as one of $PYTHON3_EXES" >&2
+exit 1
