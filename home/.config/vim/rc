@@ -1,0 +1,19 @@
+filetype off
+filetype plugin indent on
+set expandtab
+set hidden
+set nocompatible
+set shiftwidth=4
+set smarttab
+set tabstop=4
+set updatetime=250
+
+
+" Include library functions
+exe 'source' '~/.config/vim/lib.vim'
+
+
+" Load custom extensions
+for f in split(glob('~/.config/vim/extensions/*.vim'), '\n')
+    exe 'source' f
+endfor
