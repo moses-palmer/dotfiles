@@ -1,3 +1,7 @@
+# Start a new editor session in the current directory
+bind-key C-e split-window -d -h -c "#{pane_current_path}" ~/.local/bin/__tmux-edit
+
+
 # Enable colours
 set-option -g default-terminal xterm-256color
 

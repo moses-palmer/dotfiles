@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# We must source this explicitly, since ~/.bashrc bails in command mode
+source ~/.config/bash/rc
+
+##
+# The name of the window option.
+VAR="@__edit"
+
+##
+# The width of the editor pane.
+WIDTH="120"
+
+##
+# A project local .vimrc file.
+LOCAL_VIM_CONFIG="$(pwd)/.vimrc"
+
+
+# If the window is not currently an editor window, make it one, otherwise
+# restore the editor pane size
+if [ -z "$(tmux show-window-option -v "$VAR" 2>/dev/null)" ]; then
+    # Name this window after this project
+    tmux rename-window "Project $(basename "$(pwd)")"
+
+    # Rotate the panes with the expectation that this will make the current
+    # pane into the left-most one
+    tmux rotate-window
+
+    # Adjust the size of the current pane
+    tmux resize-pane -x "$WIDTH"
+
+    # Mark this window as an editor window
+    tmux set-window-option "$VAR" "yes"
+
+    # Finally run vim
+    if [ -f "$LOCAL_VIM_CONFIG" ]; then
+        vim +"source $LOCAL_VIM_CONFIG"
+    else
+        vim
+    fi
+
+    # Unmark this window as an editor window
+    tmux set-window-option "$VAR" ""
+else
+    tmux resize-pane -x "$WIDTH" -t0
+fi
