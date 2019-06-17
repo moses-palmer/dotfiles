@@ -1,0 +1,2 @@
+# Enable mouse
+set-option -g mouse on
