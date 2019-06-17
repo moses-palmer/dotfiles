@@ -1,0 +1,31 @@
+# Check the window size after each command and, if necessary, update the values
+# of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# Append to the history file, don't overwrite it
+#
+shopt -s histappend
+
+# Make sure the history file is continuously updated
+export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+
+# Don't put duplicate lines in the history
+HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+
+
+# Make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+
+# Enable color support for ls
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+fi
+
+
+# Include custom sources
+for f in ~/.config/bash/*; do
+    if [ "$(basename "$f")" != "rc" ]; then
+        . $f
+    fi
+done
