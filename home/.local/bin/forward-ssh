@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# Forwards an SSH connection to a different machine, optionally turning it on
+# if it is not running.
+
+set -e
+
+##
+# The minimum connection time before considering a connection attempt
+# successful.
+MIN_CONNECT_TIME=5
+
+##
+# The target host string.
+#
+# This may include the prefix "user@".
+HOST_STRING="$1"
+
+##
+# The target host.
+HOST="$(echo "$1" | awk -F '@' 'NF==1 { print $1 } NF==2 { print $2 }')"
+shift
+
+##
+# The MAC address of the remote host.
+#
+# This is necessary only to turn it on using WoL.
+MAC="$1"
+shift
+
+
+##
+# Determines whether the remote host is running.
+is_running() {
+    ping -c 1 "$HOST" >/dev/null 2>&1
+}
+
+
+##
+# Turns the remote host on using WoL.
+turn_on() {
+    echo "Turning on $HOST..."
+    wakeonlan "$MAC" >/dev/null
+}
+
+
+##
+# Turns the remote host off by running systemctl over SSH.
+#
+# This function assumes that running `systemctl suspend` under `sudo` is
+# possible without providing a password.
+turn_off() {
+    echo "Turning off $HOST..."
+    ssh "$HOST_STRING" sudo /bin/systemctl suspend
+}
+
+
+# Make sure the host is up
+if ! is_running; then
+    turn_on
+    was_running="no"
+else
+    was_running="yes"
+fi
+
+# Attempt to connect until successful
+while true; do
+    start="$(date "+%s")"
+    if ! ssh -o ConnectTimeout=2 -t "$HOST_STRING" $@; then
+        end="$(date "+%s")"
+        diff="$(echo "$end $start - p" | dc)"
+        if [ "$diff" -gt "$MIN_CONNECT_TIME" ]; then
+            break
+        else
+            sleep 1
+        fi
+    else
+        break
+    fi
+done
+
+# If the host was not up, turn it off
+if [ "$was_running" = "no" ]; then
+    turn_off
+fi
