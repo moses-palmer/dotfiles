@@ -1,0 +1,104 @@
+#!/bin/bash
+#
+# Manages an encrypted file database.
+#
+# This application maintains a file located under ~/.local/share with encrypted
+# content. The filename depends on the actual name used to invoke this script.
+
+set -e -o pipefail
+
+# When executed with no parameters as a link, call ourself with the link name
+if [ -z "$1" ] && [ -h "$0" ]; then
+    "$0" open "$(basename "$0")"
+    exit $?
+fi
+
+
+##
+# The cipher to use for encryption.
+CIPHER="aes-256-ctr"
+
+##
+# The current script.
+SELF="$0"
+
+##
+# The directory containing the current script.
+SELF_DIR="$(dirname "$SELF")"
+
+##
+# The directory containing encrypted files.
+DATA_DIR="$HOME/.local/share/estore"
+
+
+create() {
+    name="$1"
+
+    if [ -z "$name" ]; then
+        echo "No name provided."
+        exit 1
+    elif [ -f "$DB_DIR/$2" ]; then
+        echo "$name already exists."
+    fi
+
+    ln -s "$SELF" "$SELF_DIR/$name"
+}
+
+
+open() {
+    name="$1"
+
+    [ -d "$DATA_DIR" ] || mkdir -p "$DATA_DIR"
+    db="$DATA_DIR/$name.db"
+
+    # Make sure we have a working directory; clean up afterwards
+    work="$(mktemp --directory)"
+    trap "rm -rf $work" EXIT
+
+    # Read the password
+    echo -n "Enter password for $name: "
+    read -s pass; echo
+
+    # If the data file did not exist, make sure to confirm the password
+    if [ ! -f "$db" ]; then
+        echo -n "Confirm password: "
+        read -s pass_confirm; echo
+        if [ "$pass" != "$pass_confirm" ]; then
+            echo "Passwords do not match."
+            exit 1
+        fi
+    fi
+
+    # Generate the communication channel
+    fifo="$work/fifo"
+    mkfifo "$fifo"
+
+    # Run a recrypter in the background; kill it if it keeps running, which
+    # will happen if the file is not saved
+    file="$work/file"
+    ( cat "$fifo" \
+        | openssl enc -e -$CIPHER -out - -k "$pass" >"$file" \
+        && mv "$file" "$db" ) &
+    trap "kill $?" EXIT
+
+    # Decrypt and display the data
+    cat "$db" \
+        | openssl enc -d -$CIPHER -in - -k "$pass" 2>/dev/null \
+        | vim - "+:file $fifo"
+}
+
+
+case "$1" in
+    create)
+        create "$2"
+        ;;
+
+    open)
+        open "$2"
+        ;;
+
+    *)
+        echo "Usage: $0 create <name> | open <name>"
+        exit 1
+        ;;
+esac
