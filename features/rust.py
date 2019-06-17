@@ -1,0 +1,105 @@
+import re
+import os
+
+from typing import Optional
+
+from . import Feature, curl, feature, system
+
+
+#: The Rust compiler.
+BIN_RUSTC = 'rustc'
+
+#: The rustup binary.
+BIN_RUSTUP = 'rustup'
+
+#: The cargo binary.
+BIN_CARGO = 'cargo'
+
+
+@feature('The Rust programming language', {curl})
+def rust(env: Feature):
+    with curl.get(env, 'https://sh.rustup.rs') as script:
+        env.run('sh', script, '-y')
+
+
+@rust.checker
+def is_installed(env: Feature):
+    return system.present(env, BIN_RUSTC)
+
+
+def binary(name: str, crate: str, description: str, *args: str) -> Feature:
+    """Defines a cargo installable binary.
+
+    :param name: The name of the binary.
+
+    :param crate: The name of the crate.
+
+    :param description: A description.
+
+    :param args: Additional dependencies.
+    """
+    @feature(description, {rust.name} | set(args), name)
+    def installer(env):
+        run(
+            env,
+            BIN_CARGO, 'install', crate)
+
+    @installer.checker
+    def is_installed(env):
+        return system.present(env, name)
+
+
+def component(name: str, description: str):
+    """Defines a component feature.
+
+    :param name: The name of the component.
+
+    :param description: A description.
+    """
+    @feature(description, {rust.name}, name)
+    def installer(env):
+        run(
+            env,
+            BIN_RUSTUP, 'component', 'add', name)
+
+    component_re = re.compile(
+        r'^\s*{}(-[^ ]+)?\s+\(\s*installed\s*\)\s*$'.format(re.escape(name)))
+
+    @installer.checker
+    def is_installed(env):
+        return any(
+            component_re.match(line)
+            for line in run(
+                env,
+                BIN_RUSTUP, 'component', 'list',
+                capture=True,
+                interactive=False).splitlines())
+
+    return installer
+
+
+def run(env: Feature, binary: str, *args: str, **kwargs: str):
+    """Executes a rust binary.
+
+    This function ensures that the absolute path to the binary is passed, to
+    ensure that it can be found without sourcing the cargo configuration file.
+
+    :param env: The feature environment.
+
+    :param binary: The binary name.
+
+    :param args: Additional command arguments.
+
+    :param kwargs: Additional arguments.
+    """
+    return env.run(_qualify(binary), *args, **kwargs)
+
+
+def _qualify(binary: str):
+    """Generates the absolute path to a rust binary.
+
+    :param binary: The name of the binary.
+
+    :return: an absolute path
+    """
+    return os.path.join(os.path.expanduser('~/.cargo/bin'), binary)
