@@ -8,4 +8,6 @@ fi
 
 alias ll='ls -l'
 
+alias ipython='python3 -m IPython'
+
 alias diff='colordiff'
