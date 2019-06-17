@@ -1,0 +1,7 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=tmux
+Exec=/usr/bin/env DISPLAY=":0" TERM="xterm-256color" bash -c "systemctl --user enable tmux; systemctl --user start tmux"
