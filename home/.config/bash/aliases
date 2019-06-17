@@ -10,4 +10,8 @@ alias ll='ls -l'
 
 alias ipython='python3 -m IPython'
 
+careless() {
+    cargo $@ --color=always 2>&1 | less -R
+}
+
 alias diff='colordiff'
