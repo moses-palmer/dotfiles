@@ -1,0 +1,14 @@
+[Unit]
+Description=tmux: A terminal multiplexer
+Documentation=man:tmux(1)
+
+[Service]
+Type=forking
+ExecReload=/usr/bin/env __tmux-reload
+ExecStart=/usr/bin/tmux new-session -d -s default
+ExecStop=/usr/bin/tmux kill-server
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

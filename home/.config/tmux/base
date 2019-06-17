@@ -1,0 +1,23 @@
+# Enable colours
+set-option -g default-terminal xterm-256color
+
+# Ctrl+f for full-screen
+bind-key -n C-f resize-pane -Z
+
+# Yell to all panes
+bind-key -n C-y setw synchronize-panes
+
+
+# Alt+arrow for pane-switching
+bind-key -n C-Left select-pane -L
+bind-key -n C-Right select-pane -R
+bind-key -n C-Up select-pane -U
+bind-key -n C-Down select-pane -D
+
+
+# Enable copy pasting
+bind-key C-p paste-buffer
+
+
+# Use vi bindings
+set-option -g mode-keys vi

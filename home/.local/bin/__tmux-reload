@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Generate the default configuration
+TMUX_RESET_CONF="$(mktemp)"
+trap "rm $TMUX_RESET_CONF" EXIT
+tmux -f /dev/null -L temp start-server \; list-keys | \
+    sed -r \
+    -e "s/(bind-key.*\s+)([\"#~\$])(\s+)/\1\'\2\'\3/g" \
+    -e "s/(bind-key.*\s+)([\'])(\s+)/\1\"\2\"\3/g" \
+    -e "s/(bind-key.*\s+)([;])(\s+)/\1\\\\\2\3/g" \
+    -e "s/(command-prompt -I )#([SW])/\1\"#\2\"/g" \
+    -e "s/(if-shell -F -t = )#([^ ]+)/\1\"#\2\"/g" \
+    > "$TMUX_RESET_CONF"
+
+# Remove all key bindings
+tmux unbind-key -a
+
+# Restore default key bindings
+tmux source-file "$TMUX_RESET_CONF"
+
+# Reapply local configuration
+tmux source-file "$HOME/.tmux.conf"
