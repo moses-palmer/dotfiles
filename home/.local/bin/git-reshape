@@ -1,0 +1,30 @@
+#!/bin/sh
+# Rebases the current branch onto the default branch of the first remote.
+
+set -e
+
+
+# The repository root
+root="$(git rev-parse --show-toplevel)"
+
+# Get the name of the default branch
+branch="$(git default-branch)"
+
+
+# Check whether we need to stach current changes
+if ! git diff-index --quiet HEAD --; then
+    git stash
+    was_dirty="yes"
+else
+    was_dirty="no"
+fi
+
+# Initiate rebasing and see whether it completed; if so, pop the stash if any
+git rebase -i "$branch"
+if [ "$was_dirty" = "yes" ] ; then
+    if [ ! -d "$root/.git/rebase-merge" ]; then
+        git stash pop
+    else
+        echo "Changes stashed"
+    fi
+fi
