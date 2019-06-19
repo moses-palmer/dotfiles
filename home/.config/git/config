@@ -8,6 +8,7 @@
     cop = checkout -p
     cp = cherry-pick
     dc = !git-dc
+    default-branch = !git-default-branch
     logg = log --graph --decorate
     ls = ls-tree --name-only HEAD
     st = status

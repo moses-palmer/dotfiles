@@ -1,0 +1,15 @@
+#!/bin/sh
+# Prints the name of the default branch for the first remote for the current
+# repository.
+
+set -e
+
+# Get the name of the first remote
+remote="$(git remote show)"
+if [ -z "$remote" ]; then
+    echo "No remote found." >&2
+    exit 1
+fi
+
+# Get the name of the default branch
+git symbolic-ref "refs/remotes/$remote/HEAD" | sed "s@^refs/remotes/$remote/@@"
