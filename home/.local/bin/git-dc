@@ -1,0 +1,7 @@
+#!/bin/sh
+
+##
+# The regular expression separating words.
+WORD_SPLIT='[^][<>()\{},.;:?/|\\=+*&^%$#@!~`"'\''[:space:]]+|[][<>(){},.;:?/|\\=+*&^%$#@!~`"'\'']'
+
+git diff --color-words="$WORD_SPLIT" $@

@@ -7,6 +7,7 @@
     co = checkout
     cop = checkout -p
     cp = cherry-pick
+    dc = !git-dc
     logg = log --graph --decorate
     ls = ls-tree --name-only HEAD
     st = status
