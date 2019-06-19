@@ -12,6 +12,7 @@
     logg = log --graph --decorate
     ls = ls-tree --name-only HEAD
     reshape = !git-reshape
+    review = !git-review
     st = status
     subpull = submodule foreach --recursive git pull --all
 [color]
