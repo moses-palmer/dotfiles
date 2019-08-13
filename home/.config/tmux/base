@@ -8,6 +8,12 @@ set-option -g default-terminal xterm-256color
 # Ctrl+f for full-screen
 bind-key -n C-f resize-pane -Z
 
+# Bindings to toggle pane
+bind-key -n M-h run-shell "~/.local/bin/__tmux-toggle-pane -hb"
+bind-key -n M-j run-shell "~/.local/bin/__tmux-toggle-pane -v"
+bind-key -n M-k run-shell "~/.local/bin/__tmux-toggle-pane -vb"
+bind-key -n M-l run-shell "~/.local/bin/__tmux-toggle-pane -h"
+
 # Yell to all panes
 bind-key -n C-y setw synchronize-panes
 

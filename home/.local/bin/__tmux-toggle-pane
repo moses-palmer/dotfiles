@@ -1,0 +1,19 @@
+#!/bin/sh
+
+##
+# The name of the window option.
+VAR="@__toggle_pane"
+
+##
+# The currently hidden pane.
+HIDDEN_PANE="$(tmux show-window-option -v "$VAR" 2>/dev/null)"
+
+
+# If a pane is currently hidden, restore it, otherwise hide the current pane
+if [ -n "$HIDDEN_PANE" ]; then
+    tmux join-pane $@ -s "$HIDDEN_PANE"
+    tmux set-window-option "$VAR" ""
+else
+    PANE="$(tmux break-pane -dP -n "$(tmux display-message -p '#W') (hidden)")"
+    tmux set-window-option "$VAR" "$PANE"
+fi
