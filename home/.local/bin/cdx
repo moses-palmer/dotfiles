@@ -1,0 +1,81 @@
+#!/bin/sh
+#
+# Temporarily decompresses an archive, opens a new shell, and cleans up when it
+# terminates.
+
+set -e
+
+
+##
+# The archive to explore.
+FILE="$(realpath "$1")"
+
+
+##
+# Decompresses a file.
+#
+# $1: The file to decompress.
+# $2: The target directory.
+decompress() {
+    file="$1"
+    target="$2"
+
+    mime_type="$(file --brief --mime-type "$file")"
+
+    printf "\033[1mDecompressing \033[0;32m$file\033[0m\033[1m...\033[0m\n"
+    case "$mime_type" in
+        application/zip)
+            unzip "$file" -d "$target" >/dev/null
+            export __CDX_WRITEBACK="cd \"$target\"; zip -r \"$file\" ."
+            ;;
+        application/*gzip)
+            tar xf "$file" -C "$target" >/dev/null
+            export __CDX_WRITEBACK="tar czf \"$file\" \"$target\""
+            ;;
+        *)
+            printf "\033[0;31mUnknown archive type:\033[0m $mime_type\n"
+            exit 2
+            ;;
+    esac
+}
+
+
+##
+# Launches a new shell in a directory.
+#
+# $1: The source file.
+# $2: The target directory.
+enter() {
+    source="$1"
+    target="$2"
+
+    printf "\033[1mEntering \033[0;32m$source\033[0m\033[1m...\033[0m\n"
+    cd "$target"
+    if [ -n "$TMUX" ]; then
+        tmux split-window -d -h -c "$target" "sh -c 'tree | less'"
+    fi
+    export __CDX_SOURCE="$source"
+    export __CDX_TARGET="$target"
+    $SHELL
+}
+
+
+# Make sure a file is passed
+if [ -z "$FILE" ]; then
+    echo "Usage: $(basename "$0") FILE"
+    exit 1
+elif [ ! -f "$FILE" ]; then
+    echo "$FILE is not a file."
+    exit 1
+fi
+
+
+# Decompress the file to a temporary directory
+target="$(mktemp --directory)"
+decompress "$FILE" "$target"
+trap "printf \"\033[1mRemoving \033[0;31m$target\033[0m\033[1m...\033[0m\n\" \
+    && rm -rf $target" EXIT
+
+
+# Open a new shell
+enter "$FILE" "$target"

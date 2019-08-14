@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# Writes back any changed files to the archive opened through cdx.
+
+if [ -z "$__CDX_SOURCE" ]; then
+    echo "This command can only be used from a shell spawned by cdx."
+    exit
+elif [ -z "$__CDX_WRITEBACK" ]; then
+    echo "$__CDX_SOURCE cannot be written back to."
+    exit 1
+else
+    mv "$__CDX_SOURCE" "$__CDX_SOURCE.$(date --iso-8601=seconds)"
+    sh -c "$__CDX_WRITEBACK"
+fi
