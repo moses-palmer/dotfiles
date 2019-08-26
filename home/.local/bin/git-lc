@@ -1,0 +1,5 @@
+#!/bin/sh
+
+. ~/.config/git/helpers
+
+git log -p --color-words="$WORD_SPLIT" $@
