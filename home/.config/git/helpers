@@ -1,0 +1,3 @@
+##
+# The regular expression separating words.
+WORD_SPLIT='[^][<>()\{},.;:?/|\\=+*&^%$#@!~`"'\''[:space:]]+|[][<>(){},.;:?/|\\=+*&^%$#@!~`"'\'']'
