@@ -18,8 +18,11 @@ BIN_CARGO = 'cargo'
 
 @feature('The Rust programming language', {curl})
 def rust(env: Feature):
-    with curl.get(env, 'https://sh.rustup.rs') as script:
-        env.run('sh', script, '-y')
+    if env.configuration['env']['distribution'] == 'termux':
+        system.install_package(env, 'rust')
+    else:
+        with curl.get(env, 'https://sh.rustup.rs') as script:
+            env.run('sh', script, '-y')
 
 
 @rust.checker
@@ -96,10 +99,18 @@ def run(env: Feature, binary: str, *args: str, **kwargs: str):
 
 
 def _qualify(binary: str):
-    """Generates the absolute path to a rust binary.
+    """Generates a qualified path to a rust binary.
+
+    If the local cargo directory exists, and contains a corrresponding
+    executable, the absolute path of the file is returned, otherwise
+    ``binary```is returned.
 
     :param binary: The name of the binary.
 
-    :return: an absolute path
+    :return: a path
     """
-    return os.path.join(os.path.expanduser('~/.cargo/bin'), binary)
+    path = os.path.join(os.path.expanduser('~/.cargo/bin'), binary)
+    if os.access(path, os.X_OK):
+        return path
+    else:
+        return binary
