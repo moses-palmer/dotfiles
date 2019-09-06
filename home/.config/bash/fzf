@@ -1,1 +1,18 @@
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
+
+bind '"\C-r": "\C-x1\eI"'
+bind -x '"\C-x1": __fzf_history';
+
+fzf() {
+    "$HOME/.vim/bundle/fzf/bin/fzf" $@
+}
+
+__fzf_history() {
+    item="$(history \
+        | fzf --tac --tiebreak=index \
+        | sed 's/^\s*\([0-9]*\).*/\1/g')"
+    if [ -n "$item" ]; then
+        READLINE_LINE="$(history -p "!$item")"
+        READLINE_POINT=$(( READLINE_POINT + ${#1} ))
+    fi
+}
