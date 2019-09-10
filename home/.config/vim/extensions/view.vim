@@ -1,6 +1,6 @@
 " Highlight the current row and allow toggling of column highlight
 set cursorline
-nnoremap <Leader>c :set cursorcolumn!<CR>
+nnoremap <Leader>C :set cursorcolumn!<CR>
 
 
 " Move between splits using shift+alt+arrow
