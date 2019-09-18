@@ -1,0 +1,9 @@
+# Append to the history file, don't overwrite it
+shopt -s histappend
+
+# Do not put duplicate lines in the history
+HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+
+# Keep 10000 entries in the history
+HISTSIZE=10000
+HISTFILESIZE=$HISTSIZE
