@@ -30,4 +30,4 @@ tmux refresh-client -S
 
 
 # Connect to host
-ssh -t "$HOST" $@
+ssh -t "$HOST" tmux attach
