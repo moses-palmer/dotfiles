@@ -4,6 +4,9 @@ shopt -s histappend
 # Do not put duplicate lines in the history
 HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
 
+# Include time stamp in history
+HISTTIMEFORMAT="%h %d %H:%M:%S "
+
 # Keep 10000 entries in the history
 HISTSIZE=10000
 HISTFILESIZE=$HISTSIZE
