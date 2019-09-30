@@ -7,19 +7,19 @@ Plugin 'prabirshrestha/vim-lsp'
 let g:lsp_signs_enabled = 1
 let g:lsp_diagnostics_echo_cursor = 1
 
-nmap gd :LspDefinition<CR>
-nmap <leader>gd :LspHover<CR>
-nmap gr :LspReferences<CR>
-nmap rr :LspRename<CR>
-nmap ff :LspWorkspaceSymbol<CR>
+nmap gd <plug>(lsp-definition)
+nmap <leader>gd <plug>(lsp-hover)
+nmap gr <plug>(lsp-references)
+nmap rr <plug>(lsp-rename)
+nmap ff <plug>(lsp-workspace-symbol)
 
 nmap <F3> :call ToggleQuickfixWindow()<CR>
 imap <F3> <C-o>:call ToggleQuickfixWindow()<CR>
 
-nmap <M-Up> :cprev<CR>
-imap <M-Up> <C-o>:cprev<CR>
-nmap <M-Down> :cnext<CR>
-imap <M-Down> <C-o>:cnext<CR>
+nmap <M-Up> <plug>(lsp-previous-error)
+nmap <M-Up> <C-o><plug>(lsp-previous-error)
+nmap <M-Down> <plug>(lsp-next-error)
+imap <M-Down> <C-o><plug>(lsp-next-error)
 
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 
