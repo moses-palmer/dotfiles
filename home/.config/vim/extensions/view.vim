@@ -28,6 +28,10 @@ set colorcolumn=80
 set textwidth=79
 
 
+" Let the preview window open at the bottom
+set splitbelow
+
+
 " Ensure the background is correctly handled in tmux
 set t_ut=
 
