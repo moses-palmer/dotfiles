@@ -32,6 +32,14 @@ decompress() {
             tar xf "$file" -C "$target" >/dev/null
             export __CDX_WRITEBACK="tar czf \"$file\" \"$target\""
             ;;
+        application/*rpm)
+            rpm2cpio "$file" | ( \
+                cd "$target"; \
+                cpio \
+                --extract \
+                --make-directories \
+                --preserve-modification-time )
+            ;;
         *)
             printf "\033[0;31mUnknown archive type:\033[0m $mime_type\n"
             exit 2
