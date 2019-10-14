@@ -28,7 +28,7 @@ decompress() {
             unzip "$file" -d "$target" >/dev/null
             export __CDX_WRITEBACK="cd \"$target\"; zip -r \"$file\" ."
             ;;
-        application/*gzip)
+        application/*gzip|application/*xz)
             tar xf "$file" -C "$target" >/dev/null
             export __CDX_WRITEBACK="tar czf \"$file\" \"$target\""
             ;;
