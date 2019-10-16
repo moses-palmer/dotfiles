@@ -1,3 +1,5 @@
+command! Gblame call RunShellCommand(
+    \ 'git blame '.expand('%'), b:current_syntax)
 command! Gdiff call RunShellCommand(
     \ 'git diff '.expand('%'), 'diff')
 command! -nargs=+ Gshow call RunShellCommand(
