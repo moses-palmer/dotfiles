@@ -10,6 +10,7 @@
     dc = !git-dc
     default-branch = !git-default-branch
     logg = log --graph --decorate
+    lg = log --graph --decorate --oneline
     ls = ls-tree --name-only HEAD
     reshape = !git-reshape
     review = !git-review
