@@ -1,5 +1,5 @@
 # If not running interactively, only update the path
-if [ -z "$PS1" ]; then
+if ! [[ $- == *i* ]]; then
     . ~/.config/bash/path
     return
 fi
