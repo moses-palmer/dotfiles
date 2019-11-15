@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # We must source this explicitly, since ~/.bashrc bails in command mode
+set -o vi
 source ~/.config/bash/rc
 
 ##
