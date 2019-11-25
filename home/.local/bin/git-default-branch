@@ -5,12 +5,7 @@
 
 set -e
 
-# Get the name of the first remote
-remote="$(git remote show)"
-if [ -z "$remote" ]; then
-    echo "No remote found." >&2
-    exit 1
-fi
+remote="$(git default-remote)"
 
 # Get the name of the default branch
 git symbolic-ref "refs/remotes/$remote/HEAD" | sed "s@^refs/remotes/$remote/@@"
