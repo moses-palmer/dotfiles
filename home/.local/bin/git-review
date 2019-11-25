@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# Reviews a branch from the default remote.
+
 
 # The start commit is the merge base for the default branch and the feature
 # branch
