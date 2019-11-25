@@ -9,6 +9,7 @@
     cp = cherry-pick
     dc = !git-dc
     default-branch = !git-default-branch
+    default-remote = !git-default-remote
     logg = log --graph --decorate
     lg = log --graph --decorate --oneline
     ls = ls-tree --name-only HEAD
