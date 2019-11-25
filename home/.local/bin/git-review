@@ -8,4 +8,4 @@ set -e
 # branch
 START="$(git merge-base "$(git default-branch)" "$1")"
 
-git dc -w "$START".."$1"
+git dc --ignore-all-space "$START".."$1"
