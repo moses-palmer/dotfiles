@@ -11,7 +11,7 @@ remote="$(git default-remote)"
 
 ##
 # The branch to merge.
-branch="$1"
+branch="$remote/$1"
 
 ##
 # The target branch.
