@@ -1,4 +1,5 @@
 #!/bin/sh
+#
 # Prints the name of the default branch for the first remote for the current
 # repository.
 

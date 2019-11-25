@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# Displays git diff using word-splitting.
+
 
 . ~/.config/git/helpers
 
