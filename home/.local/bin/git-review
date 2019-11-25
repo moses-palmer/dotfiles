@@ -22,4 +22,4 @@ target="${2-$(git default-branch)}"
 # branch
 start_commit="$(git merge-base "$target" "$branch")"
 
-git dc --ignore-all-space "$start_commit".."$branch"
+git lc --ignore-all-space --reverse "$start_commit".."$branch"
