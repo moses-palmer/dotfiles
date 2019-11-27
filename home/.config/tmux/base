@@ -27,6 +27,9 @@ bind-key -n C-Right select-pane -R
 bind-key -n C-Up select-pane -U
 bind-key -n C-Down select-pane -D
 
+# Ctrl+PgUp to enter copy mode and scroll up
+bind-key -n C-PPage copy-mode -u
+
 
 # Enable copy pasting
 bind-key C-p paste-buffer
