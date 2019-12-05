@@ -18,6 +18,10 @@ VAR="@__edit"
 WIDTH="120"
 
 ##
+# A project local bash history file.
+PROJECT_BASH_HISTFILE="$HOME/.cache/bash/history/$PROJECT"
+
+##
 # A project local .vimrc file.
 LOCAL_VIM_CONFIG="$(pwd)/.vimrc"
 
@@ -38,6 +42,21 @@ if [ -z "$(tmux show-window-option -v "$VAR" 2>/dev/null)" ]; then
 
     # Mark this window as an editor window
     tmux set-window-option "$VAR" "yes"
+
+    # Copy the global history if no project history exists
+    if [ ! -f "$PROJECT_BASH_HISTFILE" ]; then
+        [ -f ~/.bash_history ] && cp ~/.bash_history "$PROJECT_BASH_HISTFILE"
+    fi
+
+    # Launch the replacement shell and kill the old pane
+    true \
+        && tmux split-window \
+            -t 1 \
+            -d -v \
+            -c "$(pwd)" \
+            env HISTFILE="$PROJECT_BASH_HISTFILE" bash -l \
+        && tmux kill-pane \
+            -t 1
 
     # Finally run vim
     if [ -f "$LOCAL_VIM_CONFIG" ]; then
