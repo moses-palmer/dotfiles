@@ -4,6 +4,11 @@
 set -o vi
 source ~/.config/bash/rc
 
+
+##
+# The name of the current project.
+PROJECT="$(basename "$(pwd)")"
+
 ##
 # The name of the window option.
 VAR="@__edit"
@@ -21,14 +26,15 @@ LOCAL_VIM_CONFIG="$(pwd)/.vimrc"
 # restore the editor pane size
 if [ -z "$(tmux show-window-option -v "$VAR" 2>/dev/null)" ]; then
     # Name this window after this project
-    tmux rename-window "Project $(basename "$(pwd)")"
+    tmux rename-window "Project $PROJECT"
 
     # Rotate the panes with the expectation that this will make the current
-    # pane into the left-most one
+    # pane into the left-most one, and then apply a fixed layout
     tmux rotate-window
-
-    # Adjust the size of the current pane
-    tmux resize-pane -x "$WIDTH"
+    tmux set-window-option \
+        main-pane-width "$WIDTH"
+    tmux select-layout \
+        main-vertical
 
     # Mark this window as an editor window
     tmux set-window-option "$VAR" "yes"
@@ -41,7 +47,11 @@ if [ -z "$(tmux show-window-option -v "$VAR" 2>/dev/null)" ]; then
     fi
 
     # Unmark this window as an editor window
-    tmux set-window-option "$VAR" ""
+    tmux set-window-option \
+        "$VAR" ""
 else
-    tmux resize-pane -x "$WIDTH" -t0
+    tmux set-window-option \
+        main-pane-width "$WIDTH"
+    tmux select-layout \
+        main-vertical
 fi
