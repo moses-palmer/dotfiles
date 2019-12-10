@@ -57,13 +57,13 @@ enter() {
     source="$1"
     target="$2"
 
-    printf "\033[1mEntering \033[0;32m$source\033[0m\033[1m...\033[0m\n"
     cd "$target"
     if [ -n "$TMUX" ]; then
         tmux split-window -d -h -c "$target" "sh -c 'tree | less'"
     fi
     export __CDX_SOURCE="$source"
     export __CDX_TARGET="$target"
+    export PS1_PREFIX="\033[4;90m$__CDX_SOURCE\033[0m\n"
     $SHELL
 }
 
