@@ -12,3 +12,6 @@ fi
 
 
 . ~/.config/bash/rc
+
+# Allow overriding the prompt
+export PS1="$PS1_PREFIX$PS1$PS1_SUFFIX"
