@@ -10,7 +10,7 @@ SOURCE_REPO = 'https://github.com/VundleVim/Vundle.vim'
 TARGET_DIRECTORY = os.path.expanduser('~/.vim/bundle/Vundle.vim')
 
 
-@feature('vim plugin installer', {'git', 'vim'})
+@feature('Vim plugin installer', {'git', 'vim'})
 def vim_vundle(env: Feature):
     git.clone(env, SOURCE_REPO, TARGET_DIRECTORY)
 

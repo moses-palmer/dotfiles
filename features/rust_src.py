@@ -1,4 +1,4 @@
 from . import rust
 
 
-rust.component('rust-src', 'rust source code')
+rust.component('rust-src', 'Rust source code')

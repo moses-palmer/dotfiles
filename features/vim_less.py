@@ -7,7 +7,7 @@ BIN = '__vim-less'
 TARGET = os.path.join(os.path.expanduser('~/'), '.local', 'bin', BIN)
 
 
-@feature('vim less.sh', {'vim'})
+@feature('Vim pager', {'vim'})
 def vim_less(env: Feature):
     source = os.path.join(vim.runtime(env), 'macros', 'less.sh')
     os.symlink(source, TARGET)

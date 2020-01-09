@@ -9,7 +9,7 @@ from . import Feature, feature
 USER = pwd.getpwuid(os.getuid()).pw_name
 
 
-@feature('lingering user sessions')
+@feature('Lingering user sessions')
 def systemd_linger(env: Feature):
     env.run('sudo', 'loginctl', 'enable-linger', USER)
 

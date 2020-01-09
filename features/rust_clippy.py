@@ -1,4 +1,4 @@
 from . import rust
 
 
-rust.component('clippy', 'rust clippy')
+rust.component('clippy', 'Rust clippy')

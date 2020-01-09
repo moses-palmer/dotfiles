@@ -33,7 +33,7 @@ done
 '''
 
 
-@feature('termux')
+@feature('Termux')
 def termux(env: Feature):
     # This directory is expected by tmux
     os.makedirs(RUNTIME_DIR, exist_ok=True)
