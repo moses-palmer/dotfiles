@@ -1,0 +1,24 @@
+# Use fzf for command history search
+__search_history() {
+    item="$(history \
+        | fzf --tac --tiebreak=index \
+        | sed 's/^\s*\([0-9]*\).*/\1/g')"
+    if [ -n "$item" ]; then
+        READLINE_LINE="$(history -p "!$item")"
+        READLINE_POINT=$(( READLINE_POINT + ${#1} ))
+    fi
+}
+bind '"\C-r": "\C-x1\eI"'
+bind -x '"\C-x1": __search_history';
+
+
+# Find files using Ctrl-P
+__search_files() {
+    item="$(fzf)"
+    if [ -n "$item" ]; then
+        READLINE_LINE="$READLINE_LINE $item"
+        READLINE_POINT=$(( READLINE_POINT + ${#1} ))
+    fi
+}
+bind '"\C-p": "\C-x2\eI"'
+bind -x '"\C-x2": __search_files';
