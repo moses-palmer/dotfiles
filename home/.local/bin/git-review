@@ -18,8 +18,4 @@ branch="$remote/$1"
 target="${2-$(git default-branch)}"
 
 
-# The start commit is the merge base for the default branch and the feature
-# branch
-start_commit="$(git merge-base "$target" "$branch")"
-
-git lc --ignore-all-space --reverse "$start_commit".."$branch"
+git lc --ignore-all-space --reverse "$remote/$target".."$branch"
