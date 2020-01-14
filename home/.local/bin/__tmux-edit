@@ -65,6 +65,13 @@ if [ -z "$(tmux show-window-option -v "$VAR" 2>/dev/null)" ]; then
         vim
     fi
 
+    # Pause if there was an error
+    ret="$?"
+    if [ "$ret" != "0" ]; then
+        echo "vim returned $ret..."
+        read
+    fi
+
     # Unmark this window as an editor window
     tmux set-window-option \
         "$VAR" ""
