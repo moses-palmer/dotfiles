@@ -22,7 +22,8 @@ let g:NERDTreeIndicatorMapCustom = {
     \ }
 
 autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in")
+    \ | NERDTree | execute 'wincmd l'| endif
 
 map <C-h> :NERDTreeFind<cr>
 imap <C-h> <C-o>:NERDTreeFind<cr>
