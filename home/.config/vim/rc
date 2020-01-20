@@ -7,6 +7,12 @@ set tabstop=4
 set updatetime=250
 
 
+" Enable syntax highlighting; this may not be set in the global resource file
+if has("syntax")
+  syntax on
+endif
+
+
 " Include library functions
 exe 'source' '~/.config/vim/lib.vim'
 
