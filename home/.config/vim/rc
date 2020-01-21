@@ -13,6 +13,10 @@ if has("syntax")
 endif
 
 
+" Enable backspace
+set backspace=indent,eol,start
+
+
 " Include library functions
 exe 'source' '~/.config/vim/lib.vim'
 
