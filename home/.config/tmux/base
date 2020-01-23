@@ -33,3 +33,6 @@ bind-key C-p paste-buffer
 
 # Use vi bindings
 set-option -g mode-keys vi
+
+# Increase the history limit
+set-option -g history-limit 10000
