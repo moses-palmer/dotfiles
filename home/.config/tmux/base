@@ -4,7 +4,6 @@ bind-key C-e split-window \
     -c "#{pane_current_path}" \
     bash -l ~/.local/bin/__tmux-edit
 
-
 # Enable colours
 set-option -g default-terminal xterm-256color
 
@@ -20,7 +19,6 @@ bind-key -n M-l run-shell "~/.local/bin/__tmux-toggle-pane -h"
 # Yell to all panes
 bind-key -n C-y setw synchronize-panes
 
-
 # Alt+arrow for pane-switching
 bind-key -n C-Left select-pane -L
 bind-key -n C-Right select-pane -R
@@ -30,10 +28,8 @@ bind-key -n C-Down select-pane -D
 # Ctrl+PgUp to enter copy mode and scroll up
 bind-key -n C-PPage copy-mode -u
 
-
 # Enable copy pasting
 bind-key C-p paste-buffer
-
 
 # Use vi bindings
 set-option -g mode-keys vi
