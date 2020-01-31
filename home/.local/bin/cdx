@@ -58,7 +58,7 @@ enter() {
     target="$2"
 
     cd "$target"
-    if [ -n "$TMUX" ]; then
+    if [ -n "$TMUX" ] && [ -z "$CDX_NO_TMUX"]; then
         tmux split-window -d -h -c "$target" "sh -c 'tree | less'"
     fi
     export __CDX_SOURCE="$source"
