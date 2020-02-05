@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# Displays git show with a diff using word-splitting.
+
+set -e
+
+
+. ~/.config/git/helpers
+
+git show --word-diff-regex="$WORD_SPLIT" $@
