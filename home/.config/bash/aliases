@@ -3,7 +3,7 @@ alias ll='ls -l'
 alias ipython='python3 -m IPython'
 
 
-careless() {
+carp() {
     cargo $@ --color=always 2>&1 | less -R
 }
 
