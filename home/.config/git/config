@@ -15,6 +15,7 @@
     ls = ls-tree --name-only HEAD
     reshape = !git-reshape
     review = !git-review
+    sc = !git-sc
     st = status
     subpull = submodule foreach --recursive git pull --all
 [color]
