@@ -1,14 +1,7 @@
-if [ -x /usr/bin/dircolors ]; then
-    alias ls='ls --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
-
+alias diff='colordiff'
 alias ll='ls -l'
-
 alias ipython='python3 -m IPython'
+
 
 careless() {
     cargo $@ --color=always 2>&1 | less -R
@@ -18,5 +11,3 @@ cd() {
   builtin cd "$@" && return
   [ "$OLDPWD" = "$PWD" ] || cdx "$@"
 }
-
-alias diff='colordiff'
