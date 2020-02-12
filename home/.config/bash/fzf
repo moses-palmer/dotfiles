@@ -1,5 +1,5 @@
 export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
 
 fzf() {
-    "$HOME/.vim/bundle/fzf/bin/fzf" $@
+    "$HOME/.vim/plugged/fzf/bin/fzf" $@
 }

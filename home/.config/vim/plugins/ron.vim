@@ -1,1 +1,1 @@
-Plugin 'ron-rs/ron.vim'
+Plug 'ron-rs/ron.vim'

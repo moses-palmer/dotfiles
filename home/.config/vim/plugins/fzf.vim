@@ -1,6 +1,6 @@
 " Fuzzy file finder
-Plugin 'junegunn/fzf'
-Plugin 'junegunn/fzf.vim'
+Plug 'junegunn/fzf', { 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 " Runs fzf in the 'file window'.
 function! FZFForFileWindow()

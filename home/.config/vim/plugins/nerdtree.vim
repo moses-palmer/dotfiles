@@ -1,6 +1,6 @@
 " File tree with git status
-Plugin 'scrooloose/nerdtree'
-Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
 
 let NERDTreeIgnore = [
     \ '\.egg-info$',

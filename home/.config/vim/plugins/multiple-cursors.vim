@@ -1,2 +1,2 @@
 " Multiple cursors
-Plugin 'terryma/vim-multiple-cursors'
+Plug 'terryma/vim-multiple-cursors'
