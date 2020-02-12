@@ -1,29 +1,40 @@
 " Enable the language server
-Plugin 'prabirshrestha/asyncomplete.vim'
-Plugin 'prabirshrestha/asyncomplete-lsp.vim'
-Plugin 'prabirshrestha/async.vim'
-Plugin 'prabirshrestha/vim-lsp'
+Plugin 'natebosch/vim-lsc'
 
-let g:lsp_signs_enabled = 1
-let g:lsp_diagnostics_echo_cursor = 1
+let g:lsc_auto_map = {
+    \ 'GoToDefinition': 'gd',
+    \ 'GoToDefinitionSplit': ['<C-W>]', '<C-W><C-]>'],
+    \ 'FindReferences': 'gr',
+    \ 'NextReference': '<C-n>',
+    \ 'PreviousReference': '<C-p>',
+    \ 'FindImplementations': 'gI',
+    \ 'FindCodeActions': 'ga',
+    \ 'Rename': 'rr',
+    \ 'ShowHover': v:true,
+    \ 'DocumentSymbol': 'go',
+    \ 'WorkspaceSymbol': 'gS',
+    \ 'SignatureHelp': 'gm',
+    \ 'Completion': 'completefunc',
+    \}
 
-nmap gd <plug>(lsp-definition)
-nmap <leader>gd <plug>(lsp-hover)
-nmap gr <plug>(lsp-references)
-nmap rr <plug>(lsp-rename)
-nmap ff <plug>(lsp-workspace-symbol)
 
+" Register language servers
+let g:lsc_server_commands = {}
+if executable('pyls')
+    let g:lsc_server_commands.python = 'pyls'
+endif
+if executable('rls')
+    let g:lsc_server_commands.rust = 'rustup run stable rls'
+endif
+
+
+" Handle the quick fix window
+nmap <M-Up> :cprev<CR>
+imap <M-Up> <C-o>:cprev<CR>
+nmap <M-Down> :cnext<CR>
+imap <M-Down> <C-o>:cnext<CR>
 nmap <F3> :call ToggleQuickfixWindow()<CR>
 imap <F3> <C-o>:call ToggleQuickfixWindow()<CR>
-
-nmap <M-Up> <plug>(lsp-previous-error)
-nmap <M-Up> <C-o><plug>(lsp-previous-error)
-nmap <M-Down> <plug>(lsp-next-error)
-imap <M-Down> <C-o><plug>(lsp-next-error)
-
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-
-" Toggle the quick fix window.
 function! ToggleQuickfixWindow()
     for window in getwininfo()
         if window.quickfix == 1
@@ -37,23 +48,5 @@ function! ToggleQuickfixWindow()
         endif
     endfor
 
-    LspDocumentDiagnostics
+    LSClientAllDiagnostics
 endfunction
-
-" Enable language server for Python
-if executable('pyls')
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'pyls',
-        \ 'cmd': {server_info->['pyls']},
-        \ 'whitelist': ['python'],
-        \ })
-endif
-
-" Enable language server for Rust
-if executable('rls')
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'rls',
-        \ 'cmd': {server_info->['rustup', 'run', 'stable', 'rls']},
-        \ 'whitelist': ['rust'],
-        \ })
-endif
