@@ -1,5 +1,5 @@
 " Display buffers in the tab line
-Plugin 'ap/vim-buftabline'
+Plug 'ap/vim-buftabline'
 
 " Selects the next buffer in the 'file window'.
 function! NextBuffer()

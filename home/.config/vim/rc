@@ -21,7 +21,7 @@ set backspace=indent,eol,start
 exe 'source' '~/.config/vim/lib.vim'
 
 
-" Load vundle and all plugins
+" Load all plugins
 if filereadable(expand('~/.config/vim/plugins.vim'))
     exe 'source' '~/.config/vim/plugins.vim'
 endif

@@ -1,5 +1,5 @@
 " Enable the language server
-Plugin 'natebosch/vim-lsc'
+Plug 'natebosch/vim-lsc'
 
 let g:lsc_auto_map = {
     \ 'GoToDefinition': 'gd',

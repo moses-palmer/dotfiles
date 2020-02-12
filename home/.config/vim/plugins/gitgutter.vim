@@ -1,2 +1,2 @@
 " Display git status per line
-Plugin 'airblade/vim-gitgutter'
+Plug 'airblade/vim-gitgutter'

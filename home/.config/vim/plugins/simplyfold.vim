@@ -1,5 +1,5 @@
 " Handle folding better
-Plugin 'tmhedberg/SimpylFold'
+Plug 'tmhedberg/SimpylFold'
 let g:SimpylFold_docstring_preview=1
 
 " Enable folding, and activate with space

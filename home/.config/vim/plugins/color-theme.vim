@@ -1,6 +1,6 @@
 " The colour theme
 if (has('termguicolors'))
-    Plugin 'nightsense/seagrey'
+    Plug 'nightsense/seagrey'
 else
-    Plugin 'noahfrederick/vim-noctu'
+    Plug 'noahfrederick/vim-noctu'
 endif
