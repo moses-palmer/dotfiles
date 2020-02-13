@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Checks out a PR from github.
+
+set -e
+
+
+##
+# The pull request ID.
+pr="$1"
+
+##
+# The local branch.
+branch="${2-pr-$pr}"
+
+
+git fetch origin "refs/pull/$pr/head"
+git checkout -b "$branch" FETCH_HEAD
