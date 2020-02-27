@@ -1,0 +1,42 @@
+#!/bin/sh
+
+set -e
+
+##
+# The root directory for projects.
+ROOT="$HOME/src"
+
+##
+# The base name of this script.
+#
+# A project with this name must be explicitly launched.
+BASE="$(basename "$(readlink --canonicalize "$0")")"
+
+##
+# The name of the project to edit.
+PROJECT="${1-$(basename "$0")}"
+
+##
+# The project directory.
+DIR="$ROOT/$PROJECT"
+
+
+# The name is valid unless we derived it from the script file, and the script
+# file is the base launcher
+if [ -z "$1" ] && [ "$PROJECT" = "$BASE" ]; then
+    echo "Usage: $(basename "$0") PROJECT" >&2
+    exit
+elif ! [ -d "$DIR" ]; then
+    echo "Project directory $DIR does not exist." >&2
+    exit 1
+fi
+
+
+# Launch the editor in another pane
+tmux split-window \
+    -h \
+    -c "$DIR" \
+    bash -l ~/.local/bin/__tmux-edit
+
+# Run the shell in this pane
+$SHELL
