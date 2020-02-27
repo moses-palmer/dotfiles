@@ -5,7 +5,7 @@ Documentation=man:tmux(1)
 [Service]
 Type=forking
 ExecReload=/usr/bin/env __tmux-reload
-ExecStart=/usr/bin/tmux new-session -d -s default
+ExecStart=/usr/bin/tmux
 ExecStop=/usr/bin/tmux kill-server
 Restart=always
 RestartSec=2
