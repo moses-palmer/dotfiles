@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Displays the environment variables for a process.
+
+##
+# The PID of the process whose environment to read.
+PID="$1"
+
+##
+# The file containing the environment variables.
+ENVIRON_FILE="/proc/$PID/environ"
+
+
+if ! [ -f "$ENVIRON_FILE" ]; then
+    echo "Cannot read environment of $PID." >&2
+    exit 1
+fi
+
+tr '\0' '\n' < "$ENVIRON_FILE" | sort
