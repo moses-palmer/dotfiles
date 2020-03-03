@@ -3,6 +3,10 @@ set cursorline
 nnoremap <Leader>C :set cursorcolumn!<CR>
 
 
+" Display cursor position
+set ruler
+
+
 " Move between splits using shift+alt+arrow
 map <S-C-Left> :wincmd h<CR>
 map! <S-C-Left> <C-o>:wincmd h<CR>
