@@ -1,5 +1,5 @@
 " Fuzzy file finder
-Plug 'junegunn/fzf', { 'do': './install --all' }
+Plug 'junegunn/fzf', { 'do': './install --all --no-update-rc' }
 Plug 'junegunn/fzf.vim'
 
 " Runs fzf in the 'file window'.
