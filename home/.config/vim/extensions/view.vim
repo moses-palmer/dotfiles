@@ -7,6 +7,11 @@ nnoremap <Leader>C :set cursorcolumn!<CR>
 set ruler
 
 
+" Scroll instead of wrap
+set nowrap
+set sidescroll=4
+
+
 " Move between splits using shift+alt+arrow
 map <S-C-Left> :wincmd h<CR>
 map! <S-C-Left> <C-o>:wincmd h<CR>
