@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ -z "$VIMRUNTIME" ]; then
+    vim \
+        -R \
+        -S ~/.local/lib/vim/man.vim \
+        -c ":Man $@"
+else
+    /usr/bin/man "$@"
+fi
