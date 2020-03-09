@@ -5,7 +5,7 @@
 set -e
 
 # Get the name of the first remote
-remote="$(git remote show)"
+remote="$(git remote show | head -n1)"
 if [ -z "$remote" ]; then
     echo "No remote found." >&2
     exit 1
