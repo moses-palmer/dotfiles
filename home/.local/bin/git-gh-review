@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Reviews a PR from github.
+
+set -e
+
+# Assert that the index is clean
+if ! git diff-index --quiet HEAD --; then
+    echo "Your repository contains local changes."
+    exit
+fi
+
+##
+# The current commit or branch.
+original="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)"
+
+
+# Check out the head of the PR
+git fetch origin "refs/pull/$1/head"
+git checkout --quiet FETCH_HEAD
+
+export REVIEW_SOURCE="$(git rev-parse HEAD)"
+export REVIEW_TARGET="$original"
+
+# Show an ordered commit log with diffs
+echo -e "Reviewing \033[1mPR#$1\033[0m" \
+    "for merging into \033[1m$original\033[0m."
+vim -S ~/.local/lib/vim/review.vim
+
+# Restore the previous checkout
+git checkout --quiet "$original"

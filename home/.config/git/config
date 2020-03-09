@@ -10,7 +10,8 @@
     dc = !git-dc
     default-branch = !git-default-branch
     default-remote = !git-default-remote
-    ghpr = !git-ghpr
+    gh-pr = !git-gh-pr
+    gh-review = !git-gh-review
     logg = log --graph --decorate
     lg = log --graph --decorate --oneline
     ls = ls-tree --name-only HEAD
