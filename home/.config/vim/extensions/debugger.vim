@@ -3,12 +3,23 @@ packadd termdebug
 " Use a vertical split
 let g:termdebug_wide = 1
 
+" Set and clear breakpoints
+noremap <leader>b :Break<CR>
+noremap <leader>c :Clear<CR>
+
+" Control execution
+noremap <F5> :call <SID>start_debugger()<CR>
+noremap <C-F5> :call <SID>launch_application()<CR>
+noremap <F6> :Continue<CR>
+noremap <F7> :Step<CR>
+noremap <F8> :Over<CR>
+
 
 " Launches a debugger.
 "
 " If the global variable g:debug_binary exists, it is used as binary name,
 " otherwise a name is requested.
-function! StartDebugger()
+function! s:start_debugger()
     if exists('g:debug_binary')
         let l:name = g:debug_binary
     else
@@ -24,7 +35,7 @@ endfunction
 "
 " If the global variable d:launch_command exists, it is used, otherwise a
 " command is requested.
-function! LaunchApplication()
+function! s:launch_application()
     if exists('g:launch_command')
         let l:command = g:launch_command
     else
@@ -34,15 +45,3 @@ function! LaunchApplication()
     endif
     execute '! ' . l:command
 endfunction
-
-
-" Set and clear breakpoints
-noremap <leader>b :Break<CR>
-noremap <leader>c :Clear<CR>
-
-" Control execution
-noremap <F5> :call StartDebugger()<CR>
-noremap <C-F5> :call LaunchApplication()<CR>
-noremap <F6> :Continue<CR>
-noremap <F7> :Step<CR>
-noremap <F8> :Over<CR>

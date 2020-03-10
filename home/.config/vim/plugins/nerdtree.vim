@@ -29,17 +29,17 @@ map <C-h> :NERDTreeFind<cr>
 imap <C-h> <C-o>:NERDTreeFind<cr>
 map <C-t> :NERDTreeToggle<CR>
 
-function! s:CloseIfOnlyControlWinLeft()
-  if winnr("$") != 1
-    return
-  endif
-  if (exists("t:NERDTreeBufName") && bufwinnr(t:NERDTreeBufName) != -1)
-        \ || &buftype == 'quickfix'
-    q
-  endif
+function! s:close_if_only_control_win_left()
+    if winnr('$') != 1
+        return
+    endif
+    if (exists('t:NERDTreeBufName') && bufwinnr(t:NERDTreeBufName) != -1)
+            \ || &buftype == 'quickfix'
+        q
+    endif
 endfunction
 
-augroup CloseIfOnlyControlWinLeft
+augroup close_if_only_control_win_left
   au!
-  au BufEnter * call s:CloseIfOnlyControlWinLeft()
+  au BufEnter * call s:close_if_only_control_win_left()
 augroup END
