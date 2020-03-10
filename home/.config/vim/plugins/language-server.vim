@@ -3,10 +3,8 @@ Plug 'natebosch/vim-lsc'
 
 let g:lsc_auto_map = {
     \ 'GoToDefinition': 'gd',
-    \ 'GoToDefinitionSplit': ['<C-W>]', '<C-W><C-]>'],
+    \ 'GoToDefinitionSplit': '<leader>gd',
     \ 'FindReferences': 'gr',
-    \ 'NextReference': '<C-n>',
-    \ 'PreviousReference': '<C-p>',
     \ 'FindImplementations': 'gI',
     \ 'FindCodeActions': 'ga',
     \ 'Rename': 'rr',
@@ -17,6 +15,12 @@ let g:lsc_auto_map = {
     \ 'Completion': 'completefunc',
     \}
 
+nmap <M-Up> :cprev<CR>
+imap <M-Up> <C-o>:cprev<CR>
+nmap <M-Down> :cnext<CR>
+imap <M-Down> <C-o>:cnext<CR>
+nmap <F3> :call <SID>toggle_quickfix_window()<CR>
+imap <F3> <C-o>:call <SID>toggle_quickfix_window()<CR>
 
 " Register language servers
 let g:lsc_server_commands = {}
@@ -28,14 +32,7 @@ if executable('rls')
 endif
 
 
-" Handle the quick fix window
-nmap <M-Up> :cprev<CR>
-imap <M-Up> <C-o>:cprev<CR>
-nmap <M-Down> :cnext<CR>
-imap <M-Down> <C-o>:cnext<CR>
-nmap <F3> :call ToggleQuickfixWindow()<CR>
-imap <F3> <C-o>:call ToggleQuickfixWindow()<CR>
-function! ToggleQuickfixWindow()
+function! s:toggle_quickfix_window()
     for window in getwininfo()
         if window.quickfix == 1
             " Close the quick fix window
