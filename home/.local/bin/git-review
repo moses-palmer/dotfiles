@@ -1,21 +1,49 @@
 #!/bin/sh
 #
-# Reviews a branch from the default remote.
+# Reviews a branch from a remote.
+#
+# This script will keep the remote branch checked out while displaying the
+# changes, and then revert to the currently checked out branch or commit.
 
 set -e
 
+# Assert that the index is clean
+if ! git diff-index --quiet HEAD --; then
+    echo "Your repository contains local changes."
+    exit
+fi
+
+case "$#" in
+    1)
+        remote="$(git default-remote)"
+        export REVIEW_SOURCE="$remote/$1"
+        export REVIEW_TARGET="$(git default-branch)"
+        ;;
+
+    2)
+        export REVIEW_SOURCE="$1"
+        export REVIEW_TARGET="$2"
+        ;;
+
+    *)
+        echo "Usage: $(basename "$0") SOURCE_BRANCH"
+        echo "       $(basename "$0") SOURCE_COMMIT TARGET_COMMIT."
+        exit
+        ;;
+esac
 
 ##
-# The remote from which to merge.
-remote="$(git default-remote)"
-
-##
-# The branch to merge.
-branch="$remote/$1"
-
-##
-# The target branch.
-target="${2-$(git default-branch)}"
+# The current commit or branch.
+original="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)"
 
 
-git lc --ignore-all-space --reverse "$remote/$target".."$branch"
+# Check out the branch to review
+git checkout --quiet "$REVIEW_SOURCE"
+
+# Show an ordered commit log with diffs
+echo -e "Reviewing \033[1m$REVIEW_SOURCE\033[0m" \
+    "for merging into \033[1m$REVIEW_TARGET\033[0m."
+vim -S ~/.local/lib/vim/review.vim
+
+# Restore the previous checkout
+git checkout --quiet "$original"

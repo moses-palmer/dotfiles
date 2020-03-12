@@ -21,9 +21,11 @@ let g:NERDTreeIndicatorMapCustom = {
     \ "Unknown"   : "?"
     \ }
 
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in")
-    \ | NERDTree | execute 'wincmd l'| endif
+augroup NERDTree
+    autocmd StdinReadPre * let s:std_in=1
+    autocmd VimEnter * if argc() == 0 && !exists("s:std_in")
+        \ | NERDTree | execute 'wincmd l'| endif
+augroup END
 
 map <C-h> :NERDTreeFind<cr>
 imap <C-h> <C-o>:NERDTreeFind<cr>
