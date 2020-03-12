@@ -2,19 +2,69 @@
 Plug 'junegunn/fzf', { 'do': './install --all --no-update-rc' }
 Plug 'junegunn/fzf.vim'
 
+" The default options passed to fzf
+let g:fzf_options = [
+    \ '--layout=reverse',
+    \ '--info=inline',
+    \ '--preview',
+    \ 'cat {}']
+
+" The default options passed to rg
+let g:rg_options = [
+    \ 'rg',
+    \ '--column',
+    \ '--line-number',
+    \ '--no-heading',
+    \ '--color=always',
+    \ '--smart-case']
+
+command! -bang -nargs=? -complete=dir FZFPreview
+    \ call <SID>fzf(<q-args>, <bang>0)
+
+command! -bang -nargs=* RGPreview
+    \ call <SID>rg(<q-args>, <bang>0)
+
 map <C-p> :call <SID>fzf_for_file_window()<CR>
 imap <C-p> <C-o>:call <SID>fzf_for_file_window()<CR>
-map <C-k> :call <SID>fzf_search_for_file_window()<CR>
-imap <C-k> <C-o>:call <SID>fzf_search_for_file_window()<CR>
+map <C-k> :call <SID>rg_for_file_window()<CR>
+imap <C-k> <C-o>:call <SID>rg_for_file_window()<CR>
 
 
-" Runs fzf in the 'file window'.
-function! s:fzf_for_file_window()
-    call ForFileWindow(':FZF')
+" Performs a file name search in the current directory, recursively.
+function! s:fzf(query, fullscreen)
+    call fzf#vim#files(
+        \ a:query,
+        \ {'options': g:fzf_options},
+        \ a:fullscreen)
 endfunction
 
 
-" Runs search in the 'file window'.
-function! s:fzf_search_for_file_window()
-    call ForFileWindow(':Rg')
+" Performs a full search in the current directory, recursively.
+function! s:rg(query, fullscreen)
+    let l:rg_command_fmt = join(g:rg_options, ' ') . ' --smart-case %s || true'
+    let l:initial_command = printf(l:rg_command_fmt, shellescape(a:query))
+    let l:reload_command = printf(l:rg_command_fmt, '{q}')
+    let l:options = [
+        \ '--phony',
+        \ '--query', a:query,
+        \ '--bind', 'change:reload:' . l:reload_command]
+
+    call fzf#vim#grep(
+        \ l:initial_command,
+        \ 1,
+        \ fzf#vim#with_preview(
+            \ {'options': l:options}),
+        \ a:fullscreen)
+endfunction
+
+
+" Runs FZFPreview in the 'file window'.
+function! s:fzf_for_file_window()
+    call ForFileWindow(':FZFPreview')
+endfunction
+
+
+" Runs RGPreview in the 'file window'.
+function! s:rg_for_file_window()
+    call ForFileWindow(':RGPreview')
 endfunction
