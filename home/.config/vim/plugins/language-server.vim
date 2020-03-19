@@ -15,6 +15,9 @@ let g:lsc_auto_map = {
     \ 'Completion': 'completefunc',
     \}
 
+" Close the preview window with documentation automatically
+autocmd CompleteDone * silent! pclose
+
 nmap <M-Up> :cprev<CR>
 imap <M-Up> <C-o>:cprev<CR>
 nmap <M-Down> :cnext<CR>
