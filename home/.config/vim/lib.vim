@@ -96,27 +96,3 @@ function! KillBuffer(stage)
         endif
     endif
 endfunction
-
-
-" Executes a shell command and opens the output in a new scratch buffer.
-"
-" The command is run in the directory containing the current open file.
-function! RunShellCommand(cmdline, syntax)
-    let l:expanded_cmdline = a:cmdline
-    for l:part in split(a:cmdline, ' ')
-        if part[0] =~ '\v[%#<]'
-            let l:expanded_part = fnameescape(expand(part))
-            let l:expanded_cmdline = substitute(
-                \ l:expanded_cmdline,
-                \ l:part,
-                \ l:expanded_part,
-                \ '')
-        endif
-    endfor
-
-    belowright vnew
-    setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
-    execute '0read !'.l:expanded_cmdline
-    execute 'set syntax='.a:syntax
-    setlocal nomodifiable
-endfunction
