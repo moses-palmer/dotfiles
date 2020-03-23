@@ -3,10 +3,6 @@
 shopt -s checkwinsize
 
 
-# Make sure the history file is continuously updated
-export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
-
-
 # Make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
