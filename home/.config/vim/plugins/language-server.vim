@@ -36,14 +36,14 @@ endif
 
 
 function! s:toggle_quickfix_window()
-    for window in getwininfo()
-        if window.quickfix == 1
+    for l:window in getwininfo()
+        if l:window.quickfix == 1
             " Close the quick fix window
-            execute window.winnr . 'wincmd w'
+            execute l:window.winnr . 'wincmd w'
             execute 'wincmd c'
 
             " Reselect the editor window
-            execute GetEditorWindow() . 'wincmd w'
+            execute lib#editor_window() . 'wincmd w'
             return
         endif
     endfor
