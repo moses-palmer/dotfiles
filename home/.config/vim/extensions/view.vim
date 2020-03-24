@@ -12,21 +12,6 @@ set nowrap
 set sidescroll=4
 
 
-" Move between splits using shift+alt+arrow
-map <S-C-Left> :wincmd h<CR>
-map! <S-C-Left> <C-o>:wincmd h<CR>
-tnoremap <S-C-Left> <C-w>h
-map <S-C-Down> :wincmd j<CR>
-map! <S-C-Down> <C-o>:wincmd j<CR>
-tnoremap <S-C-Down> <C-w>j
-map <S-C-Up> :wincmd k<CR>
-map! <S-C-Up> <C-o>:wincmd k<CR>
-tnoremap <S-C-Up> <C-w>k
-map <S-C-Right> :wincmd l<CR>
-map! <S-C-Right> <C-o>:wincmd l<CR>
-tnoremap <S-C-Right> <C-w>l
-
-
 " Display line numbers
 set number
 set numberwidth=4
