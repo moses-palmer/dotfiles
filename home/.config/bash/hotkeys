@@ -16,7 +16,9 @@ bind -x '"\C-x1": __search_history';
 __search_files() {
     item="$(fzf)"
     if [ -n "$item" ]; then
-        READLINE_LINE="$READLINE_LINE $item"
+        L="$READLINE_LINE"
+        P="$READLINE_POINT"
+        READLINE_LINE="${L:0:$P} $item ${L:$P:${#L}}"
         READLINE_POINT=$(( READLINE_POINT + ${#1} ))
     fi
 }
