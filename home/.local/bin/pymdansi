@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+
+import re
+import sys
+
+from xml.etree import ElementTree as et
+
+from markdown import markdown
+
+
+def output(el: et.Element) -> int:
+    """Outputs a single element.
+    """
+    try:
+        m, handler = next(
+            (regex.match(el.tag), handler)
+            for regex, handler in HANDLERS
+            if regex.match(el.tag))
+        return handler(m, el)
+    except StopIteration:
+        clear()
+        print()
+        print('Unknown tag: <{}>'.format(el.tag))
+        sys.exit(1)
+
+
+def code(_m, el: et.Element):
+    """Outputs a code block.
+    """
+    text(el)
+    if el.tail is not None:
+        o(el.tail)
+
+
+def em(_m, el: et.Element):
+    """Outputs an emphasised text.
+    """
+    italic(True)
+    text(el)
+    italic(False)
+    if el.tail is not None:
+        o(el.tail)
+
+
+def hx(m, el: et.Element):
+    """Outputs any header element.
+    """
+    level = int(m.group(1))
+    o(' ' * (level - 1))
+    effect = {
+        1: lambda v: bold(v) or underline(v),
+        2: lambda v: italic(v) or underline(v),
+    }.get(level, underline)
+    effect(True)
+    text(el)
+    clear()
+    o('\n')
+
+
+def ol(_m, el: et.Element):
+    """Outputs an ordered list.
+    """
+    fstring = '{{:{}}}. '.format(len(str(len(el) + 1)))
+    for i, c in enumerate(el):
+        faint(True)
+        o(fstring.format(i + 1))
+        faint(False)
+        text(c)
+        if c.tail is not None and c.tail.strip():
+            o(c.tail)
+        o('\n')
+    o('\n')
+    clear()
+
+
+def p(_m, el: et.Element):
+    """Outputs a paragraph.
+    """
+    text(el)
+    o('\n\n')
+    clear()
+
+
+def strong(_m, el: et.Element):
+    """Outputs a strong text.
+    """
+    bold(True)
+    text(el)
+    bold(False)
+    if el.tail is not None:
+        o(el.tail)
+
+
+def ul(_m, el: et.Element):
+    """Outputs an unordered list.
+    """
+    for c in el:
+        faint(True)
+        o('• ')
+        faint(False)
+        text(c)
+        if c.tail is not None and c.tail.strip():
+            o(c.tail)
+        o('\n')
+    o('\n')
+    clear()
+
+
+def text(el: et.Element):
+    """Outputs a text element and its children.
+    """
+    if el.text is not None:
+        o(el.text)
+    for c in el:
+        output(c)
+
+
+def clear():
+    """Clears any formatting.
+    """
+    o('\033[0m')
+
+
+def bold(enable):
+    """Outputs bold text.
+    """
+    toggle(bold, '\033[1m', '\033[22m', enable)
+
+
+def faint(enable):
+    """Outputs faint text.
+    """
+    toggle(faint, '\033[2m', '\033[22m', enable)
+
+
+def italic(enable):
+    """Outputs underlines text.
+    """
+    toggle(italic, '\033[3m', '\033[23m', enable)
+
+
+def underline(enable):
+    """Outputs underlines text.
+    """
+    toggle(underline, '\033[4m', '\033[24m', enable)
+
+
+def toggle(c, on, off, val):
+    """Outputs either ``on`` or ``off`` when the number of accumulated calls
+    for the same value of ``c`` goes from 0 to 1 or 0 to 0.
+    """
+    l = getattr(c, '__toggle_level', 0) + (1 if val else -1)
+    setattr(c, '__toggle_level', val)
+    if l == 1:
+        o(on)
+    elif l == 0:
+        o(off)
+
+
+def o(s: str) -> int:
+    """Outputs a list of characters to ``stdout``.
+    """
+    return sys.stdout.write(s)
+
+
+HANDLERS = tuple(
+    (re.compile(regex), handler)
+    for regex, handler in (
+        (r'code', code),
+        (r'em', em),
+        (r'h([0-9]+)', hx),
+        (r'ol', ol),
+        (r'p', p),
+        (r'strong', strong),
+        (r'ul', ul)))
+
+
+if len(sys.argv) > 1:
+    with open(sys.argv[1], 'r', encoding='utf-8') as f:
+        source = f.read()
+else:
+    source = sys.stdin.read()
+md = markdown(source)
+doc = et.fromstring('<doc>' + md + '</doc>')
+for el in list(doc):
+    output(el)
