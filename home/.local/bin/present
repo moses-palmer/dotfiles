@@ -1,0 +1,334 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "$1" -o -z "$2" ]; then
+    echo "Usage: $0 <START COMMIT> <END COMMIT>"
+    exit 1
+fi
+
+##
+# The name of the current presentation.
+PRESENTATION="$(basename "$(pwd)")"
+
+##
+# The width of the editor pane.
+WIDTH="120"
+
+##
+# The presenter binary.
+PRESENTER="./.presenter"
+if [ ! -x "$PRESENTER" ]; then
+    echo "The presenter binary ($PRESENTER) is not present."
+    echo
+    echo "Please see below for an example"
+    echo
+    cat <<EOF
+#!/bin/sh
+
+if [ -z "\$1" ]; then
+    # This script is sourced from the command pane, so an argument is not
+    # always present; use this to setup the command pane
+else
+    # Otherwise the script is passed one of the following arguments:
+    case \$1 in
+        start)
+            # Start vim and automatically reload when cursor is moved
+            vim -c 'set autoread | au CursorHold * checktime'
+            ;;
+        update)
+            # Mock cursor movement to make vim refresh, and then display the
+            # current commit log message formatted as markdown
+            tmux send-keys -t "\$PRESENTER_VIEW_PANE" Left Right
+            git log -n1 --pretty=format:"%B" | pymdansi
+            ;;
+        at-start)
+            # We are attempting to navigate past the first commit of the
+            # presentation
+            ;;
+        at-end)
+            # We are attempting to navigate past the final commit of the
+            # presentation
+            ;;
+    esac
+fi
+EOF
+    exit 1
+fi
+
+##
+# The initial commit.
+if ! git cat-file -e "$1^{commit}"; then
+    echo "Invalid starting commit: $1"
+    exit 1
+else
+    START="$1"
+fi
+
+##
+# The final commit.
+if ! git cat-file -e "$2^{commit}"; then
+    echo "Invalid final commit: $2"
+    exit
+else
+    END="$2"
+fi
+
+##
+# The original commit.
+ORIGINAL="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)"
+
+##
+# A presentation local bash resource file.
+PRESENTATION_BASH_RC_FILE="$(tempfile)"
+trap "rm $PRESENTATION_BASH_RC_FILE" EXIT
+cat >"$PRESENTATION_BASH_RC_FILE" <<EOF
+# Include the standard resource file and the presenter as well
+[ -f ~/.bashrc ] && . ~/.bashrc
+. "\$PRESENTER"
+
+
+##
+# We override the prompt.
+PS1="\e[1m\\\$(__title)\e[0m (\\\$(__cur)/\\\$(__tot)) \e[0;32m→ \e[0m "
+
+##
+# The title of the current slide.
+__title() {
+    git log -n1 --pretty=format:%s
+}
+
+##
+# The index of the current slide.
+__cur() {
+    git rev-list --reverse "\$START^".."\$END" \
+        | awk "/\$(git rev-parse HEAD)/ { print FNR }"
+}
+
+##
+# The total number of slides.
+__tot() {
+    git rev-list --reverse "\$START^".."\$END" \
+        | wc -l
+}
+
+##
+# Signals that we are attempting to move past the start.
+__signal_at_start() {
+    "\$PRESENTER" at-start
+}
+
+##
+# Signals that we are attempting to move past the end.
+__signal_at_end() {
+    "\$PRESENTER" at-end
+}
+
+##
+# Makes vim refresh.
+__signal_update() {
+    "\$PRESENTER" update
+}
+
+
+##
+# Displays the current commit.
+__show() {
+    clear
+
+    # Update the window name
+    tmux rename-window "\$(__title)"
+
+    # Signal that we have updated
+    __signal_update
+}
+bind -x '"\C-x7": __show';
+
+
+##
+# Checks out a specific commit.
+__co() {
+    commit="\$1"
+
+    if ! git checkout --quiet "\$commit" 2>/dev/null; then
+        git stash --quiet
+        echo "[Stashed changes]"
+        git checkout --quiet "\$commit"
+    fi
+}
+
+
+##
+# Displays the previous slide.
+__previous() {
+    start="\$(git rev-list -n 1 \$START)"
+    if [ "\$(git rev-list -n 1 HEAD)" = "\$start" ]; then
+        __signal_at_start
+    else
+        __co "HEAD^"
+    fi
+}
+bind '"\e[1;3D": "\C-x8\n\C-x7"'
+bind -x '"\C-x8": __previous';
+
+
+##
+# Displays the next slide.
+__next() {
+    end="\$(git rev-list -n 1 \$END)"
+    if [ "\$(git rev-list -n 1 HEAD)" = "\$end" ]; then
+        __signal_at_end
+    else
+        __co "\$(git rev-list HEAD.."\$end" 2>/dev/null | tail -n1)"
+    fi
+}
+bind '"\e[1;3C": "\C-x9\n\C-x7"'
+bind -x '"\C-x9": __next';
+
+
+##
+# Pops the topmost stash and updates vim.
+pop() {
+    if git stash pop --quiet 2>/dev/null; then
+        __signal_update
+    fi
+}
+
+
+if git show-ref --quiet "refs/heads/\$END"; then
+    PRESENT_VARIABLES="$(git rev-parse --show-toplevel)/.git/present"
+
+    ##
+    # Commits the local changes and reshapes the presentation branch..
+    #
+    # The commit sequence is updated, and the start tag is changed if required.
+    #
+    # This is only available when the end of the presentation is a branch head.
+    __commit() {
+        # Get commit hashes for commits of interest
+        end="\$(git rev-parse \$END)"
+        current="\$(git rev-parse HEAD)"
+
+        # Check out a temporary branch and amend the current commit
+        branch="presenter/\$RANDOM"
+        git checkout -b "\$branch" --quiet
+        git commit -a --quiet \$@
+        commit="\$(git rev-parse HEAD)"
+
+        # Store the variables for later retrieval
+        cat > "\$PRESENT_VARIABLES" <<DONE
+# The temporary branch
+branch="\$branch"
+
+# The commit being amended
+current="\$current"
+
+# The amended commit
+commit="\$commit"
+DONE
+
+        # If we are not at the final commit, we must cherry pick following
+        # commits onto this temporary branch
+        success="true"
+        if [ "\$current" != "\$end" ]; then
+            if ! git cherry-pick --allow-empty "\$current..\$END"; then
+                echo "Failed to make changes. Correct errors and run fix."
+                success="false"
+            fi
+        fi
+
+        if [ "\$success" = "true" ]; then
+            __end
+        fi
+    }
+
+    __end() {
+        if [ ! -f "\$PRESENT_VARIABLES" ]; then
+            echo "No change in progress."
+            return
+        fi
+
+        # Get commit hashes for commits of interest
+        start="\$(git rev-parse \$START)"
+
+        # Load variables from __commit
+        . "\$PRESENT_VARIABLES"
+
+        # Restore the amended commit
+        git checkout "\$commit" --quiet
+
+        # Reset the presentation branch to our temporary branch and, if
+        # required, retag, otherwise restore the repository but keep changes
+        git branch -f "\$END" "\$branch"
+
+        # If we are modifying the start commit, we must retag
+        if [ "\$current" = "\$start" ]; then
+            git tag -d "\$START" >/dev/null
+            git tag "\$START"
+        fi
+
+        # Finally delete the temporary branch and the stored variables
+        git branch --quiet -D "\$branch"
+        rm "\$PRESENT_VARIABLES"
+    }
+
+    ##
+    # Amends the current commit.
+    amend() {
+        git add "$(git rev-parse --show-toplevel)"
+        __commit --amend --allow-empty
+    }
+
+    ##
+    # Creates a new commit with a copy of the previous commit message.
+    add() {
+        git add "$(git rev-parse --show-toplevel)"
+         __commit --reedit-message=HEAD --allow-empty
+    }
+
+    ##
+    # Attempts to continue a previous amend or add.
+    fix() {
+        git add "$(git rev-parse --show-toplevel)"
+        if git cherry-pick --continue; then
+            __end
+        else
+            echo "Failed to make changes. Correct errors and run fix."
+        fi
+        __signal_update
+    }
+fi
+
+
+# Make sure the starting commit is checked out
+reset
+__co "\$START"
+__show
+EOF
+
+
+
+# Launch the controlling shell in a separate pane
+tmux split-window \
+    -d -v \
+    -c "$(pwd)" \
+    env \
+        PRESENTATION="$PRESENTATION" \
+        PRESENTER="$PRESENTER" \
+        START="$START" \
+        END="$END" \
+        PRESENTER_VIEW_PANE="$TMUX_PANE" \
+        bash --rcfile "$PRESENTATION_BASH_RC_FILE"
+
+# Correct the layout and ensure the terminal is ready for vim
+tmux set-window-option \
+    main-pane-width "$WIDTH"
+tmux select-layout \
+    main-vertical
+reset
+
+# Run the presentation
+"$PRESENTER" start
+
+# Restore the original commit
+git checkout "$ORIGINAL"
