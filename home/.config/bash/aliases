@@ -3,10 +3,6 @@ alias ipython='python3 -m IPython'
 alias ll='ls -l'
 
 
-carp() {
-    cargo $@ --color=always 2>&1 | less -R
-}
-
 cd() {
   builtin cd "$@" && return
   [ "$OLDPWD" = "$PWD" ] || cdx "$@"
