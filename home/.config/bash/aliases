@@ -1,9 +1,3 @@
 alias diff='colordiff'
 alias ipython='python3 -m IPython'
 alias ll='ls -l'
-
-
-cd() {
-  builtin cd "$@" && return
-  [ "$OLDPWD" = "$PWD" ] || cdx "$@"
-}
