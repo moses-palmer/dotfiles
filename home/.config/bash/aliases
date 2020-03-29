@@ -1,6 +1,6 @@
 alias diff='colordiff'
-alias ll='ls -l'
 alias ipython='python3 -m IPython'
+alias ll='ls -l'
 
 
 carp() {
