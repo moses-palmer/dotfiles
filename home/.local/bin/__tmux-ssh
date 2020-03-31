@@ -37,4 +37,4 @@ tmux refresh-client -S
 # Connect to host
 printf '\033]2;%s\033\\' "ssh to $HOST"
 tmux rename-window "$HOST"
-ssh -t "$HOST" tmux attach
+ssh -t "$HOST" tmux attach $@
