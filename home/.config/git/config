@@ -4,6 +4,7 @@
 [alias]
     ap = add -p
     changes = log @{upstream}..HEAD
+    cl = stash --keep-index
     co = checkout
     cop = checkout -p
     cp = cherry-pick
