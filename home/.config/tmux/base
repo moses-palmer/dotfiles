@@ -4,9 +4,6 @@ bind-key C-e split-window \
     -c "#{pane_current_path}" \
     bash -l ~/.local/bin/__tmux-edit
 
-# Enable colours
-set-option -g default-terminal xterm-256color
-
 # Ctrl+f for full-screen
 bind-key -n C-f resize-pane -Z
 
@@ -27,6 +24,9 @@ bind-key -n C-Right if-shell "$is_vim" "send-keys S-C-Right" "select-pane -R"
 bind-key -n C-Up if-shell "$is_vim" "send-keys S-C-Up" "select-pane -U"
 bind-key -n C-Down if-shell "$is_vim" "send-keys S-C-Down" "select-pane -D"
 
+# Enable colours
+set-option -g default-terminal xterm-256color
+
 # Ctrl+PgUp to enter copy mode and scroll up
 bind-key -n C-PPage copy-mode -u
 
@@ -41,3 +41,6 @@ set-option -g history-limit 10000
 
 # Prevent pause when switching modes in vim
 set-option -sg escape-time 0
+
+# Let the status bar be positioned at the top
+set-option -g status-position top

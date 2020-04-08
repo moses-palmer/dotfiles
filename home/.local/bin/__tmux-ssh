@@ -21,6 +21,7 @@ restore() {
     tmux set-option -u prefix
     tmux set-option -u key-table
     tmux set-option -g $PREVIOUS_STATUS_BG
+    tmux set-option -g status-position top
     tmux rename-window "$PREVIOUS_WINDOW_NAME"
     tmux refresh-client -S
 }
@@ -37,4 +38,5 @@ tmux refresh-client -S
 # Connect to host
 printf '\033]2;%s\033\\' "ssh to $HOST"
 tmux rename-window "$HOST"
+tmux set-option -g status-position bottom
 ssh -t "$HOST" tmux attach $@
