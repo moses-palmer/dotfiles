@@ -3,9 +3,11 @@ bind -T root F12  \
     set-option prefix None \;\
     set-option key-table off \;\
     set-option -g status-bg colour8 \;\
+    set-option -g status-position bottom \;\
     refresh-client -S
 bind -T off F12 \
     set-option -u prefix \;\
     set-option -u key-table \;\
     set-option -g status-bg green \;\
+    set-option -g status-position top \;\
     refresh-client -S
