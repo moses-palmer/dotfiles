@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+# Lists other files provided by the package providing the specified files.
+
+USAGE="Usage: $0 FILE1 [FILE2]
+
+Lists other files part of the package managing the files on the command line.
+"
+
+if [ "$#" -lt 1 ]; then
+    echo "$USAGE"
+    exit 0
+fi
+
+
+if which dpkg >/dev/null 2>&1; then
+    packages() {
+        dpkg --search "$1" \
+            | cut -d: -f1
+    }
+
+    files() {
+        dpkg-query --listfiles "$1"
+    }
+
+elif which yum >/dev/null 2>&1; then
+    packages() {
+        yum whatprovides --quiet "$1" \
+            | grep -v '\(^\(Repo\|Matched from\|Filename\)\s*:.*\)\|^$' \
+            | awk '{ print $1 }' \
+            | sed -e 's/\([^.]*\).*/\1/' -e 's/\(.*\)-.*/\1/' \
+            | sort \
+            | uniq
+    }
+
+    files() {
+        repoquery --list "$1"
+    }
+
+else
+    echo "No supported package manager found."
+    exit 1
+fi
+
+while [ -n "$1" ]; do
+    file="$1"; shift
+    FS="\n"
+    for package in $(packages "$file"); do
+        files "$package" \
+            | awk '{ if (system("test -f " $1) == 0) { print $1; } }' \
+            | sort
+    done
+done
