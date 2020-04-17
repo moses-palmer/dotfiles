@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Lists installed packages by size.
+
+
+if which dpkg >/dev/null 2>&1; then
+    dpkg-query -Wf '${Installed-Size}\t${Package}\n' \
+        | sort -n
+
+elif which yum >/dev/null 2>&1; then
+    rpm -qa --queryformat '%{size}\t%{name}\n' \
+        | sort -n
+
+else
+    echo "No supported package manager found."
+    exit 1
+fi
