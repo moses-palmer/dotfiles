@@ -21,6 +21,7 @@
     sc = !git-sc
     st = status
     subpull = submodule foreach --recursive git pull --all
+    wip = !git-wip
 [color]
     ui = auto
 [color "branch"]

@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+# Supports a remote work-in-progress branch and a local sttach commit.
+
+set -e
+
+##
+# The root of the repository.
+ROOT="$(git rev-parse --show-toplevel)"
+
+##
+# The message used for a stash commit.
+STASH_MESSAGE="STASH"
+
+##
+# The message of the current commit.
+CURRENT_MESSAGE="$(git log --format=%B -n 1 HEAD)"
+
+##
+# The remote to use for work-in-progress branches.
+REMOTE="$(git config wip.remote || echo "wip")"
+
+##
+# The name of the remote branch.
+BRANCH="wip/$(git rev-parse --abbrev-ref HEAD)"
+
+
+##
+# Deletes the branch from the work-in-progress remote.
+delete() {
+    # Make sure the remote exists
+    if ! git remote | grep --quiet "$REMOTE"; then
+        echo "There is not remote named $REMOTE."
+        exit 1
+    fi
+
+    git push "$REMOTE" :"$BRANCH"
+}
+
+
+##
+# Pushes the current commit to the work-in-progress remote.
+push() {
+    # Make sure the remote exists
+    if ! git remote | grep --quiet "$REMOTE"; then
+        echo "There is not remote named $REMOTE."
+        exit 1
+    fi
+
+    git push -f "$REMOTE" HEAD:"$BRANCH"
+}
+
+
+##
+# Stashes thee currect working directory.
+stash() {
+    # Stage everything
+    git add "$ROOT"
+
+    # Make a new commit or amend depending on the previous message
+    if [ "$CURRENT_MESSAGE" = "$STASH_MESSAGE" ]; then
+        echo "Amending current stash commit"
+        git commit --amend -C HEAD
+    else
+        echo "Creating new stash commit"
+        git commit --message="$STASH_MESSAGE"
+    fi
+}
+
+
+case "${1:-stash}" in
+    delete)
+        delete
+        ;;
+
+    push)
+        push
+        ;;
+
+    stash)
+        stash
+        ;;
+
+    *)
+        echo "Usage: $0 delete|push|stash"
+        exit 1
+esac
