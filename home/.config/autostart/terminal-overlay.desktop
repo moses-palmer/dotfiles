@@ -4,4 +4,4 @@ Version=1.0
 Terminal=false
 Type=Application
 Name=Terminal Overlay
-Exec=/usr/bin/env terminal-overlay tmux attach
+Exec=/usr/bin/env TERMINAL_OVERLAY_FONT_SCALE=0.9 terminal-overlay tmux attach

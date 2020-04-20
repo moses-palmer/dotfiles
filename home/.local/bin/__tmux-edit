@@ -15,7 +15,7 @@ VAR="@__edit"
 
 ##
 # The width of the editor pane.
-WIDTH="120"
+WIDTH="132"
 
 ##
 # A project local bash history file.
