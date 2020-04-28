@@ -22,6 +22,14 @@
     st = status
     subpull = submodule foreach --recursive git pull --all
     wip = !git-wip
+[core]
+    editor = vim
+    whitespace = blank-at-eol,blank-at-eof,space-before-tab
+    filemode = false
+    tabwidth = 4
+    pager = less -S
+[apply]
+    whitespace = fix
 [color]
     ui = auto
 [color "branch"]
@@ -38,17 +46,9 @@
     added = green
     changed = yellow
     untracked = cyan
-[rebase]
-    autosquash = true
-[core]
-    editor = vim
-    whitespace = blank-at-eol,blank-at-eof,space-before-tab
-    filemode = false
-    tabwidth = 4
-    pager = less -S
-[apply]
-    whitespace = fix
-[push]
-    default = simple
 [credential]
     helper = cache
+[push]
+    default = simple
+[rebase]
+    autosquash = true
