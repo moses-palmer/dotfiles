@@ -43,17 +43,11 @@ endfunction
 function! s:rg(query, fullscreen)
     let l:rg_command_fmt = join(g:rg_options, ' ') . ' --smart-case %s || true'
     let l:initial_command = printf(l:rg_command_fmt, shellescape(a:query))
-    let l:reload_command = printf(l:rg_command_fmt, '{q}')
-    let l:options = [
-        \ '--phony',
-        \ '--query', a:query,
-        \ '--bind', 'change:reload:' . l:reload_command]
 
     call fzf#vim#grep(
         \ l:initial_command,
         \ 1,
-        \ fzf#vim#with_preview(
-            \ {'options': l:options}),
+        \ fzf#vim#with_preview(),
         \ a:fullscreen)
 endfunction
 
