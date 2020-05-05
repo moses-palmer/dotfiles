@@ -181,7 +181,7 @@ endfunction
 
 " Jumps to a commit by searching for a commit header line.
 function! s:jump_to_commit(flags)
-    call search('commit [0-9a-f]\{7\}', a:flags)
+    call search('^[^\p]*commit [0-9a-f]\{7\}', a:flags)
     execute('normal zt')
 endfunction
 
