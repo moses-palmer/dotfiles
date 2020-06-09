@@ -94,6 +94,14 @@ function! s:open_modifications()
         let [l:lineno, l:path_a, l:path_b] = l:m
     endif
 
+    " Find the start of the current hunk
+    let l:m = s:find_hunk(line('.'))
+    if empty(l:m)
+        let [l:hunk_a_lineno, l:hunk_b_lineno] = [1, 1]
+    else
+        let [l:hunk_a_lineno, l:hunk_b_lineno] = l:m
+    endif
+
     " Find the revisions
     let l:m = s:extract_revisions(getline(l:lineno + 1))
     if empty(l:m)
@@ -114,11 +122,13 @@ function! s:open_modifications()
     " Open the files
     below vnew
     let l:win_a = win_getid()
-    silent! call s:open_at_rev('a', l:path_a, l:rev_a, l:chunks_a)
+    silent! call s:open_at_rev(
+        \ 'a', l:path_a, l:rev_a, l:chunks_a, l:hunk_a_lineno)
 
     belowright new
     let l:win_b = win_getid()
-    silent! call s:open_at_rev('b', l:path_b, l:rev_b, l:chunks_b)
+    silent! call s:open_at_rev(
+        \ 'b', l:path_b, l:rev_b, l:chunks_b, l:hunk_b_lineno)
 
     " Return to the main window and store the child window IDs
     call s:goto_parent()
@@ -263,6 +273,22 @@ function! s:find_header(lineno)
 endfunction
 
 
+" Finds the hunk header by starting at the current line and moving up until a
+" header is found.
+function! s:find_hunk(lineno)
+    let l:lineno = a:lineno
+    while l:lineno > 0
+        let l:m = s:extract_hunk(getline(l:lineno))
+        if empty(l:m)
+            let l:lineno = l:lineno - 1
+            continue
+        else
+            return l:m
+        endif
+    endwhile
+endfunction
+
+
 " Finds chunk data following the git diff header at s:lineno.
 "
 " The search is continued until the end of the buffer, or until a new git diff
@@ -296,7 +322,7 @@ endfunction
 " Opens a file at a specific revision.
 "
 " The file is opened in read only mode. A mark is added for each chunk.
-function! s:open_at_rev(prefix, path, rev, chunks)
+function! s:open_at_rev(prefix, path, rev, chunks, lineno)
     " Open the file at the specified revision
     let l:file = a:prefix . '/' . a:path
     setlocal bufhidden=wipe
@@ -340,10 +366,8 @@ function! s:open_at_rev(prefix, path, rev, chunks)
         endif
     endfor
 
-    " Go to the first chunk
-    if !empty(a:chunks)
-        execute("normal! 'a<CR>")
-    endif
+    " Go to the specified line
+    execute('normal ' . a:lineno . 'Gz.')
 
     " Add useful mappings
     nnoremap <buffer> <leader>q :silent! call <SID>close_modifications()<CR>
@@ -359,6 +383,19 @@ function! s:extract_header(s)
         \ 'diff --git a/\([^\e]*\) b/\([^\e]*\)')
     if !empty(l:m)
         return [l:m[1], l:m[2]]
+    else
+        return []
+    endif
+endfunction
+
+
+" Attempts to extract the hunk start line from a hunk header.
+function! s:extract_hunk(s)
+    let l:m = matchlist(
+        \ a:s,
+        \ '@@ -\([0-9]*\),\([0-9]*\) +\([0-9]*\),\([0-9]*\) @@')
+    if !empty(l:m)
+        return [l:m[1], l:m[3]]
     else
         return []
     endif
