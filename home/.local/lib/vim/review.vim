@@ -79,6 +79,9 @@ function! s:load_changes()
     endif
 
     set modifiable<
+
+    " Add buffer local mappings to quit
+    nnoremap <buffer> <leader>q :qa<CR>
 endfunction
 
 
@@ -154,9 +157,12 @@ function! s:close_modifications()
 
     call s:for_children('wincmd c')
     call s:goto_parent()
-    mapclear <buffer>
     unlet w:review_win_a
     unlet w:review_win_b
+
+    " Restore mappings
+    mapclear <buffer>
+    nnoremap <buffer> <leader>q :qa<CR>
 endfunction
 
 
