@@ -44,7 +44,7 @@ endfunction
 
 
 " Sends a tmux command over the tmux socket.
-function s:tmux(args)
+function! s:tmux(args)
     let l:socket = split($TMUX, ',')[0]
     return system('tmux -S ' . l:socket . ' ' . a:args)
 endfunction
