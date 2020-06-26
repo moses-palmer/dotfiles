@@ -11,6 +11,7 @@
     dc = !git-dc
     default-branch = !git-default-branch
     default-remote = !git-default-remote
+    div = !git-div
     gh-pr = !git-gh-pr
     gh-review = !git-gh-review
     logg = log --graph --decorate
