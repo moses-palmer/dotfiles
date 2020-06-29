@@ -7,34 +7,41 @@
 
 set -e
 
-# Assert that the index is clean
-if ! git diff-index --quiet HEAD --; then
-    echo "Your repository contains local changes."
-    exit
-fi
-
-case "$#" in
-    1)
-        remote="$(git default-remote)"
-        export REVIEW_SOURCE="$remote/$1"
-        export REVIEW_TARGET="$(git default-branch)"
-        ;;
-
-    2)
-        export REVIEW_SOURCE="$1"
-        export REVIEW_TARGET="$2"
-        ;;
-
-    *)
-        echo "Usage: $(basename "$0") SOURCE_BRANCH"
-        echo "       $(basename "$0") SOURCE_COMMIT TARGET_COMMIT."
-        exit
-        ;;
-esac
 
 ##
 # The current commit or branch.
-original="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)"
+ORIGINAL="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)"
+
+
+# Assert that the index is clean and that arguments are passed correctly
+if ! git diff-index --quiet HEAD --; then
+    echo "Your repository contains local changes."
+    exit
+else
+    case "$#" in
+        1)
+            remote="$(git default-remote)"
+            export REVIEW_SOURCE="$remote/$1"
+            export REVIEW_TARGET="$remote/$(git default-branch)"
+            ;;
+
+        2)
+            export REVIEW_SOURCE="$1"
+            export REVIEW_TARGET="$2"
+            ;;
+
+        *)
+            echo "Usage: git review SOURCE_BRANCH"
+            echo "       git review SOURCE_COMMIT TARGET_COMMIT."
+            cat <<EOF
+SOURCE_BRANCH is the unqualified name of a remote branch. When passing only a
+source branch, the target will be set to the default branch for the default
+remote.
+EOF
+            exit
+            ;;
+    esac
+fi
 
 
 # Check out the branch to review
@@ -46,4 +53,4 @@ echo -e "Reviewing \033[1m$REVIEW_SOURCE\033[0m" \
 vim -S ~/.local/lib/vim/review.vim
 
 # Restore the previous checkout
-git checkout --quiet "$original"
+git checkout --quiet "$ORIGINAL"
