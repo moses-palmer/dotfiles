@@ -12,11 +12,6 @@ set nowrap
 set sidescroll=4
 
 
-" Display line numbers
-set number
-set numberwidth=4
-
-
 " Display a ruler at column 80
 set colorcolumn=80
 set textwidth=79
