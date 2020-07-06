@@ -9,7 +9,7 @@ Finds the commit where two branches diverged.
 
 Usage: git div [BRANCH1] [BRANCH2]
 BRANCH1 defaults to HEAD.
-BRANCH2 defaults to `git default-branch` (the default branch).
+BRANCH2 defaults to `git default-branch --allow-local` (the default branch).
 EOF
     exit 0
 fi
@@ -19,12 +19,12 @@ fi
 case "$#" in
     0)
         A="HEAD"
-        B="$(git default-branch)"
+        B="$(git default-branch --allow-local)"
         ;;
 
     1)
         A="$1"
-        B="$(git default-branch)"
+        B="$(git default-branch --allow-local)"
         ;;
 
     2)
