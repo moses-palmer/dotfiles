@@ -22,6 +22,7 @@
     sc = !git-sc
     st = status
     subpull = submodule foreach --recursive git pull --all
+    transplant = !git-transplant
     wip = !git-wip
 [core]
     editor = vim
