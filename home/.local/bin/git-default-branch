@@ -1,11 +1,15 @@
 #!/bin/sh
 #
-# Prints the name of the default branch for the first remote for the current
-# repository.
+# Prints the name of the default branch.
 
-set -e
-
-remote="$(git default-remote)"
-
-# Get the name of the default branch
-git symbolic-ref "refs/remotes/$remote/HEAD" | sed "s@^refs/remotes/$remote/@@"
+remote="$(git default-remote 2>/dev/null)"
+if [ "$?" = "0" ]; then
+    git symbolic-ref --short "refs/remotes/$remote/HEAD" | sed "s@^$remote/@@"
+elif [ "$1" = "--allow-local" ]; then
+    git symbolic-ref --short HEAD
+else
+    echo "No default remote found!" >&2
+    echo >&2
+    echo "Pass --allow-local to allow local branches." >&2
+    exit 1
+fi
