@@ -1,0 +1,80 @@
+#!/bin/sh
+#
+# Copies all commits that have diverged from the default branch from one branch
+# to another.
+#
+# This script is useful to incorporate a feature branch in a branch other than
+# master.
+
+set -e
+
+##
+# The git directory.
+GIT_DIR="$(git rev-parse --git-dir)"
+
+##
+# The file used to store the transplant target branch.
+TARGET_FILE="$GIT_DIR/transplant-target"
+
+
+##
+# Prints usage and exits.
+usage() {
+    cat << EOF
+Transplants a feature branch onto another branch.
+
+Usage: git transplant FEATURE_BRANCH TARGET_BRANCH
+       git transplant --continue
+EOF
+    exit 0
+}
+
+
+##
+# Initiates the transplant.
+begin() {
+    start="$(git div "$1")"
+    end="$(git rev-parse "$1")"
+    target="$2"
+
+    echo "$target" > "$TARGET_FILE"
+    git rebase --onto "$target" "$start" "$end"
+}
+
+
+##
+# Performs the finalisation of the transplant.
+finalize() {
+    # Continue a rebase if one is in progress
+    if [ -d "$GIT_DIR/rebase-merge" ] || [ -d "$GIT_DIR/rebase-apply" ]; then
+        git rebase --continue
+    fi
+
+    # Update the target branch
+    target="$(cat "$TARGET_FILE")"
+    git rebase HEAD "$target"
+
+    # Remove the transplant file
+    rm "$TARGET_FILE"
+}
+
+
+if [ "$#" = 2 ]; then
+    if ! begin "$1" "$2"; then
+        bold="$(tput bold)"
+        c="$(tput sgr0)"
+        cat <<EOF
+Failed to transplant ${bold}$1${c} onto ${bold}$2${c}!
+
+Please resolve all merge conflicts, and then run:
+
+    ${bold}git transplant --continue${c}
+EOF
+    else
+        finalize
+    fi
+elif [ "$#" = 1 ] && [ "$1" = "--continue" ]; then
+    finalize
+else
+    usage
+fi
