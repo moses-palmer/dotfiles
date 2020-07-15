@@ -20,8 +20,10 @@ noremap <F8> :Over<CR>
 " If the global variable g:debug_binary exists, it is used as binary name,
 " otherwise a name is requested.
 function! s:start_debugger()
-    if exists('g:debug_binary')
-        let l:name = g:debug_binary
+    call s:build(0)
+
+    if exists('g:debugger#binary')
+        let l:name = g:debugger#binary
     else
         call inputsave()
         let l:name = input('Enter name: ')
@@ -36,12 +38,26 @@ endfunction
 " If the global variable d:launch_command exists, it is used, otherwise a
 " command is requested.
 function! s:launch_application()
-    if exists('g:launch_command')
-        let l:command = g:launch_command
+    call s:build(1)
+
+    if exists('g:debugger#launch_command')
+        let l:command = g:debugger#launch_command
     else
         call inputsave()
         let l:command = input('Enter command: ')
         call inputrestore()
     endif
     execute '! ' . l:command
+endfunction
+
+
+" Runs the build command
+function s:build(silent)
+    if exists('g:debugger#build_command')
+        if a:silent
+            call system(g:debugger#build_command)
+        else
+            execute '! ' . g:debugger#build_command
+        endif
+    endif
 endfunction
