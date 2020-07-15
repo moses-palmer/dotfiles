@@ -22,8 +22,8 @@ nmap <M-Up> :cprev<CR>
 imap <M-Up> <C-o>:cprev<CR>
 nmap <M-Down> :cnext<CR>
 imap <M-Down> <C-o>:cnext<CR>
-nmap <F3> :call <SID>toggle_quickfix_window()<CR>
-imap <F3> <C-o>:call <SID>toggle_quickfix_window()<CR>
+nmap <F3> :call <SID>all_diagnostics()<CR>
+imap <F3> <C-o>:call <SID>all_diagnostics()<CR>
 
 " Register language servers
 let g:lsc_server_commands = {}
@@ -35,6 +35,14 @@ if executable('rls')
 endif
 
 
+function! s:all_diagnostics()
+    if s:toggle_quickfix_window()
+        LSClientAllDiagnostics
+    endif
+endfunction
+
+
+" Toggles the quickfix window and returns whether is is visible.
 function! s:toggle_quickfix_window()
     for l:window in getwininfo()
         if l:window.quickfix == 1
@@ -44,9 +52,9 @@ function! s:toggle_quickfix_window()
 
             " Reselect the editor window
             execute lib#editor_window() . 'wincmd w'
-            return
+            return 0
         endif
     endfor
 
-    LSClientAllDiagnostics
+    return 1
 endfunction
