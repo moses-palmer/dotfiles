@@ -12,9 +12,10 @@ set nowrap
 set sidescroll=4
 
 
-" Display a ruler at column 80
+" Display a ruler at column 80 and line numbers to the left
 set colorcolumn=80
 set textwidth=79
+set number
 
 
 " Let the preview window open at the bottom
