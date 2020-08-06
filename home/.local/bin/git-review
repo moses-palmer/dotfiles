@@ -45,7 +45,11 @@ fi
 
 
 # Check out the branch to review
-git checkout --quiet "$REVIEW_SOURCE"
+if ! git checkout --quiet "$REVIEW_SOURCE"; then
+    echo -e "\033[1m$REVIEW_TARGET\033[0m not found locally, fetching..."
+    git fetch
+    git checkout --quiet "$REVIEW_SOURCE"
+fi
 
 # Show an ordered commit log with diffs
 echo -e "Reviewing \033[1m$REVIEW_SOURCE\033[0m" \
