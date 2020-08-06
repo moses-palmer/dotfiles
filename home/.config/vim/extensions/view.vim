@@ -12,6 +12,13 @@ set nowrap
 set sidescroll=4
 
 
+" Scroll using arrow keys
+map <S-Down> <C-E>
+imap <S-Down> <C-O><C-E>
+map <S-Up> <C-Y>
+imap <S-Up> <C-O><C-Y>
+
+
 " Display a ruler at column 80
 set colorcolumn=80
 set textwidth=79
