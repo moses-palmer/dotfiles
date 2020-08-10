@@ -9,6 +9,10 @@ set -e
 
 
 ##
+# We do not want our modifications to be recorded.
+export GIT_RETURN_IGNORE="1"
+
+##
 # The current commit or branch.
 ORIGINAL="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)"
 
