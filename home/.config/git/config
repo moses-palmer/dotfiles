@@ -1,6 +1,3 @@
-[user]
-    name = Moses Palmér
-    email = mosespalmer@gmail.com
 [alias]
     ap = add -p
     changes = log @{upstream}..HEAD
@@ -24,14 +21,16 @@
     subpull = submodule foreach --recursive git pull --all
     transplant = !git-transplant
     wip = !git-wip
+[user]
+    name = Moses Palmér
+    email = mosespalmer@gmail.com
 [core]
     editor = vim
     whitespace = blank-at-eol,blank-at-eof,space-before-tab
     filemode = false
     tabwidth = 4
     pager = less -S
-[apply]
-    whitespace = fix
+
 [color]
     ui = auto
 [color "branch"]
@@ -48,6 +47,9 @@
     added = green
     changed = yellow
     untracked = cyan
+
+[apply]
+    whitespace = fix
 [credential]
     helper = cache
 [push]
