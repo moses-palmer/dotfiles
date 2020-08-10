@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -e
+
+[ "$GIT_RETURN_IGNORE" = 1 ] && exit 0
+
+##
+# The git directory.
+GIT_DIR="$(git rev-parse --git-dir)"
+
+##
+# The file used to store the commit log.
+LOG_FILE="$GIT_DIR/return-log"
+
+##
+# The previous ref.
+PREVIOUS="$1"
+
+##
+# The current ref.
+#
+# This may be equal to $PREVIOUS.
+CURRENT="$2"
+
+##
+# The type of checkout being performed.
+#
+# We only care about type 1, brach checkout.
+FLAG="$3"
+
+
+if [ "$FLAG" = "1" ] && [ "$CURRENT" != "$PREVIOUS" ]; then
+    echo "$PREVIOUS" >> "$LOG_FILE"
+fi
