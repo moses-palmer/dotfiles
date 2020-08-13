@@ -47,7 +47,7 @@ function! s:rg(query, fullscreen)
     call fzf#vim#grep(
         \ l:initial_command,
         \ 1,
-        \ fzf#vim#with_preview(),
+        \ fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}),
         \ a:fullscreen)
 endfunction
 
