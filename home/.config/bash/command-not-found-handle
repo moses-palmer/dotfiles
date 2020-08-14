@@ -1,7 +1,9 @@
 # The git commands to wrap
 GIT_COMMANDS=( \
     "amend" \
+    "ap" \
     "commit" \
+    "cop" \
     "lc" \
     "log" \
     "logg" \
