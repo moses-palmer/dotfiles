@@ -15,6 +15,7 @@
     logg = log --graph --decorate
     lg = log --graph --decorate --oneline
     ls = ls-tree --name-only HEAD
+    rep = reset -p
     reshape = !git-reshape
     return = !git-return
     review = !git-review
