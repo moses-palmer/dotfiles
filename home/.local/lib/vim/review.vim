@@ -22,10 +22,10 @@ nnoremap <2-LeftMouse> :call <SID>open_modifications()<CR>
 nnoremap <buffer> <F10> :call <SID>toggle_word_diff()<CR>
 
 " Whether to use a word diff for change listing
-let g:review_word_diff = 1
+let g:review#word_diff = 1
 
 " The main window is the parent window
-let g:review_win_parent = win_getid()
+let g:review#win_parent = win_getid()
 
 
 " Create the chunk signs
@@ -57,7 +57,7 @@ function! s:load_changes()
     execute('%d')
 
     " Read the change listing
-    if g:review_word_diff
+    if g:review#word_diff
         let l:git_command = 'lc --ignore-all-space'
     else
         let l:git_command = 'log --patch --color=always'
@@ -137,7 +137,7 @@ function! s:open_modifications()
     call s:goto_parent()
     let w:review_win_a = l:win_a
     let w:review_win_b = l:win_b
-    let g:review_zoomed = 0
+    let g:review#zoomed = 0
 
     " Add buffer local mappings for diff interactions
     nnoremap <buffer> <Up> :call <SID>for_children("normal k")<CR>
@@ -168,7 +168,7 @@ endfunction
 
 " Toggles word diff mode.
 function! s:toggle_word_diff()
-    let g:review_word_diff = !g:review_word_diff
+    let g:review#word_diff = !g:review#word_diff
     call s:load_changes()
 endfunction
 
@@ -181,8 +181,8 @@ function! s:toggle_zoom()
     let l:win_a = w:review_win_a
     let l:win_b = w:review_win_b
 
-    let g:review_zoomed = !g:review_zoomed
-    if g:review_zoomed
+    let g:review#zoomed = !g:review#zoomed
+    if g:review#zoomed
         call s:for_child(l:win_a, 'wincmd H')
         call s:for_child(l:win_b, 'wincmd L')
         call s:for_parent('wincmd J')
@@ -436,8 +436,8 @@ endfunction
 
 " Moves to the review parent window.
 function! s:goto_parent()
-    if exists('g:review_win_parent')
-        let l:winnr = win_id2win(g:review_win_parent)
+    if exists('g:review#win_parent')
+        let l:winnr = win_id2win(g:review#win_parent)
         if l:winnr > 0
             execute(l:winnr . 'wincmd w')
             return 1
