@@ -9,6 +9,7 @@ GIT_COMMANDS=( \
     "logg" \
     "push" \
     "rebase" \
+    "rep" \
     "show" \
     "sc" \
     "st" \
