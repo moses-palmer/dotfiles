@@ -3,14 +3,14 @@ Plug 'junegunn/fzf', { 'do': './install --all --no-update-rc' }
 Plug 'junegunn/fzf.vim'
 
 " The default options passed to fzf
-let g:fzf_options = [
+let g:fzf#options = [
     \ '--layout=reverse',
     \ '--info=inline',
     \ '--preview',
     \ 'cat {}']
 
 " The default options passed to rg
-let g:rg_options = [
+let g:rg#options = [
     \ 'rg',
     \ '--column',
     \ '--line-number',
@@ -34,14 +34,14 @@ imap <C-k> <C-o>:call <SID>rg_for_file_window()<CR>
 function! s:fzf(query, fullscreen)
     call fzf#vim#files(
         \ a:query,
-        \ {'options': g:fzf_options},
+        \ {'options': g:fzf#options},
         \ a:fullscreen)
 endfunction
 
 
 " Performs a full search in the current directory, recursively.
 function! s:rg(query, fullscreen)
-    let l:rg_command_fmt = join(g:rg_options, ' ') . ' --smart-case %s || true'
+    let l:rg_command_fmt = join(g:rg#options, ' ') . ' --smart-case %s || true'
     let l:initial_command = printf(l:rg_command_fmt, shellescape(a:query))
 
     call fzf#vim#grep(

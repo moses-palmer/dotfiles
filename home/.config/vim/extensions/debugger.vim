@@ -17,7 +17,7 @@ noremap <F8> :Over<CR>
 
 " Launches a debugger.
 "
-" If the global variable g:debug_binary exists, it is used as binary name,
+" If the global variable g:debugger#binary exists, it is used as binary name,
 " otherwise a name is requested.
 function! s:start_debugger()
     call s:build(0)
@@ -35,8 +35,8 @@ endfunction
 
 " Launches the project application.
 "
-" If the global variable d:launch_command exists, it is used, otherwise a
-" command is requested.
+" If the global variable d:debugger#launch_command exists, it is used,
+" otherwise a command is requested.
 function! s:launch_application()
     call s:build(1)
 
