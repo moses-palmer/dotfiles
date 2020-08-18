@@ -35,9 +35,9 @@ else
             ;;
 
         *)
-            echo "Usage: git review SOURCE_BRANCH"
-            echo "       git review SOURCE_COMMIT TARGET_COMMIT."
             cat <<EOF
+Usage: git review SOURCE_BRANCH
+       git review SOURCE_COMMIT TARGET_COMMIT.
 SOURCE_BRANCH is the unqualified name of a remote branch. When passing only a
 source branch, the target will be set to the default branch for the default
 remote.
@@ -50,7 +50,7 @@ fi
 
 # Check out the branch to review
 if ! git checkout --quiet "$REVIEW_SOURCE"; then
-    echo -e "\033[1m$REVIEW_TARGET\033[0m not found locally, fetching..."
+    echo -e "\033[1m$REVIEW_SOURCE\033[0m not found locally, fetching..."
     git fetch
     git checkout --quiet "$REVIEW_SOURCE"
 fi
