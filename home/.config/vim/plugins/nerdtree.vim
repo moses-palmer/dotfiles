@@ -8,7 +8,7 @@ let NERDTreeIgnore = [
     \ '^__pycache__$',
     \ '\.rs.bk$'
     \ ]
-let g:NERDTreeIndicatorMapCustom = {
+let g:NERDTreeGitStatusIndicatorMapCustom = {
     \ "Modified"  : "•",
     \ "Staged"    : "✚",
     \ "Untracked" : "◦",
