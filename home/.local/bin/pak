@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# Lists other files provided by the package providing the specified files.
+
+usage() {
+    cat <<EOF
+Usage: pak by-size
+       pak list PACKAGE
+       pak package PATH
+
+by-size lists installed packages ordered by size on disk.
+
+list lists all files in the package PACKAGE.
+
+package determines to which package the file PATH belongs.
+EOF
+}
+
+if [ "$#" -lt 1 ]; then
+    echo "$USAGE"
+    exit 0
+fi
+
+
+if which dpkg >/dev/null 2>&1; then
+    packages() {
+        dpkg --search "$1" \
+            | cut -d: -f1
+    }
+
+    files() {
+        dpkg-query --listfiles "$1"
+    }
+
+    by_size() {
+        dpkg-query -Wf '${Installed-Size}\t${Package}\n' \
+            | sort -n
+    }
+
+elif which yum >/dev/null 2>&1; then
+    packages() {
+        yum whatprovides --quiet "$1" 2>/dev/null \
+            | grep -v '\(^\(Repo\|Matched from\|Filename\)\s*:.*\)\|^\s\+$' \
+            | cut -d: -f1 \
+            | sed -e '/^\s*$/d' -e 's/\([^.]*\).*/\1/' -e 's/\(.*\)-.*/\1/' \
+            | sort \
+            | uniq
+    }
+
+    files() {
+        repoquery --list "$1"
+    }
+
+    by_size() {
+        rpm -qa --queryformat '%{size}\t%{name}\n' \
+            | sort -n
+    }
+
+else
+    echo "No supported package manager found."
+    exit 1
+fi
+
+
+
+case "$1" in
+    by-size)
+        by_size
+        ;;
+
+    list)
+        shift
+        files "$1"
+        ;;
+
+    package)
+        shift
+        packages "$1"
+        ;;
+
+    *)
+        usage
+        exit 1
+        ;;
+esac
