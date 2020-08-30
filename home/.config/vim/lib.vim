@@ -1,3 +1,10 @@
+if v:vim_did_enter
+    call lib#set_editor_window()
+else
+    autocmd VimEnter * call lib#set_editor_window()
+endif
+
+
 " Executes a command for the presumed 'editor window'.
 "
 " The editor window is the largest window.
@@ -15,21 +22,35 @@ function! lib#for_editor_window(command)
 endfunction
 
 
-" Returns the editor window ID.
+" Returns the editor window number.
 "
-" The editor window is the largest window.
+" The editor window is the largest window visible at startup.
 function! lib#editor_window()
+    let l:result = win_id2win(g:lib#editor_window)
+    if l:result == 0
+        call lib#set_editor_window()
+        let l:result = win_id2win(g:lib#editor_window)
+    endif
+
+    return l:result
+endfunction
+
+
+" Sets the editor window.
+"
+" This function iterates through every window and selectes the largest one.
+function! lib#set_editor_window()
     let l:acc = 0
     let l:winnr = -1
     for l:window in getwininfo()
         let l:curr = l:window.width * l:window.height
         if l:curr > l:acc
             let l:acc = l:curr
-            let l:winnr = l:window.winnr
+            let l:winnr = l:window.winid
         endif
     endfor
 
-    return l:winnr
+    let g:lib#editor_window = l:winnr
 endfunction
 
 
