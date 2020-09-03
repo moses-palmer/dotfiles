@@ -1,4 +1,7 @@
-from . import rust
+from . import FEATURES, rust, system
 
 
-rust.binary('rg', 'ripgrep', 'ripgrep')
+if any(f.name == 'rust' for f in FEATURES if not f.blacklisted):
+    rust.binary('rg', 'ripgrep', 'ripgrep')
+else:
+    system.package('rg', 'ripgrep')
