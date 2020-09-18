@@ -32,3 +32,10 @@ FLAG="$3"
 if [ "$FLAG" = "1" ] && [ "$CURRENT" != "$PREVIOUS" ]; then
     echo "$PREVIOUS" >> "$LOG_FILE"
 fi
+
+# Run other post-checkout hooks
+for hook in "$GIT_DIR/hooks/post-checkout."*; do
+    if [ -x "$hook" ]; then
+        "$hook" "$@"
+    fi
+done

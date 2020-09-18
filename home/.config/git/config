@@ -56,7 +56,9 @@
 [credential]
     helper = cache
 [init]
-	templatedir = ~/.config/git/templates
+   templatedir = ~/.config/git/templates
+[pull]
+   rebase = true
 [push]
     default = simple
 [rebase]

@@ -1,48 +1,88 @@
 #!/bin/sh
 
-# The directory containing this script
-ROOT="$(dirname "$0")"
-
+##
 # A list of potential binary names for Python 3
 PYTHON3_EXES="python3 python"
 
 ##
+# The directory containing this script
+ROOT="$(dirname "$0")"
+
+##
+# The git directory.
+GIT_DIR="$ROOT/.git"
+
+##
 # The git hook directory.
-HOOK_DIR="$ROOT/.git/hooks"
+HOOK_DIR="$GIT_DIR/hooks"
 
 ##
-# The post-merge hook.
-HOOK="$HOOK_DIR/post-merge"
-
+# The git hook.
+HOOKS="post-checkout.dotfiles post-merge"
 
 ##
-# Installs a post-merge hook to automatically call this script after git pull.
-#
-# If the hook already exists, no action is performed, otherwise a script
-# calling this script, with the current arguments, is created.
-install_hook() {
-    if ! [ -x "$HOOK" ]; then
-        mkdir -p "$HOOK_DIR"
-        cat >"$HOOK" <<EOF
-#!/bin/sh
+# A file containing the currently installed dotfile commit
+TRACKER_FILE="$ROOT/.git/dotfiles-commit"
 
-./install $@
-EOF
-        chmod a+x "$HOOK"
-        echo
-        echo "Installed git hook to $HOOK"
+##
+# The current commit
+CURRENT="$(git rev-parse HEAD)"
+
+
+if [ "$1" = "--only-new-commits" ]; then
+    # Discard the flag
+    shift
+
+    # Is the current commit the one that is already installed?
+    previous="$(cat "$TRACKER_FILE")"
+    if [ "$CURRENT" = "$previous" ]; then
+        echo "No changes."
+        exit
     fi
-}
+
+    # Is a rebase in progress?
+    if [ -d "$GIT_DIR/rebase-apply" ] || [ -d "$GIT_DIR/rebase-merge" ]; then
+        todo="$GIT_DIR/rebase-merge/git-rebase-todo"
+        if [ "$(wc -l "$todo" | cut -d' ' -f1 )" != 0 ]; then
+            exit
+        fi
+    fi
+fi
 
 
 for exe in $PYTHON3_EXES; do
-    if which $exe >/dev/null && $exe --version | grep 'Python 3' >/dev/null
-    then
-        PYTHONPATH="$ROOT/src" $exe -m dotfiles "$ROOT" $@
-        ret="$?"
-        install_hook
-        exit $ret
+    # Ignore unavailable binaries
+    if ! which $exe >/dev/null 2>&1; then
+        echo "$exe does not exist"
+        continue
     fi
+
+    # Ignore Python versions other than 3
+    if ! ( $exe --version | grep 'Python 3' >/dev/null 2>&1 ); then
+        $exe --version
+        continue
+    fi
+
+    # Run the installer and capture the exit code
+    PYTHONPATH="$ROOT/src" $exe -m dotfiles "$ROOT" $@
+    ret="$?"
+
+    # Update the tracker file
+    echo "$CURRENT" >"$TRACKER_FILE"
+
+    # Install hooks
+    for hook in $HOOKS; do
+        mkdir -p "$HOOK_DIR"
+        cat >"$HOOK_DIR/$hook" <<EOF
+#!/bin/sh
+
+./install --only-new-commits
+EOF
+        chmod a+x "$HOOK_DIR/$hook"
+        /bin/echo -e "\033[1mInstalled git hook to\033[0m \033[3m$hook\033[0m."
+    done
+
+    exit $ret
 done
 
 
