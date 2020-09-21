@@ -1,3 +1,9 @@
 alias diff='colordiff'
 alias ipython='python3 -m IPython'
 alias ll='ls -l'
+
+if type -t bat >/dev/null; then
+    alias cat=bat
+elif type -t batbat >/dev/null; then
+    alias cat=batbat
+fi
