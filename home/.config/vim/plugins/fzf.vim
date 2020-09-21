@@ -5,9 +5,7 @@ Plug 'junegunn/fzf.vim'
 " The default options passed to fzf
 let g:fzf#options = [
     \ '--layout=reverse',
-    \ '--info=inline',
-    \ '--preview',
-    \ 'cat {}']
+    \ '--info=inline']
 
 " The default options passed to rg
 let g:rg#options = [
@@ -34,7 +32,7 @@ imap <C-k> <C-o>:call <SID>rg_for_file_window()<CR>
 function! s:fzf(query, fullscreen)
     call fzf#vim#files(
         \ a:query,
-        \ {'options': g:fzf#options},
+        \ fzf#vim#with_preview({'options': g:fzf#options}),
         \ a:fullscreen)
 endfunction
 
