@@ -17,6 +17,12 @@ from gi.repository import GLib, Gdk, Gio, Gtk, Vte
 #: The title of the main window.
 TITLE = 'Terminal Overlay'
 
+#: The monitor index to use.
+MONITOR_ENV = 'TERMINAL_OVERLAY_MONITOR'
+
+#: The default monitor.
+MONITOR_DEFAULT = '-1'
+
 #: The environment variable used to specify the foreground colour.
 FG_COLOR_ENV = 'TERMINAL_OVERLAY_FG_COLOR'
 
@@ -67,6 +73,7 @@ TOGGLE_THROTTLE = 0.2
 def main(command: [str]):
     try:
         Application(
+            os.getenv(MONITOR_ENV, MONITOR_DEFAULT),
             os.getenv(FG_COLOR_ENV, FG_COLOR_DEFAULT),
             os.getenv(BG_COLOR_ENV, BG_COLOR_DEFAULT),
             os.getenv(FONT_SCALE_ENV, FONT_SCALE_DEFAULT),
@@ -78,11 +85,15 @@ def main(command: [str]):
 
 class Application(Gtk.Application):
     def __init__(
-            self, fg_color: str, bg_color: str, font_scale: str,
+            self, monitor: int, fg_color: str, bg_color: str, font_scale: str,
             command: [str]):
         super(Application, self).__init__(
             application_id=SERVICE_NAME,
             flags=Gio.ApplicationFlags.FLAGS_NONE)
+
+        self._screen = Gdk.Screen.get_default()
+        self._display = self._screen.get_display()
+        self._monitor = self._display.get_monitor(int(monitor))
 
         self._fg_color = Gdk.RGBA()
         if not self._fg_color.parse(fg_color):
@@ -182,8 +193,9 @@ class Application(Gtk.Application):
 
         result.stick()
         result.fullscreen_on_monitor(
-            result.get_screen(),
-            result.get_screen().get_primary_monitor())
+            self._screen,
+            self._monitor_num())
+
 
         def delete_event(*_args):
             result.hide()
@@ -196,6 +208,21 @@ class Application(Gtk.Application):
         result.connect('destroy', destroy)
 
         return result
+
+    def _monitor_num(self) -> int:
+        """Returns the index of the monitor to use.
+
+        If the index cannot be found, the primary monitory index is returned.
+        If the primary monitor cannot be found, ``0`` is returned.
+        """
+        primary = 0
+        for n in range(self._display.get_n_monitors()):
+            monitor = self._display.get_monitor(n)
+            if monitor == self._monitor:
+                return n
+            elif monitor.is_primary():
+                primary = n
+        return primary
 
     def _register_actions(self, window: Gtk.Window, terminal: Vte.Terminal):
         """Creates the application actions.
