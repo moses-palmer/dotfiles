@@ -1,6 +1,6 @@
 # If not running interactively, only update the path
 if ! [[ $- == *i* ]]; then
-    . ~/.config/bash/path
+    . ~/.config/environment.d/90-local-bin.conf
     return
 fi
 
