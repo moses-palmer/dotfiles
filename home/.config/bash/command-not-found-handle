@@ -1,21 +1,3 @@
-# The git commands to wrap
-GIT_COMMANDS=( \
-    "amend" \
-    "ap" \
-    "commit" \
-    "cop" \
-    "lc" \
-    "log" \
-    "logg" \
-    "push" \
-    "rebase" \
-    "rep" \
-    "show" \
-    "sc" \
-    "st" \
-)
-
-
 # Allow falling back on the previous definition
 if declare -f command_not_found_handle >/dev/null; then
     eval "previous_$(declare -f command_not_found_handle)"
@@ -27,10 +9,10 @@ fi
 
 
 ##
-# Overrides the handler for command not found to allow for git shortcuts.
+# Overrides the handler for command not found to allow for git aliases.
 command_not_found_handle() {
-    if [[ " ${GIT_COMMANDS[@]} " =~ " $1 " ]] \
-            && git rev-parse --git-dir > /dev/null 2>&1; then
+    if git rev-parse --git-dir > /dev/null 2>&1 \
+            && git config "alias.$1"; then
         git "$@"
     else
         previous_command_not_found_handle "$@"
