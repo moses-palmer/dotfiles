@@ -1,5 +1,9 @@
 # Make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# Make git commands set alternate_on
-export LESS='-R'
+# Make git commands set alternate_on, and quit if content fits on screen
+if [ "$(uname)" != "Darwin" ]; then
+    export LESS='-FR'
+else
+    export LESS='-R'
+fi
