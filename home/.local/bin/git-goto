@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Interactively checks out a git branch.
+
+set -e
+
+
+# List all branches, select one, but filter on the currently checked out
+# branch; make sure to strip the leading '* '
+BRANCH="$(git branch --all \
+    | fzf \
+    | grep -v '\* .*' \
+    | sed -E 's/.{2}(.*)/\1/g')"
+
+if [ -n "$BRANCH" ]; then
+    git checkout "$BRANCH"
+fi
