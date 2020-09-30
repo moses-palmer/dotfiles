@@ -1,0 +1,11 @@
+#!/bin/sh
+
+FZF="$HOME/.vim/plugged/fzf/bin/fzf"
+
+
+if [ -x "$FZF" ]; then
+    "$FZF" "$@"
+else
+    echo "FZF is not installed." >&2
+    exit 1
+fi
