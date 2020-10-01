@@ -19,7 +19,7 @@
     ls = ls-tree --name-only HEAD
     rep = reset -p
     reshape = !git-reshape
-    return = !git-return
+    ret = !git-ret
     review = !git-review
     sc = !git-sc
     st = status

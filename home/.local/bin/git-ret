@@ -7,11 +7,11 @@ usage() {
     cat <<EOF
 Returns to the previously checked out commit.
 
-Usage: git return
-       git return --list
-       git return --prune SIZE
-       git return --remember
-       git return --undo
+Usage: git ret
+       git ret --list
+       git ret --prune SIZE
+       git ret --remember
+       git ret --undo
 
 With no arguments, this script attempts to find the previously checked out
 commit from the log file. This requires that a post-checkout hook is present in
