@@ -5,6 +5,6 @@
 set -e
 
 
-. ~/.config/git/helpers
+. ~/.local/lib/git/helpers
 
 git log --patch --color-words="$WORD_SPLIT" $@

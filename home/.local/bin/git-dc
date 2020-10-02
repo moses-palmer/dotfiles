@@ -5,6 +5,6 @@
 set -e
 
 
-. ~/.config/git/helpers
+. ~/.local/lib/git/helpers
 
 git diff --color-words="$WORD_SPLIT" $@
