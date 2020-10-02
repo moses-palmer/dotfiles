@@ -1,10 +1,12 @@
 #!/bin/sh
 #
-# Displays git log with a diff using word-splitting.
+## Displays git log with a diff using word-splitting.
+##
+## This command accepts all arguments that git log accepts.
 
 set -e
-
-
+. ~/.local/lib/bash/autohelp
 . ~/.local/lib/git/helpers
 
-git log --patch --color-words="$WORD_SPLIT" $@
+
+git log --patch --color-words="$WORD_SPLIT" "$@"

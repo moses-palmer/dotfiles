@@ -1,11 +1,19 @@
 #!/bin/sh
 #
-# Reviews a branch from a remote.
-#
-# This script will keep the remote branch checked out while displaying the
-# changes, and then revert to the currently checked out branch or commit.
+## Reviews a branch from a remote.
+##
+## This script will keep the remote branch checked out while displaying the
+## changes, and then revert to the currently checked out branch or commit.
+##
+## Usage: git review SOURCE_BRANCH
+##        git review SOURCE_COMMIT TARGET_COMMIT.
+##
+## SOURCE_BRANCH is the unqualified name of a remote branch. When passing only a
+## source branch, the target will be set to the default branch for the default
+## remote.
 
 set -e
+. ~/.local/lib/bash/autohelp
 
 
 ##
@@ -35,14 +43,8 @@ else
             ;;
 
         *)
-            cat <<EOF
-Usage: git review SOURCE_BRANCH
-       git review SOURCE_COMMIT TARGET_COMMIT.
-SOURCE_BRANCH is the unqualified name of a remote branch. When passing only a
-source branch, the target will be set to the default branch for the default
-remote.
-EOF
-            exit
+            autohelp
+            exit 1
             ;;
     esac
 fi

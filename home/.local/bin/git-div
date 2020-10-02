@@ -1,18 +1,15 @@
 #!/bin/sh
+#
+## Finds the commit where two branches diverged.
+##
+## Usage: git div [BRANCH1] [BRANCH2]
+##
+## BRANCH1 defaults to HEAD.
+##
+## BRANCH2 defaults to `git default-branch --allow-local` (the default branch).
 
 set -e
-
-
-if [ "$1" = "-h" ]; then
-    cat <<EOF
-Finds the commit where two branches diverged.
-
-Usage: git div [BRANCH1] [BRANCH2]
-BRANCH1 defaults to HEAD.
-BRANCH2 defaults to `git default-branch --allow-local` (the default branch).
-EOF
-    exit 0
-fi
+. ~/.local/lib/bash/autohelp
 
 
 # Determine which branches to check
@@ -30,6 +27,11 @@ case "$#" in
     2)
         A="$1"
         B="$2"
+        ;;
+
+    3)
+        autohelp
+        exit 1
         ;;
 esac
 

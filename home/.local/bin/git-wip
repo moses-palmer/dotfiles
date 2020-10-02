@@ -1,8 +1,26 @@
 #!/bin/sh
 #
-# Supports a remote work-in-progress branch and a local sttach commit.
+## Supports a remote work-in-progress branch and a local stash commit. A local
+## stash commit contains all local changes, including untracked files.
+##
+## The remote to use is controlled with the git configuration value wip.remote,
+## with a default of "wip".
+##
+## Usage: git wip delete
+##        git wip push
+##        git wip stash
+##        git wip
+##
+## git wip delete deletes the remote branch.
+##
+## git wip push pushes to the remote branch.
+##
+## git wip stash creates a stash commit, or if the commit message of HEAD is
+## STASH, amends the current one. This is the default command.
 
 set -e
+. ~/.local/lib/bash/autohelp
+
 
 ##
 # The root of the repository.
@@ -82,6 +100,6 @@ case "${1:-stash}" in
         ;;
 
     *)
-        echo "Usage: $0 delete|push|stash"
+        unknown_command "$1"
         exit 1
 esac

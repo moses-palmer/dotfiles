@@ -1,0 +1,36 @@
+# Source this file to automatically add help text to a script.
+#
+# The help text is extracted from the script file and consists of all lines
+# beginning with "##", with the prefix stripped, until an empty line is
+# encountered.
+#
+# The help text is displayed if any argument passed to the script is "-h" or
+# "--help". If this is the only argument, the script is terminated.
+
+##
+# Displays a help text extracted from the script itself.
+autohelp() {
+    sed -e '/^$/,$d' "$0" | awk '/^##/ { print substr($0, 4) }'
+    echo
+}
+
+
+##
+# Displays an error message about an unknown command followed by a help text
+# extracted from the script itself and finally exists with error code 1.
+unknown_command() {
+    echo "Unknown command: $1"
+    echo
+    autohelp
+    exit 1
+}
+
+
+for arg in "$@"; do
+    if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+        autohelp
+        if [ "$#" = "1" ]; then
+            exit
+        fi
+    fi
+done

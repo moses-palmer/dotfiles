@@ -1,9 +1,21 @@
 #!/bin/sh
 #
-# Forwards an SSH connection to a different machine, optionally turning it on
-# if it is not running.
+## Forwards an SSH connection to a different machine, optionally turning it on
+## if it is not running.
+##
+## Usage: forward-ssh HOSTDEF
+##
+## HOSTDEF is a hostname or a string on the format USER@HOST.
 
 set -e
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" = "0" ]; then
+    autohelp
+    exit 1
+fi
+
 
 ##
 # The minimum connection time before considering a connection attempt

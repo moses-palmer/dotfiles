@@ -1,25 +1,19 @@
 #!/bin/sh
 #
-# Lists other files provided by the package providing the specified files.
+## Lists other files provided by the package providing the specified files.
+##
+## Usage: pak by-size
+##        pak list PACKAGE
+##        pak package PATH
+##
+## by-size lists installed packages ordered by size on disk.
+##
+## list lists all files in the package PACKAGE.
+##
+## package determines to which package the file PATH belongs.
 
-usage() {
-    cat <<EOF
-Usage: pak by-size
-       pak list PACKAGE
-       pak package PATH
-
-by-size lists installed packages ordered by size on disk.
-
-list lists all files in the package PACKAGE.
-
-package determines to which package the file PATH belongs.
-EOF
-}
-
-if [ "$#" -lt 1 ]; then
-    echo "$USAGE"
-    exit 0
-fi
+set -e
+. ~/.local/lib/bash/autohelp
 
 
 if which dpkg >/dev/null 2>&1; then
@@ -79,7 +73,6 @@ case "$1" in
         ;;
 
     *)
-        usage
-        exit 1
+        unknown_command "$1"
         ;;
 esac

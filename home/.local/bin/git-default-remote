@@ -1,8 +1,10 @@
 #!/bin/sh
 #
-# Prints the name of the first remote for the current repository.
+## Prints the name of the first remote for the current repository.
 
 set -e
+. ~/.local/lib/bash/autohelp
+
 
 # Get the name of the first remote
 remote="$(git remote show | head -n1)"

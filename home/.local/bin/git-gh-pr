@@ -1,8 +1,22 @@
 #!/bin/sh
 #
-# Checks out a PR from github.
+## Checks out a PR from github.
+##
+## Usage: git gh-pr PR [BRANCH]
+##
+## PR is the github PR number.
+##
+## BRANCH is the name of the local branch to create. If not specified, "pr-PR"
+## is used.
 
 set -e
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" -lt 1 ]; then
+    autohelp
+    exit 1
+fi
 
 
 ##
