@@ -1,8 +1,20 @@
 #!/bin/sh
 #
-# Reviews a PR from github.
+## Reviews a PR from github.
+##
+## Usage: git gh-review PR
+##
+## PR is the github PR number.
 
 set -e
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" -lt 1 ]; then
+    autohelp
+    exit 1
+fi
+
 
 # Assert that the index is clean
 if ! git diff-index --quiet HEAD --; then

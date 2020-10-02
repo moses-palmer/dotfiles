@@ -1,8 +1,12 @@
 #!/bin/sh
 #
-# Interactively checks out a git branch.
+## Interactively checks out a git branch.
+##
+## When run, a fuzzy search using fzf is launched on all branch names, and if a
+## branch other than the current one is selected, it is checked out.
 
 set -e
+. ~/.local/lib/bash/autohelp
 
 
 # List all branches, select one, but filter on the currently checked out

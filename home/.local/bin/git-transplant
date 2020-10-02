@@ -1,12 +1,16 @@
 #!/bin/sh
 #
-# Copies all commits that have diverged from the default branch from one branch
-# to another.
-#
-# This script is useful to incorporate a feature branch in a branch other than
-# master.
+## Transplants a feature branch onto another branch.
+##
+## This script is useful to incorporate a feature branch in a branch other than
+## master.
+##
+## Usage: git transplant FEATURE_BRANCH TARGET_BRANCH
+##        git transplant --continue
 
 set -e
+. ~/.local/lib/bash/autohelp
+
 
 ##
 # The git directory.
@@ -15,19 +19,6 @@ GIT_DIR="$(git rev-parse --git-dir)"
 ##
 # The file used to store the transplant target branch.
 TARGET_FILE="$GIT_DIR/transplant-target"
-
-
-##
-# Prints usage and exits.
-usage() {
-    cat << EOF
-Transplants a feature branch onto another branch.
-
-Usage: git transplant FEATURE_BRANCH TARGET_BRANCH
-       git transplant --continue
-EOF
-    exit 0
-}
 
 
 ##
@@ -76,5 +67,6 @@ EOF
 elif [ "$#" = 1 ] && [ "$1" = "--continue" ]; then
     finalize
 else
-    usage
+    autohelp
+    exit 1
 fi

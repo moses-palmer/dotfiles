@@ -1,11 +1,19 @@
 #!/bin/bash
 #
-# Manages an encrypted file database.
-#
-# This application maintains a file located under ~/.local/share with encrypted
-# content. The filename depends on the actual name used to invoke this script.
+## Manages an encrypted file database.
+##
+## This application maintains a file located under ~/.local/share with encrypted
+## content. The filename depends on the actual name used to invoke this script.
+##
+## Usage: estore create NAME
+##        estore open NAME
+##
+## When a store has been created, a script with the name of the store is also
+## created, that, when when executed, will open the store for editing.
 
 set -e -o pipefail
+. ~/.local/lib/bash/autohelp
+
 
 # When executed with no parameters as a link, call ourself with the link name
 if [ -z "$1" ] && [ -h "$0" ]; then
@@ -98,7 +106,6 @@ case "$1" in
         ;;
 
     *)
-        echo "Usage: $0 create <name> | open <name>"
-        exit 1
+        unknown_command "$1"
         ;;
 esac

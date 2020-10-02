@@ -1,10 +1,12 @@
 #!/bin/sh
 #
-# Displays git diff using word-splitting.
+## Displays git diff using word-splitting.
+##
+## This command accepts all arguments that git diff accepts.
 
 set -e
-
-
+. ~/.local/lib/bash/autohelp
 . ~/.local/lib/git/helpers
 
-git diff --color-words="$WORD_SPLIT" $@
+
+git diff --color-words="$WORD_SPLIT" "$@"

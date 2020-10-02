@@ -1,6 +1,10 @@
 #!/bin/sh
 #
-# Prints the name of the default branch.
+## Prints the name of the default branch.
+
+set -e
+. ~/.local/lib/bash/autohelp
+
 
 remote="$(git default-remote 2>/dev/null)"
 if [ "$?" = "0" ]; then

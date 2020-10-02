@@ -1,8 +1,9 @@
 #!/bin/sh
 #
-# Rebases the current branch onto the default branch of the first remote.
+## Rebases the current branch onto the default branch of the first remote.
 
 set -e
+. ~/.local/lib/bash/autohelp
 
 
 # The repository root

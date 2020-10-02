@@ -1,6 +1,18 @@
 #!/bin/sh
 #
-# Displays the environment variables for a process.
+## Displays the environment variables for a process.
+##
+## Usage: procenv PID
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" -lt 1 ]; then
+    autohelp
+    exit 1
+fi
+
 
 ##
 # The PID of the process whose environment to read.
