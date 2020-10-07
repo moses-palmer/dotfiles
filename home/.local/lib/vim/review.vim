@@ -15,6 +15,8 @@ set noswapfile
 set nowrap
 set readonly
 
+nnoremap <PageUp> :call <SID>jump_to_file('b')<CR>
+nnoremap <PageDown> :call <SID>jump_to_file('')<CR>
 nnoremap <S-PageUp> :call <SID>jump_to_commit('b')<CR>
 nnoremap <S-PageDown> :call <SID>jump_to_commit('')<CR>
 nnoremap <leader>g :call <SID>open_modifications()<CR>
@@ -192,6 +194,13 @@ function! s:toggle_zoom()
         call s:for_child(l:win_b, 'wincmd J')
         call s:for_parent('wincmd H')
     endif
+endfunction
+
+
+" Jumps to a file by searching for a file diff header line.
+function! s:jump_to_file(flags)
+    call search('^[^\p]*diff --git a/.*', a:flags)
+    execute('normal zt')
 endfunction
 
 
