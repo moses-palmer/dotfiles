@@ -4,7 +4,7 @@ shopt -s checkwinsize
 
 
 # The environment files may not have been applied
-if [ "${PATH#*.local/bin}" = "$PATH" ]; then
+if [ "$__ENV_LOADED" != "yes" ]; then
     . ~/.config/environment.d/ZZ-local-bin.conf
 fi
 
