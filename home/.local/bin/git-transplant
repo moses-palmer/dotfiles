@@ -6,6 +6,7 @@
 ## master.
 ##
 ## Usage: git transplant FEATURE_BRANCH TARGET_BRANCH
+##        git transplant --abort
 ##        git transplant --continue
 
 set -e
@@ -30,6 +31,24 @@ begin() {
 
     echo "$target" > "$TARGET_FILE"
     git rebase --onto "$target" "$start" "$end"
+}
+
+
+##
+# Aborts a transplant process.
+abort() {
+    if [ ! -f "$TARGET_FILE" ]; then
+        echo "No transplant in progress" >&2
+        exit 1
+    fi
+
+    # Abort a rebase if one is in progress
+    if [ -d "$GIT_DIR/rebase-merge" ] || [ -d "$GIT_DIR/rebase-apply" ]; then
+        git rebase --abort
+    fi
+
+    # Remove the transplant file
+    rm "$TARGET_FILE"
 }
 
 
@@ -60,10 +79,16 @@ Failed to transplant ${bold}$1${c} onto ${bold}$2${c}!
 Please resolve all merge conflicts, and then run:
 
     ${bold}git transplant --continue${c}
+
+To abort the process, run:
+
+    ${bold}git transplant --abort${c}
 EOF
     else
         finalize
     fi
+elif [ "$#" = 1 ] && [ "$1" = "--abort" ]; then
+    abort
 elif [ "$#" = 1 ] && [ "$1" = "--continue" ]; then
     finalize
 else
