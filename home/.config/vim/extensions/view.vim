@@ -9,7 +9,9 @@ set ruler
 
 " Scroll instead of wrap
 set nowrap
-set sidescroll=4
+set sidescroll=1
+set listchars=extends:>,precedes:<
+set sidescrolloff=2
 
 
 " Scroll using arrow keys
