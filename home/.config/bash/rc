@@ -5,7 +5,7 @@ shopt -s checkwinsize
 
 # The environment files may not have been applied
 if [ "${PATH#*.local/bin}" = "$PATH" ]; then
-    . ~/.config/environment.d/90-local-bin.conf
+    . ~/.config/environment.d/ZZ-local-bin.conf
 fi
 
 
