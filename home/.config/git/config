@@ -30,11 +30,12 @@
     name = Moses Palmér
     email = mosespalmer@gmail.com
 [core]
+    attributesFile = ~/.config/git/attributes
     editor = vim
-    whitespace = blank-at-eol,blank-at-eof,space-before-tab
     filemode = false
-    tabwidth = 4
     pager = less -S
+    tabwidth = 4
+    whitespace = blank-at-eol,blank-at-eof,space-before-tab
 
 [color]
     ui = auto
