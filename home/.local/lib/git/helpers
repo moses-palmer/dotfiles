@@ -1,3 +1,6 @@
 ##
 # The regular expression separating words.
 WORD_SPLIT='[^][<>()\{},.;:?/|\\=+*&^%$#@!~`"'\''[:space:]]+|[][<>(){},.;:?/|\\=+*&^%$#@!~`"'\'']'
+
+
+alias git='git -c core.pager="less -S" -c interactive.diffFilter=cat'
