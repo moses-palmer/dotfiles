@@ -47,8 +47,12 @@ function! s:load_changes()
     " Make sure we focus the parent window
     call s:goto_parent()
 
-    " Store the current commit so we can return
-    if search('commit [0-9a-h]\{7\}', 'bcW')
+    " Store the current file and commit so we can return; move one line down to
+    " include the current line although we search backwards
+    execute('normal j')
+    if search('diff --git ', 'bcW')
+        let l:path = getline('.')
+        call search('commit [0-9a-h]\{7\}', 'bcW')
         let l:commit = split(getline('.'))[1]
     endif
 
@@ -77,6 +81,7 @@ function! s:load_changes()
     execute('0')
     if exists('l:commit')
         call search('commit ' . l:commit, '')
+        call search(l:path, '')
         execute('normal zt')
     endif
 
