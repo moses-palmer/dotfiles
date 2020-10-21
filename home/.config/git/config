@@ -58,6 +58,8 @@
     whitespace = fix
 [credential]
     helper = cache
+[diff]
+    colorMoved = default
 [init]
    templatedir = ~/.config/git/templates
 [pull]
