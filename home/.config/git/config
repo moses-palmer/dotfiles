@@ -33,7 +33,7 @@
     attributesFile = ~/.config/git/attributes
     editor = vim
     filemode = false
-    pager = less -S
+    pager = git-pager
     tabwidth = 4
     whitespace = blank-at-eol,blank-at-eof,space-before-tab
 
@@ -62,6 +62,8 @@
     colorMoved = default
 [init]
    templatedir = ~/.config/git/templates
+[interactive]
+    diffFilter = git-diff-filter
 [pull]
    rebase = true
 [push]
