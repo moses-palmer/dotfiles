@@ -11,12 +11,14 @@ endif
 function! lib#for_editor_window(command)
     let l:winnr = lib#editor_window()
     if l:winnr > -1
-        let l:current = winnr()
+        let l:current = getwininfo(winnr())
         execute l:winnr . 'wincmd w'
         try
             execute a:command
         finally
-            execute l:current . 'wincmd w'
+            if !empty(l:current)
+                execute win_id2win(l:current[0].winid) . 'wincmd w'
+            endif
         endtry
     endif
 endfunction
