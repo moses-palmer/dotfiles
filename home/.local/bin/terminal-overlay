@@ -159,9 +159,15 @@ class Application(Gtk.Application):
         result.set_scroll_on_output(True)
 
         if hasattr(result, 'spawn_async'):
+            def callback(terminal, pid, error, *_):
+                if error is not None:
+                    print(error)
+                    sys.exit(1)
+
             def spawn():
                 result.spawn_async(Vte.PtyFlags.DEFAULT, None, self._command,
-                    None, GLib.SpawnFlags.SEARCH_PATH, None, -1, -1, None, None)
+                    None, GLib.SpawnFlags.SEARCH_PATH, None, -1, -1, None,
+                    callback)
         else:
             def spawn():
                 result.spawn_sync(Vte.PtyFlags.DEFAULT, None, self._command,
