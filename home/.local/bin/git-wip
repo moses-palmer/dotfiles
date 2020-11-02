@@ -57,6 +57,19 @@ delete() {
 
 
 ##
+# Pulls from the work-in-progress remote.
+pull() {
+    # Make sure the remote exists
+    if ! git remote | grep --quiet "$REMOTE"; then
+        echo "There is not remote named $REMOTE."
+        exit 1
+    fi
+
+    git pull "$REMOTE" "$BRANCH"
+}
+
+
+##
 # Pushes the current commit to the work-in-progress remote.
 push() {
     # Make sure the remote exists
@@ -89,6 +102,10 @@ stash() {
 case "${1:-stash}" in
     delete)
         delete
+        ;;
+
+    pull)
+        pull
         ;;
 
     push)
