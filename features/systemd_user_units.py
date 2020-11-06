@@ -28,8 +28,10 @@ def units(env: Feature) -> Sequence[str]:
 
     :return: a list of unit names, including extension
     """
-    return os.listdir(os.path.join(
-        env.source, '.config', 'systemd', 'user'))
+    directory = os.path.join(env.source, '.config', 'systemd', 'user')
+    return filter(
+        lambda p: os.path.isfile(os.path.join(directory, p)),
+        os.listdir(directory))
 
 
 def enabled(env: Feature, unit: str) -> bool:
