@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+
+# Copy the current selection if any
+if [ "$(echo "$TMUX_VERSION >= 2.4" | bc)" = "1" ]; then
+    tmux send -X copy-selection-and-cancel || true
+elif [ "$(echo "$TMUX_VERSION <= 2.3" | bc)" = "1" ]; then
+    tmux send -X copy-selection || true
+fi
+
+
+# Paste it into the clipboard
+if which wl-copy >/dev/null 2>&1 && [ -n "$WAYLAND_DISPLAY" ]; then
+    tmux save-buffer - | wl-copy
+elif which xclip >/dev/null 2>&1 && [ -n "$DISPLAY" ]; then
+    tmux save-buffer - | xclip -selection clipboard
+else
+    echo "No clipboard manager available."
+fi
