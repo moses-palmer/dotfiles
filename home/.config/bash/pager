@@ -1,0 +1,2 @@
+export PAGER='less -R'
+export BAT_PAGER="$PAGER"
