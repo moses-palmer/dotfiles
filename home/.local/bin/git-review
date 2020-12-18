@@ -7,10 +7,15 @@
 ##
 ## Usage: git review SOURCE_BRANCH
 ##        git review SOURCE_COMMIT TARGET_COMMIT.
+##        git review --changes SOURCE_BRANCH
 ##
 ## SOURCE_BRANCH is the unqualified name of a remote branch. When passing only a
 ## source branch, the target will be set to the default branch for the default
 ## remote.
+##
+## When passing --changes as the first argument, changes to the source branch
+## are displayed as a diff. This assumes that the source branch has previously
+## been fetched.
 
 set -e
 . ~/.local/lib/bash/autohelp
@@ -29,6 +34,23 @@ ORIGINAL="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)"
 if ! git diff-index --quiet HEAD --; then
     echo "Your repository contains local changes."
     exit
+elif [ "$1" == "--changes" ]; then
+    if [ "$#" = "2" ]; then
+        remote="$(git default-remote)"
+        current="$(git rev-parse "$remote/$2")"
+        git fetch
+        next="$(git rev-parse "$remote/$2")"
+        if [ "$current" = "$next" ]; then
+            echo "No changes."
+        else
+            echo -e "Showing upstream changes to \033[1m$2\033[0m."
+            git diff "$current".."$next"
+        fi
+        exit 0
+    else
+        autohelp
+        exit 1
+    fi
 else
     case "$#" in
         1)
