@@ -14,6 +14,7 @@
     gh-pr = !git-gh-pr
     gh-review = !git-gh-review
     goto = !git-goto
+    l = log --oneline
     logg = log --graph --decorate
     lg = log --graph --decorate --oneline
     ls = ls-tree --name-only HEAD
