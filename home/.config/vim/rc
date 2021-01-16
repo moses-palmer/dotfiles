@@ -1,5 +1,8 @@
 set expandtab
 set hidden
+set hlsearch
+set ignorecase
+set incsearch
 set nocompatible
 set shiftwidth=4
 set smarttab
