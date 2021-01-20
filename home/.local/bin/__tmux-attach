@@ -1,0 +1,10 @@
+#!/bin/sh
+## Attempts to attach to a tmux session, unless an original SSH command is
+## specified through $SSH_ORIGINAL_COMMAND, in which case that is spawned
+## instead.
+
+if [ -n "$SSH_ORIGINAL_COMMAND" ]; then
+    $SSH_ORIGINAL_COMMAND
+else
+    tmux attach
+fi
