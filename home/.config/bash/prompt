@@ -2,6 +2,8 @@ if [ -f "/usr/lib/git-core/git-sh-prompt" ]; then
     . /usr/lib/git-core/git-sh-prompt
 elif [ -f "/usr/share/git-core/contrib/completion/git-prompt.sh" ]; then
     . /usr/share/git-core/contrib/completion/git-prompt.sh
+elif [ -f "/usr/local/etc/bash_completion.d/git-prompt.sh" ]; then
+    . "/usr/local/etc/bash_completion.d/git-prompt.sh"
 fi
 
 if declare -ft __git_ps1; then
