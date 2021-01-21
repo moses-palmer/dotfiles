@@ -1,7 +1,7 @@
 from . import Feature, system
 
 
-system.package(__name__.rsplit('.')[-1])
+system.package(__name__.rsplit('.')[-1], 'git')
 
 
 def clone(env: Feature, repository: str, target: str):

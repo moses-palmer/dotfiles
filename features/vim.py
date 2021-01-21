@@ -1,7 +1,7 @@
 from . import Feature, system
 
 
-system.package(__name__.rsplit('.')[-1])
+system.package(__name__.rsplit('.')[-1], 'vim')
 
 
 def run(env: Feature, *commands: str):

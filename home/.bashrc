@@ -1,3 +1,7 @@
+if ! echo "$PATH" | grep -q '/usr/local/bin'; then
+    PATH="/usr/local/bin:$PATH"
+fi
+
 # If not running interactively, only update the path
 if ! [[ $- == *i* ]]; then
     . ~/.config/environment.d/ZZ-local-bin.conf
@@ -15,3 +19,5 @@ fi
 
 # Allow overriding the prompt
 export PS1="$PS1_PREFIX$PS1$PS1_SUFFIX"
+
+export PATH
