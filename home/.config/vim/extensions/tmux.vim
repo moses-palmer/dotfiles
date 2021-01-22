@@ -1,16 +1,16 @@
 " Move between splits and tmux panes using shift+alt+arrow
-map <S-C-Left> :TmuxLeft<CR>
-map! <S-C-Left> <C-o>:TmuxLeft<CR>
-tnoremap <S-C-Left> <C-w>h
-map <S-C-Down> :TmuxDown<CR>
-map! <S-C-Down> <C-o>:TmuxDown<CR>
-tnoremap <S-C-Down> <C-w>j
-map <S-C-Up> :TmuxUp<CR>
-map! <S-C-Up> <C-o>:TmuxUp<CR>
-tnoremap <S-C-Up> <C-w>k
-map <S-C-Right> :TmuxRight<CR>
-map! <S-C-Right> <C-o>:TmuxRight<CR>
-tnoremap <S-C-Right> <C-w>l
+map <silent> <S-C-Left> :TmuxLeft<CR>
+map! <silent> <S-C-Left> <C-o>:TmuxLeft<CR>
+tnoremap <silent> <S-C-Left> <C-w>h
+map <silent> <S-C-Down> :TmuxDown<CR>
+map! <silent> <S-C-Down> <C-o>:TmuxDown<CR>
+tnoremap <silent> <S-C-Down> <C-w>j
+map <silent> <S-C-Up> :TmuxUp<CR>
+map! <silent> <S-C-Up> <C-o>:TmuxUp<CR>
+tnoremap <silent> <S-C-Up> <C-w>k
+map <silent> <S-C-Right> :TmuxRight<CR>
+map! <silent> <S-C-Right> <C-o>:TmuxRight<CR>
+tnoremap <silent> <S-C-Right> <C-w>l
 
 command! TmuxLeft call <SID>navigate('h')
 command! TmuxDown call <SID>navigate('j')
