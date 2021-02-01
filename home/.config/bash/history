@@ -5,7 +5,7 @@ export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
 shopt -s histappend
 
 # Do not put duplicate lines in the history
-HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+HISTCONTROL="ignoreboth:erasedups"
 
 # Include time stamp in history
 HISTTIMEFORMAT="%h %d %H:%M:%S "
