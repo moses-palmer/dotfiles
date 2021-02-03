@@ -1,0 +1,25 @@
+#!/bin/sh
+## Displays the staged changes with git blame context.
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+##
+# The repository root.
+ROOT="$(git rev-parse --show-toplevel)"
+
+
+path=""
+git diff --cached | while read line; do
+    if echo "$line" | grep '^--- a/' >/dev/null; then
+        path="$(echo "$line" \
+            | tail --bytes=+7)"
+        /bin/echo -e "\033[1;33m$path\033[0m"
+    elif echo "$line" | grep '^@@' >/dev/null; then
+        span="$(echo "$line" \
+            | sed 's/@@ -[^ ]\+ +\([^,]\+\),\([^ ]\+\).*/\1,+\2/')"
+        /bin/echo -e "\033[1;35m@@ $span @@\033[0m"
+        git blame -s -L "$span" -- "$ROOT/$path" \
+            | sed "s/^\([0-9a-f]\+\)/\x1b[1;32m\1\x1b[0m/g"
+    fi
+done
