@@ -26,6 +26,7 @@
     sc = !git-sc
     st = status
     subpull = submodule foreach --recursive git pull --all
+    staged = !git-staged
     transplant = !git-transplant
     wip = !git-wip
 [user]
