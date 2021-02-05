@@ -1,7 +1,0 @@
-##
-# Override cd to fall back on cdx.
-cd() {
-    builtin cd "$@" && return
-    [ "$OLDPWD" = "$PWD" ] || cdx "$@"
-}
-

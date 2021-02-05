@@ -1,0 +1,130 @@
+##
+# The main git commands.
+__GIT_COMMANDS=( \
+    add
+    am
+    archive
+    bisect
+    branch
+    bundle
+    checkout
+    cherry-pick
+    citool
+    clean
+    clone
+    commit
+    describe
+    diff
+    fetch
+    format-patch
+    gc
+    grep
+    gui
+    init
+    log
+    merge
+    mv
+    notes
+    pull
+    push
+    rebase
+    reset
+    revert
+    rm
+    shortlog
+    show
+    stash
+    status
+    submodule
+    tag
+)
+
+##
+# The top level of the current repository.
+__GIT_TOPLEVEL=""
+
+
+##
+# Override cd for git helpers.
+cd() {
+    builtin cd "$@"
+
+    local toplevel="$(git rev-parse --show-toplevel 2>/dev/null)"
+    if [ "$toplevel" = "$__GIT_TOPLEVEL" ]; then
+        return 0
+    elif [ -n "$toplevel" ]; then
+        __git_register_commands
+    else
+        __git_unregister_commands
+    fi
+
+    __GIT_TOPLEVEL="$toplevel"
+}
+
+
+__git_register_commands() {
+    local completer="$(complete -p git 2>/dev/null \
+        | sed 's/.*-F[ ]\+\([^ ]\+\).*/\1/g')"
+
+    for command in ${__GIT_COMMANDS[@]}; do
+        __git_register_command "$command" "$completer"
+    done
+    for command in $(git config --get-regexp '^alias\.' \
+            | sed 's/^alias\.\([^ ]\+\).*/\1/g'); do
+        __git_register_command "$command" "$completer"
+    done
+}
+
+__git_register_command() {
+    local command="$1"
+    local completer="$2"
+
+    # Do not shadow existing commands
+    if which "$command" >/dev/null 2>&1; then
+        return
+    fi
+
+    alias $1="git $command"
+
+    # Do not install a completer if this is a shell wrapper
+    if [ -n "$completer" ] \
+            && ! git config alias.$command 2>/dev/null | grep -q '^!'; then
+        eval "function __git_complete_$command { \
+            (( COMP_CWORD +=1 ))
+            COMP_WORDS=( $command \${COMP_WORDS[@]} )
+            $completer
+            return $?
+        }"
+        complete -F "__git_complete_$command" "$command"
+    fi
+}
+
+
+__git_unregister_commands() {
+    for command in ${__GIT_COMMANDS[@]}; do
+        __git_unregister_command "$command"
+    done
+    for command in $(git config --get-regexp '^alias\.' \
+            | sed 's/^alias\.\([^ ]\+\).*/\1/g'); do
+        __git_unregister_command "$command"
+    done
+}
+
+__git_unregister_command() {
+    local command="$1"
+
+    # Only unregister aliases we previously registererd
+    if ! alias "$command" >/dev/null 2>&1; then
+        return
+    fi
+
+    unalias $command
+    complete -r "$command" 2>/dev/null
+}
+
+
+# Make sure to invoke this at startup
+if ! complete -p git 1>/dev/null 2>&1; then
+    _completion_loader git >/dev/null 2>&1
+fi
+cd .
