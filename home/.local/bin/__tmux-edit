@@ -3,11 +3,12 @@
 # We must source this explicitly, since ~/.bashrc bails in command mode
 set -o vi
 source ~/.config/bash/rc
+[ -f .tmux-edit ] && source .tmux-edit
 
 
 ##
 # The name of the current project.
-PROJECT="$(basename "$(pwd)")"
+PROJECT="${PROJECT:-$(basename "$(pwd)")}"
 
 ##
 # The name of the window option.
@@ -15,7 +16,7 @@ VAR="@__edit"
 
 ##
 # The width of the editor pane.
-WIDTH="132"
+WIDTH="${WIDTH:-132}"
 
 ##
 # A project local bash history file.
