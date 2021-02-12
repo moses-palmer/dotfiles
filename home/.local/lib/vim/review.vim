@@ -149,8 +149,10 @@ function! s:open_modifications()
     " Add buffer local mappings for diff interactions
     nnoremap <buffer> <Up> :call <SID>for_children("normal k")<CR>
     nnoremap <buffer> <Down> :call <SID>for_children("normal j")<CR>
-    nnoremap <buffer> <Left> :call <SID>for_children("normal ['")<CR>
-    nnoremap <buffer> <Right> :call <SID>for_children("normal ]'")<CR>
+    nnoremap <buffer> <Left> :call <SID>for_children("normal h'")<CR>
+    nnoremap <buffer> <Right> :call <SID>for_children("normal l'")<CR>
+    nnoremap <buffer> <PageUp> :call <SID>for_children("normal ['")<CR>
+    nnoremap <buffer> <PageDown> :call <SID>for_children("normal ]'")<CR>
     nnoremap <buffer> <leader>q :call <SID>close_modifications()<CR>
     nnoremap <buffer> <F9> :call <SID>toggle_zoom()<CR>
 endfunction
@@ -220,6 +222,7 @@ endfunction
 function! s:has_children()
     return exists('w:review_win_a') && exists('w:review_win_b')
 endfunction
+
 
 " Executes a command in all diff-open child windows.
 function! s:for_children(cmd)
@@ -393,6 +396,8 @@ function! s:open_at_rev(prefix, path, rev, chunks, lineno)
     nnoremap <buffer> <leader>q :silent! call <SID>close_modifications()<CR>
     nnoremap <buffer> k <C-y>
     nnoremap <buffer> j <C-e>
+    nnoremap <buffer> h zh
+    nnoremap <buffer> l zl
 endfunction
 
 
