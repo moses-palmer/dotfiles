@@ -22,7 +22,7 @@ bind-key -n C-Down if-shell "$is_vim" "send-keys S-C-Down" "select-pane -D"
 set-option -g default-terminal xterm-256color
 
 # Ctrl+PgUp to enter copy mode and scroll up
-bind-key -n C-PPage copy-mode -u
+bind-key -n C-PPage copy-mode -eu
 
 # Enable copy pasting
 bind-key C-p paste-buffer
