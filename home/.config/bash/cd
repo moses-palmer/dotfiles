@@ -139,3 +139,10 @@ if ! complete -p git 1>/dev/null 2>&1; then
     _completion_loader git >/dev/null 2>&1
 fi
 cd .
+
+
+##
+# Create a directory and change to it.
+md() {
+    mkdir -p "$1" && cd "$1"
+}
