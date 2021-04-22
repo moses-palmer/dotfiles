@@ -1,4 +1,9 @@
 ##
+# Simplify jumping to projects.
+CDPATH=".:$HOME/src"
+
+
+##
 # The main git commands.
 __GIT_COMMANDS=( \
     add
