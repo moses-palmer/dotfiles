@@ -18,6 +18,6 @@ fi
 . ~/.config/bash/rc
 
 # Allow overriding the prompt
-export PS1="$PS1_PREFIX$PS1$PS1_SUFFIX"
+export PS1="\e[37m→ \t\e[0;m\n$PS1_PREFIX$PS1$PS1_SUFFIX"
 
 export PATH
