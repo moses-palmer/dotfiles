@@ -27,8 +27,8 @@ augroup NERDTree
         \ | NERDTree | execute 'wincmd l'| endif
 augroup END
 
-map <C-h> :NERDTreeFind<cr>
-imap <C-h> <C-o>:NERDTreeFind<cr>
+map <C-h> :call <SID>jump_to_current()<cr>
+imap <C-h> <C-o>:call <SID>jump_to_current()<cr>
 map <C-t> :NERDTreeToggle<CR>
 
 function! s:close_if_only_control_win_left()
@@ -39,6 +39,11 @@ function! s:close_if_only_control_win_left()
             \ || &buftype == 'quickfix'
         q
     endif
+endfunction
+
+function! s:jump_to_current()
+    execute('NERDTreeFind')
+    execute('vertical resize ' . g:NERDTreeWinSize)
 endfunction
 
 augroup close_if_only_control_win_left
