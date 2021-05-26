@@ -1,3 +1,7 @@
+# Let split panes keep the current directory
+bind-key '"' split-window -c "#{pane_current_path}"
+bind-key % split-window -h -c "#{pane_current_path}"
+
 # Ctrl+f for full-screen
 bind-key -n C-f resize-pane -Z
 
