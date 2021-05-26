@@ -10,14 +10,6 @@ bind-key -n M-l run-shell "~/.local/bin/__tmux-toggle-pane -h"
 # Yell to all panes
 bind-key -n C-y setw synchronize-panes
 
-# Ctrl+arrow for pane-switching and vim split navigation
-is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
-    | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
-bind-key -n C-Left if-shell "$is_vim" "send-keys S-C-Left" "select-pane -L"
-bind-key -n C-Right if-shell "$is_vim" "send-keys S-C-Right" "select-pane -R"
-bind-key -n C-Up if-shell "$is_vim" "send-keys S-C-Up" "select-pane -U"
-bind-key -n C-Down if-shell "$is_vim" "send-keys S-C-Down" "select-pane -D"
-
 # Enable colours
 set-option -g default-terminal xterm-256color
 
