@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+## Performs a bisect under the assumption that the repository contains a test
+## to perform as staged modifications, and that the current commit is bad.
+##
+## Usage: git bitest GOOD COMMAND [ARGUMENTS..]
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" -lt 2 ]; then
+    autohelp
+    exit
+elif git diff --cached --exit-code >/dev/null; then
+    autohelp
+    echo
+    echo "No tests staged."
+    exit 1
+fi
+
+##
+# The good revision.
+GOOD="$1"
+shift
+
+##
+# The patch file
+export GIT_BITEST_PATCH_FILE="$(git rev-parse --git-dir)/bitest-patch"
+
+
+# Record the test patch
+git diff --cached > "$GIT_BITEST_PATCH_FILE"
+trap "rm $GIT_BITEST_PATCH_FILE" EXIT
+
+
+bold="$(tput bold)"
+c="$(tput sgr0)"
+cat "$GIT_BITEST_PATCH_FILE"
+cat << EOF
+
+To perform a ${bold}git bisect${c} using the test code above, press return.
+EOF
+read
+
+
+if ! git diff --exit-code >/dev/null \
+        || ! git diff --cached --exit-code >/dev/null; then
+    git stash
+    stashed="yes"
+fi
+
+git bisect start HEAD $GOOD
+git bisect run __git-bitest-run "$@"
+git bisect reset

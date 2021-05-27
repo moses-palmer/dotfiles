@@ -1,0 +1,10 @@
+#!/bin/sh
+
+git apply "$GIT_BITEST_PATCH_FILE" || exit 125
+
+"$@"
+ret="$?"
+
+git reset --hard
+
+exit "$ret"
