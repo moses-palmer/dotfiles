@@ -73,6 +73,7 @@
     default = simple
 [rebase]
     autosquash = true
+    autostash = true
 
 [delta]
     features = line-numbers decorations
