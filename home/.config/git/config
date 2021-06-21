@@ -59,6 +59,8 @@
 
 [apply]
     whitespace = fix
+[commit]
+    verbose = true
 [credential]
     helper = cache
 [diff]
