@@ -29,7 +29,7 @@ function! s:start_debugger()
         let l:name = input('Enter name: ')
         call inputrestore()
     endif
-    execute ':Termdebug ' . l:name
+    execute ':TermdebugCommand ' . l:name
 endfunction
 
 
