@@ -1,12 +1,15 @@
 #!/bin/sh
 #
-## Lists other files provided by the package providing the specified files.
+## Provides an interface to package queries.
 ##
 ## Usage: pak by-size
+##        pak info PACKAGE
 ##        pak list PACKAGE
 ##        pak package PATH
 ##
 ## by-size lists installed packages ordered by size on disk.
+##
+## info prints information about a package.
 ##
 ## list lists all files in the package PACKAGE.
 ##
@@ -24,6 +27,10 @@ if which dpkg >/dev/null 2>&1; then
 
     files() {
         dpkg-query --listfiles "$1"
+    }
+
+    info() {
+        apt-cache show "$1"
     }
 
     by_size() {
@@ -45,6 +52,10 @@ elif which yum >/dev/null 2>&1; then
         repoquery --list "$1"
     }
 
+    info() {
+        rpm -qi "$1"
+    }
+
     by_size() {
         rpm -qa --queryformat '%{size}\t%{name}\n' \
             | sort -n
@@ -60,6 +71,11 @@ fi
 case "$1" in
     by-size)
         by_size
+        ;;
+
+    info)
+        shift
+        info "$1"
         ;;
 
     list)
