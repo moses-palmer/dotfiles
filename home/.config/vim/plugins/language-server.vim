@@ -33,8 +33,8 @@ endif
 if executable('pyls')
     let g:lsc_server_commands.python = 'pyls'
 endif
-if executable('rls')
-    let g:lsc_server_commands.rust = 'rustup run stable rls'
+if executable('rust-analyzer')
+    let g:lsc_server_commands.rust = 'rust-analyzer'
 endif
 
 
