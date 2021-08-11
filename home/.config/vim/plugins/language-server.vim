@@ -27,6 +27,9 @@ imap <F3> <C-o>:call <SID>all_diagnostics()<CR>
 
 " Register language servers
 let g:lsc_server_commands = {}
+if executable('typescript-language-server')
+    let g:lsc_server_commands.javascript = 'typescript-language-server --stdio'
+endif
 if executable('pyls')
     let g:lsc_server_commands.python = 'pyls'
 endif
