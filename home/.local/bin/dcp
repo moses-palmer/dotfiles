@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+## Copies files from a docker image.
+##
+## Usage: dcp IMAGE SOURCE_PATH TARGET_PATH
+##
+## IMAGE is the full name of the image.
+##
+## SOURCE_PATH is either a file or a directory in the image; if it is a
+## directory, it will be recursively copied.
+##
+## TARGET_PATH is an existing directory.
+
+set -e
+
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" != 3 ]; then
+    autohelp
+    exit 1
+fi
+
+IMAGE="$1"
+SOURCE="$2"
+TARGET="$3"
+
+if [ ! -d "$TARGET" ]; then
+    echo "$TARGET is not a directory." >&2
+    exit 1
+fi
+
+
+ID="$(docker run --rm --detach "$IMAGE")"
+trap "docker stop $ID" EXIT
+docker cp "$ID:$SOURCE" "$TARGET"
