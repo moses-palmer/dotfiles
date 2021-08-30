@@ -10,7 +10,19 @@ if declare -ft __git_ps1; then
     export GIT_PS1_SHOWUPSTREAM="git verbose"
     export GIT_PS1_SHOWDIRTYSTATE="yes"
     export GIT_PS1_SHOWUNTRACKEDFILES="yes"
-    PS1="\[\e[1;32m\]\u\[\e[0m\]@\[\e[1m\]\h\[\e[0m:\e[01;36m\]\w\[\e[0m\]\$(__git_ps1)$ "
+    __PS1="\[\e[1;32m\]\u\[\e[0m\]@\[\e[1m\]\h\[\e[0m:\e[01;36m\]\w\[\e[0m\]\$(__git_ps1)$ "
 else
-    PS1="\[\e[1;32m\]\u\[\e[0m\]@\[\e[1m\]\h\[\e[0m:\e[01;36m\]\w\[\e[0m\]\$ "
+    __PS1="\[\e[1;32m\]\u\[\e[0m\]@\[\e[1m\]\h\[\e[0m:\e[01;36m\]\w\[\e[0m\]\$ "
 fi
+
+
+PROMPT_COMMAND=__prompt_command
+__prompt_command() {
+    local code="$?"
+
+    if [ "$code" = "0" ]; then
+        PS1="\e[37m\t → \e[32m$code\e[0;m\n$PS1_PREFIX$__PS1$PS1_SUFFIX"
+    else
+        PS1="\e[37m\t → \e[33m$code\e[0;m\n$PS1_PREFIX$__PS1$PS1_SUFFIX"
+    fi
+}
