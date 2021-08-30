@@ -7,10 +7,6 @@ set -e
 HOST="$(basename "$0")"
 
 ##
-# The option command to restore the status background.
-PREVIOUS_STATUS_BG="$(tmux show-option -g status-bg)"
-
-##
 # The window name before updating.
 PREVIOUS_WINDOW_NAME="$(tmux display-message '#W')"
 
@@ -18,25 +14,17 @@ PREVIOUS_WINDOW_NAME="$(tmux display-message '#W')"
 ##
 # Restores the previous tmux configuration.
 restore() {
-    tmux set-option -u prefix
-    tmux set-option -u key-table
-    tmux set-option -g $PREVIOUS_STATUS_BG
-    tmux set-option -g status-position top
     tmux rename-window "$PREVIOUS_WINDOW_NAME"
-    tmux refresh-client -S
+    __tmux-nested off
 }
 trap restore EXIT
 
 
 # Prepare for inner session
-tmux set-option prefix None
-tmux set-option key-table off
-tmux set-option -g status-bg colour8
-tmux refresh-client -S
+__tmux-nested on
 
 
 # Connect to host
 printf '\033]2;%s\033\\' "ssh to $HOST"
 tmux rename-window "$HOST"
-tmux set-option -g status-position bottom
 ssh -t "$HOST" tmux attach $@

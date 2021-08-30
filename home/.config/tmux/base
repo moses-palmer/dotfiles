@@ -33,5 +33,5 @@ set-option -g history-limit 10000
 # Prevent pause when switching modes in vim
 set-option -sg escape-time 0
 
-# Let the status bar be positioned at the top
-set-option -g status-position top
+# Apply the non-nested style
+run-shell -b '__tmux-nested off'

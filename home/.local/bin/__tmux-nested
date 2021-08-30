@@ -1,0 +1,23 @@
+#!/bin/sh
+
+alias :='tmux set-option'
+case "$1" in
+    on)
+        : prefix None
+        : key-table off
+        : -g status-position bottom
+        if [ "$(echo "$TMUX_VERSION >= 3.0" | bc)" = 1 ]; then
+            : -g status-style bg=colour8,fg=white,overline
+        else
+            : -g status-style bg=colour8,fg=white
+        fi
+        ;;
+    off)
+        : -u prefix
+        : -u key-table
+        : -g status-position top
+        : -g status-style bg=green,fg=black,underscore
+        ;;
+esac
+
+tmux refresh-client -S
