@@ -21,6 +21,7 @@ nnoremap <Up> <C-y>
 nnoremap <Down> <C-e>
 nnoremap <S-UP> k
 nnoremap <S-Down> j
+nnoremap q :q!
 
 " Ensure no plugin autocmds are used on startup
 autocmd! VimEnter *
