@@ -9,23 +9,23 @@ let NERDTreeIgnore = [
     \ '\.rs.bk$'
     \ ]
 let g:NERDTreeGitStatusIndicatorMapCustom = {
-    \ "Modified"  : "•",
-    \ "Staged"    : "✚",
-    \ "Untracked" : "◦",
-    \ "Renamed"   : "➜",
-    \ "Unmerged"  : "═",
-    \ "Deleted"   : "✖",
-    \ "Dirty"     : "•",
-    \ "Clean"     : "✔︎",
-    \ "Ignored"   : '☒',
-    \ "Unknown"   : "?"
+    \ 'Modified'  : '•',
+    \ 'Staged'    : '✚',
+    \ 'Untracked' : '◦',
+    \ 'Renamed'   : '➜',
+    \ 'Unmerged'  : '═',
+    \ 'Deleted'   : '✖',
+    \ 'Dirty'     : '•',
+    \ 'Clean'     : '✔︎',
+    \ 'Ignored'   : '☒',
+    \ 'Unknown'   : '?'
     \ }
 
 augroup NERDTree
     autocmd StdinReadPre * let s:std_in=1
     autocmd VimEnter * if
         \ argc() == 0
-        \ && !exists("s:std_in")
+        \ && !exists('s:std_in')
         \ && winwidth(0) - g:NERDTreeWinSize > &l:textwidth
         \ | NERDTree | execute 'wincmd l'| endif
 augroup END
