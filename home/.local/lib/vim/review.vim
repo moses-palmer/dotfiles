@@ -1,5 +1,3 @@
-execute('source ' . expand('<sfile>:p:h') . '/app.vim')
-
 " Set options appropriate for reviewing
 set colorcolumn=0
 set laststatus=2

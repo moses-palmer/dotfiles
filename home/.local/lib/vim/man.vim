@@ -1,5 +1,3 @@
-execute('source ' . expand('<sfile>:p:h') . '/app.vim')
-
 " We set this to have :Man open in the main window
 set ft=man
 

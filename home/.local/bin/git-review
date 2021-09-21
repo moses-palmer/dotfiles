@@ -82,6 +82,7 @@ fi
 # Show an ordered commit log with diffs
 echo -e "Reviewing \033[1m$REVIEW_SOURCE\033[0m" \
     "for merging into \033[1m$REVIEW_TARGET\033[0m."
+VIM_PLUGINS="color-theme:ansi-esc" \
 vim -S ~/.local/lib/vim/review.vim
 
 # Restore the previous checkout

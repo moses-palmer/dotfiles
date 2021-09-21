@@ -8,8 +8,14 @@ endif
 
 call plug#begin()
 
-for f in split(glob('~/.config/vim/plugins/*.vim'), '\n')
-    exe 'source' f
-endfor
+if exists('$VIM_PLUGINS')
+    for plugin in split($VIM_PLUGINS, ':')
+        exe 'source' '~/.config/vim/plugins/' . plugin . '.vim'
+    endfor
+else
+    for f in split(glob('~/.config/vim/plugins/*.vim'), '\n')
+        exe 'source' f
+    endfor
+endif
 
 call plug#end()
