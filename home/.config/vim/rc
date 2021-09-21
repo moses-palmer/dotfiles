@@ -9,6 +9,13 @@ set smarttab
 set tabstop=4
 set updatetime=250
 
+
+" Detect whether the current terminal supports italics
+let g:term_has_italics = stridx(
+    \ system('infocmp ' . $TERM . ' | grep sitm'),
+    \ 'sitm') > -1
+
+
 " Use tab as leader instead of backslash
 let mapleader="\<tab>"
 

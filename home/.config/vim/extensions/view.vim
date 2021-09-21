@@ -42,7 +42,8 @@ set mouse=a
 try
     if (has('termguicolors'))
         set termguicolors
-        colorscheme seagrey-dark
+        colorscheme onedark
+        highlight ColorColumn guibg=#353535
     else
         colorscheme noctu
     endif
