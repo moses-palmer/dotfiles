@@ -1,6 +1,10 @@
 #!/bin/sh
 
+set -e
+
+
 if [ -z "$VIMRUNTIME" ]; then
+    /usr/bin/man --path "$@" >/dev/null
     VIM_PLUGINS="color-theme" \
     vim \
         -R \
