@@ -17,6 +17,10 @@ source $VIMRUNTIME/ftplugin/man.vim
 set keywordprg=:Man
 
 nnoremap <2-LeftMouse> :execute(':Man ' . expand('<cword>'))<CR>
+nnoremap <Up> <C-y>
+nnoremap <Down> <C-e>
+nnoremap <S-UP> k
+nnoremap <S-Down> j
 
 " Ensure no plugin autocmds are used on startup
 autocmd! VimEnter *
