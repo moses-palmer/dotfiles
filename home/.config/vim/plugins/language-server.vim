@@ -25,6 +25,13 @@ imap <M-Down> <C-o>:cnext<CR>
 nmap <F3> :call <SID>all_diagnostics()<CR>
 imap <F3> <C-o>:call <SID>all_diagnostics()<CR>
 
+" Allow mouse navigation; make sure to press the left button to change cursor
+" position before going to definition
+nmap <C-LeftMouse> <LeftMouse>:LSClientGoToDefinition<CR>
+imap <C-LeftMouse> <LeftMouse><C-o>:LSClientGoToDefinition<CR>
+nmap <M-C-LeftMouse> <LeftMouse>:LSClientGoToDefinitionSplit<CR>
+imap <M-C-LeftMouse> <LeftMouse><C-o>:LSClientGoToDefinitionSplit<CR>
+
 " Register language servers
 let g:lsc_server_commands = {}
 if executable('typescript-language-server')
