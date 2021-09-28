@@ -20,6 +20,10 @@ nnoremap <S-PageDown> :call <SID>jump_to_commit('')<CR>
 nnoremap <leader>g :call <SID>open_modifications()<CR>
 nnoremap <2-LeftMouse> :call <SID>open_modifications()<CR>
 nnoremap <buffer> <F10> :call <SID>toggle_word_diff()<CR>
+nnoremap <Up> <C-y>
+nnoremap <Down> <C-e>
+nnoremap <S-UP> k
+nnoremap <S-Down> j
 
 " Whether to use a word diff for change listing
 let g:review#word_diff = 1
