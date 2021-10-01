@@ -21,6 +21,7 @@ let g:NERDTreeGitStatusIndicatorMapCustom = {
     \ 'Ignored'   : '☒',
     \ 'Unknown'   : '?'
     \ }
+let g:NERDTreeMinimalUI = 1
 
 augroup NERDTree
     autocmd StdinReadPre * let s:std_in=1
