@@ -2,7 +2,8 @@
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 
-let NERDTreeIgnore = [
+let g:NERDTreeBookmarksFile = '~/.config/NERDTreeBookmarks'
+let g:NERDTreeIgnore = [
     \ '\.egg-info$',
     \ '\.pyc$',
     \ '^__pycache__$',
