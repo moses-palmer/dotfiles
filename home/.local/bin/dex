@@ -1,0 +1,27 @@
+#!/bin/sh
+## Executes a command inside a named docker container.
+##
+## A terminal is allocated.
+##
+## Usage: dex CONTAINER ARG1 [ARGN...]
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" = 0 ]; then
+    autohelp
+    exit 1
+fi
+
+
+# Convert the name to an ID
+container_id="$(docker ps --quiet --filter "name=$1")"
+if [ -z "$container_id" ]; then
+    echo "Unknown container: $1"
+    exit 1
+fi
+shift
+
+
+docker exec --tty --interactive "$container_id" "$@"
