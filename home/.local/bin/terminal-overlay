@@ -105,6 +105,7 @@ class Application(Gtk.Application):
 
         try:
             self._font_scale = float(font_scale)
+            self._initial_font_scale = self._font_scale
         except ValueError:
             raise ValueError('invalid font scale: {}'.format(font_scale))
 
@@ -265,7 +266,7 @@ class Application(Gtk.Application):
             'reset',
             '<primary><shift>equal',
             terminal.set_font_scale,
-            1.0)
+            self._initial_font_scale)
 
     def _start_server(self, **kwargs):
         """Starts the DBus server.
