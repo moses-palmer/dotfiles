@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+
+import os
+import shlex
+import subprocess
+import sys
+
+
+#: The base name of the virtual machine.
+DOMAIN_NAME = sys.argv[0].split('-', 1)[-1]
+
+#: The full path to the virt-viewer application.
+VIRT_VIEWER = subprocess.check_output(['which', 'virt-viewer']).strip()
+
+#: The environment variables file.
+ENVIRONMENT_FILE = os.path.join(
+    os.environ.get(
+        'XDG_CONFIG_DIR',
+        os.path.expanduser('~/.config')),
+    DOMAIN_NAME)
+
+
+# Ensure the domain is running
+try:
+    subprocess.check_call(['virsh', 'start', DOMAIN_NAME])
+except subprocess.CalledProcessError as e:
+    pass
+
+
+# Load the environment file
+env = {k: v for k, v in os.environ.items()}
+if os.path.isfile(ENVIRONMENT_FILE):
+    with open(ENVIRONMENT_FILE, encoding='utf-8') as f:
+        for line in f:
+            try:
+                key, value = line.split('#', 1)[0].split('=', 1)
+                env[key] = value
+            except ValueError:
+                pass
+
+extra_arguments = shlex.split(env.pop('VIRT_VIEWER_ARGUMENTS', ''))
+
+
+os.execve(
+    VIRT_VIEWER,
+    [sys.argv[0], DOMAIN_NAME, '--full-screen'] + extra_arguments,
+    env)
