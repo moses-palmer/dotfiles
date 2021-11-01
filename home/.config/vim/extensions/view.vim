@@ -26,6 +26,10 @@ set colorcolumn=80
 set textwidth=79
 
 
+" Always display the sign column
+set signcolumn=yes
+
+
 " Let the preview window open at the bottom
 set splitbelow
 
