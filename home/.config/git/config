@@ -29,6 +29,7 @@
     subpull = submodule foreach --recursive git pull --all
     staged = !git-staged
     transplant = !git-transplant
+    vat = !git-vat
     wip = !git-wip
 [user]
     name = Moses Palmér

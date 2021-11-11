@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+## Opens a file from a specific revision interactively.
+##
+## Usage: git vat [COMMIT]
+##
+## If no commit is specified, HEAD is used. Once the command has been issued, a
+## view to search for files present in the commit is presented.
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+
+##
+# The root of the repository.
+ROOT="$(git rev-parse --show-toplevel)"
+
+##
+# The commit.
+COMMIT=${1:-HEAD}
+
+##
+# The header to display.
+HEADER="$(git show -s --oneline "$COMMIT")"
+
+##
+# The file to display as a relative path.
+FILE="$(git ls-tree --name-only --full-tree -r "$COMMIT" \
+    | fzf --header="$HEADER")"
+
+
+git show "$COMMIT:$FILE" \
+    | vim - +"file $ROOT/$FILE | filetype detect | set nomodified"
