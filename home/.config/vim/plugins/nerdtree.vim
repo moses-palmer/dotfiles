@@ -35,6 +35,7 @@ augroup END
 map <C-h> :call <SID>jump_to_current()<cr>
 imap <C-h> <C-o>:call <SID>jump_to_current()<cr>
 map <C-t> :NERDTreeToggle<CR>
+map <leader>t :call <sid>toggle_window_size()<cr>
 
 function! s:close_if_only_control_win_left()
     if winnr('$') != 1
@@ -49,6 +50,17 @@ endfunction
 function! s:jump_to_current()
     execute('NERDTreeFind')
     execute('vertical resize ' . g:NERDTreeWinSize)
+endfunction
+
+function! s:toggle_window_size()
+    execute('NERDTreeFind')
+    let l:max = 2 * g:NERDTreeWinSize
+    let l:info = getwininfo(win_getid())[0]
+    if l:info['width'] < l:max
+        execute('vertical resize ' . l:max)
+    else
+        execute('vertical resize ' . g:NERDTreeWinSize)
+    endif
 endfunction
 
 augroup close_if_only_control_win_left
