@@ -6,6 +6,11 @@ nnoremap <Leader>C :set cursorcolumn!<CR>
 " Display cursor position
 set ruler
 
+" Use fullsized fillchars for separators
+set fillchars+=vert:│
+set fillchars+=stl:―
+set fillchars+=stlnc:―
+
 
 " Scroll instead of wrap
 set nowrap
