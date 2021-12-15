@@ -28,6 +28,7 @@
     st = status
     subpull = submodule foreach --recursive git pull --all
     staged = !git-staged
+    tar = !git-tar
     transplant = !git-transplant
     vat = !git-vat
     wip = !git-wip

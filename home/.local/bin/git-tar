@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+## Packs all files in the repository into a tar file.
+##
+## Usage: git tar [FILE]
+##
+## If no file name is provided, one is generated from the directory name and
+## the output of git describe.
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+##
+# The repository root.
+ROOT="$(git rev-parse --show-toplevel)"
+
+##
+# The base name, derived from the directory of the repository.
+BASE="$(basename "$ROOT")"
+
+##
+# The base name including git revision.
+NAME="$BASE-$(git describe --always)"
+
+##
+# The name of the output file.
+TAR_FILE="${1:-$ROOT/$NAME.tar.gz}"
+
+
+tar -c \
+    -f "$TAR_FILE" \
+    -C "$ROOT" \
+    -T <(git ls-tree -r --name-only HEAD)
