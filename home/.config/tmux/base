@@ -14,15 +14,15 @@ bind-key -n M-l run-shell "~/.local/bin/__tmux-toggle-pane -h"
 # Yell to all panes
 bind-key -n C-y setw synchronize-panes
 
-# Enable colours
-set-option -g default-terminal xterm-256color
-
 # Ctrl+PgUp to enter copy mode and scroll up
 bind-key -n C-PPage copy-mode -eu
 
 # Enable copy pasting
 bind-key C-p paste-buffer
 bind-key -n C-M-c run-shell -b "~/.local/bin/__tmux-transfer-clipboard"
+
+# Enable colours
+set-option -g default-terminal xterm-256color
 
 # Use vi bindings
 set-option -g mode-keys vi
