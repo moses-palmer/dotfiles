@@ -36,5 +36,8 @@ set-option -sg escape-time 0
 # Do not terminate server when no session are active
 set-option -g exit-empty off
 
+# Update status line every 5 seconds
+set-option -g status-interval 5
+
 # Apply the non-nested style
 run-shell -b '__tmux-nested off'
