@@ -8,6 +8,7 @@ set shiftwidth=4
 set smarttab
 set tabstop=4
 set updatetime=250
+set wildmenu
 
 
 " Detect whether the current terminal supports italics
