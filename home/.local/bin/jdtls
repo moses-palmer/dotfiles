@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+
+import glob
+import os
+import platform
+import subprocess
+import sys
+
+#: The environment variable for the Java home directory.
+JAVA_HOME_ENV = 'JAVA_HOME'
+
+#: The path of the jdtls cache directory.
+CACHE_ROOT = os.path.expanduser(
+    '~/.cache/jdtls')
+
+#: The path to the jdtls installation.
+JDTLS_PATH = os.path.expanduser(
+    '~/.local/lib/jdtls')
+
+def main(java_home: str, *args):
+    java_executable = os.path.join(java_home, 'bin', 'java')
+
+    jars = glob.glob(os.path.join(
+        JDTLS_PATH,
+        'plugins',
+        'org.eclipse.equinox.launcher_*.jar'))
+    if len(jars) != 1:
+        print('No valid JDTLS installation found!')
+        sys.exit(1)
+    else:
+        jdtls_jar = jars[0]
+
+    platform_path = {
+        'Darwin': 'config_mac',
+        'Linux': 'config_linux',
+        'Windows': 'config_win'}.get(platform.system(), None)
+    if platform_path is None:
+        print('Unsupported platform: {}!'.format(platform.system()))
+        sys.exit(2)
+    else:
+        configuration_path = os.path.join(
+            JDTLS_PATH,
+            'config_linux')
+
+    cache_path = os.path.join(
+        CACHE_ROOT,
+        os.path.abspath(os.getcwd()).replace(os.path.sep, '%'))
+
+    subprocess.check_call([
+        java_executable,
+        '-Declipse.application=org.eclipse.jdt.ls.core.id1',
+        '-Dosgi.bundles.defaultStartLevel=4',
+        '-Declipse.product=org.eclipse.jdt.ls.core.product',
+        '-Dosgi.checkConfiguration=true',
+        '-Dosgi.sharedConfiguration.area=' + configuration_path,
+        '-Dosgi.sharedConfiguration.area.readOnly=true',
+        '-Dosgi.configuration.cascaded=true',
+        '-noverify',
+        '-Xms1G',
+        '--add-modules=ALL-SYSTEM',
+        '--add-opens=java.base/java.util=ALL-UNNAMED',
+        '--add-opens=java.base/java.lang=ALL-UNNAMED',
+        '-jar', jdtls_jar,
+        '-data', cache_path] + list(args))
+
+
+if __name__ == '__main__':
+    def env(name: str):
+        if name in os.environ:
+            return os.environ[name]
+        else:
+            print('$' + name + ' not set')
+            sys.exit(1)
+
+    main(env(JAVA_HOME_ENV), *sys.argv[1:])

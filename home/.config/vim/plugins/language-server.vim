@@ -34,6 +34,50 @@ imap <M-C-LeftMouse> <LeftMouse><C-o>:LSClientGoToDefinitionSplit<CR>
 
 " Register language servers
 let g:lsc_server_commands = {}
+if filereadable(expand('~/.local/lib/jdtls/bin/jdtls'))
+    function! s:java_fix_codeAction(actions) abort
+        return map(a:actions, function('<SID>java_fix_codeAction_single'))
+    endfunction
+
+    function! s:java_fix_codeAction_single(idx, edit) abort
+        if !(has_key(a:edit, 'command') && type(a:edit.command) == v:t_dict)
+                \ || a:edit.command.command !=# 'java.apply.workspaceEdit'
+            return a:edit
+        else
+            return {
+                \ 'edit': a:edit.command.arguments[0],
+                \ 'title': a:edit.title}
+        endif
+    endfunction
+
+    function! s:java_toggle_test()
+        let l:is_test = expand('%:p') =~ 'src/test/java/.*Test\.java$'
+        let l:is_main = expand('%:p') =~ 'src/main/java/.*\.java$'
+        if l:is_test && !l:is_main
+            execute(':e ' . substitute(
+                \ substitute(expand('%:p'), 'Test\.java$', '.java', 'g'),
+                \ 'src/test/java',
+                \ 'src/main/java',
+                \ 'g'))
+        elseif !l:is_test && l:is_main
+            execute(':e ' . substitute(
+                \ substitute(expand('%:p'), '\.java$', 'Test.java', 'g'),
+                \ 'src/main/java',
+                \ 'src/test/java',
+                \ 'g'))
+        endif
+    endfunction
+
+    autocmd Filetype java nnoremap <buffer> <buffer> gT
+        \ :call <SID>java_toggle_test()<cr>
+
+    let g:lsc_server_commands.java = {
+        \ 'command': 'jdtls',
+        \ 'response_hooks': {
+            \ 'textDocument/codeAction': function('<SID>java_fix_codeAction'),
+        \ }
+    \ }
+endif
 if executable('typescript-language-server')
     let g:lsc_server_commands.javascript = 'typescript-language-server --stdio'
 endif
