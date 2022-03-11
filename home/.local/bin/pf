@@ -32,7 +32,7 @@ ps -C "$1" o pid= | while read pid; do
     echo "$pid"
     if [ -z "$ONLY_PID" ]; then
         dir="/proc/$pid"
-        echo "${bin}$(readlink "$dir/exe")${c}" >&2
+        echo "${bin}$(readlink "$dir/exe")${c} in $(readlink "${dir}/cwd")" >&2
         echo "$(cat "$dir/cmdline" \
             | tr '\0' '\n' \
             | sed "s/\(.*\)/   \x1b[1;32m\1\x1b[0m/g")" >&2
