@@ -49,3 +49,9 @@ endif
 for f in split(glob('~/.config/vim/extensions/*.vim'), '\n')
     exe 'source' f
 endfor
+
+
+" Allow local overrides
+if filereadable(expand('~/.config/vim/local.vim'))
+    exe 'source' '~/.config/vim/local.vim'
+endif
