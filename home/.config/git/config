@@ -88,3 +88,10 @@
 [delta "decorations"]
     file-style = bold yellow
     file-decoration-style = none
+
+[tig]
+    line-graphics = utf-8
+    truncation-delimiter = utf-8
+    ignore-space = all
+    ignore-case = smart
+    main-view = id commit-title:graph=v2
