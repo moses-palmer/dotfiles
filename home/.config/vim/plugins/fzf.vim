@@ -52,11 +52,11 @@ endfunction
 
 " Runs FZFPreview in the 'file window'.
 function! s:fzf_for_file_window()
-    call lib#for_editor_window(':FZFPreview')
+    call lib#for_main_window(':FZFPreview')
 endfunction
 
 
 " Runs RGPreview in the 'file window'.
 function! s:rg_for_file_window()
-    call lib#for_editor_window(':RGPreview')
+    call lib#for_main_window(':RGPreview')
 endfunction

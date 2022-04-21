@@ -105,7 +105,7 @@ function! s:toggle_quickfix_window()
             execute 'wincmd c'
 
             " Reselect the editor window
-            execute lib#editor_window() . 'wincmd w'
+            execute lib#main_window() . 'wincmd w'
             return 0
         endif
     endfor

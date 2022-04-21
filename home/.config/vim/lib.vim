@@ -1,58 +1,58 @@
-if v:vim_did_enter
-    call lib#set_editor_window()
-else
-    autocmd VimEnter * call lib#set_editor_window()
-endif
-
-
-" Executes a command for the presumed 'editor window'.
-"
-" The editor window is the largest window.
-function! lib#for_editor_window(command)
-    let l:winnr = lib#editor_window()
-    if l:winnr > -1
-        let l:current = getwininfo(winnr())
-        execute l:winnr . 'wincmd w'
-        try
-            execute a:command
-        finally
-            if !empty(l:current)
-                execute win_id2win(l:current[0].winid) . 'wincmd w'
-            endif
-        endtry
-    endif
-endfunction
-
-
-" Returns the editor window number.
-"
-" The editor window is the largest window visible at startup.
-function! lib#editor_window()
-    let l:result = win_id2win(g:lib#editor_window)
-    if l:result == 0
-        call lib#set_editor_window()
-        let l:result = win_id2win(g:lib#editor_window)
-    endif
-
-    return l:result
-endfunction
-
-
-" Sets the editor window.
-"
-" This function iterates through every window and selectes the largest one.
-function! lib#set_editor_window()
-    let l:acc = 0
-    let l:winnr = -1
-    for l:window in getwininfo()
-        let l:curr = l:window.width * l:window.height
-        if l:curr > l:acc
-            let l:acc = l:curr
-            let l:winnr = l:window.winid
+" Executes a command in a window.
+function! lib#for_window(winnr, command)
+    let l:current = getwininfo(winnr())
+    execute a:winnr . 'wincmd w'
+    try
+        execute a:command
+    finally
+        if !empty(l:current)
+            execute win_id2win(l:current[0].winid) . 'wincmd w'
         endif
-    endfor
+    endtry
+endfunction
 
-    let g:lib#editor_window = l:winnr
+
+" Executes a command for the main window.
+"
+" If an editor window exists, that is used, otherwise the largest window is
+" used.
+function! lib#for_main_window(command)
+    call lib#for_window(lib#main_window(), a:command)
+endfunction
+
+
+" The winnr of the main window.
+"
+" If the current window is an editor window, it is returned, otherwise the
+" largest window is returned.
+function! lib#main_window()
+    if lib#is_editor_window(winnr())
+        return winnr()
+    else
+        let l:acc = 0
+        let l:winnr = -1
+        for l:window in getwininfo()
+            let l:curr = l:window.width * l:window.height
+            if l:curr > l:acc
+                let l:acc = l:curr
+                let l:winnr = l:window.winnr
+            endif
+        endfor
+
+        return l:winnr
+    endif
+endfunction
+
+
+" Determines whether a window is an editor window.
+"
+" An editor window is a window where the &buftype is not 'help', 'nofile' or
+" 'quickfix'.
+function! lib#is_editor_window(winnr)
+    let l:buftype = getwinvar(a:winnr, '&buftype')
+    return !(l:buftype == 'quickfix'
+        \ || l:buftype == 'help'
+        \ || l:buftype == 'nofile')
 endfunction
 
 
@@ -63,7 +63,7 @@ endfunction
 " scratch buffer is created to keep the window from closing.
 function! lib#kill_current_buffer(dir)
     " Find the current buffer for the editor window
-    let l:bufnr = winbufnr(lib#editor_window())
+    let l:bufnr = winbufnr(lib#main_window())
 
     " Ensure the buffer is not modified
     if getbufvar(l:bufnr, '&mod')
@@ -98,7 +98,7 @@ endfunction
 function! lib#kill_other_buffers(dir)
     " While we have siblings in the direction specify, kill all unmodified
     " buffers
-    let l:bufnr = s:bufsib(winbufnr(lib#editor_window()), a:dir)
+    let l:bufnr = s:bufsib(winbufnr(lib#main_window()), a:dir)
     while l:bufnr > 0
         if !getbufvar(l:bufnr, '&mod')
             execute(l:bufnr . 'bd')

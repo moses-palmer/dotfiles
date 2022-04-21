@@ -9,11 +9,11 @@ imap <M-Right> <C-o>:call <SID>next_buffer()<CR>
 
 " Selects the next buffer in the 'file window'.
 function! s:next_buffer()
-    call lib#for_editor_window(':bnext')
+    call lib#for_main_window(':bnext')
 endfunction
 
 
 " Selects the previous buffer in the 'file window'.
 function! s:previous_buffer()
-    call lib#for_editor_window(':bprevious')
+    call lib#for_main_window(':bprevious')
 endfunction
