@@ -59,3 +59,8 @@ try
 catch /^Vim\%((\a\+)\)\=:E185/
     " Ignore
 endtry
+
+
+" Reverse buftabline highlight groups
+highlight! link BufTabLineActive TabLineSel
+highlight! link BufTabLineCurrent PmenuSel
