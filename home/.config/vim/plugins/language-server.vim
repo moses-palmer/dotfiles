@@ -51,11 +51,23 @@ if filereadable(expand('~/.local/lib/jdtls/bin/jdtls'))
     endfunction
 
     let g:lsc_server_commands.java = {
-        \ 'command': 'jdtls',
-        \ 'response_hooks': {
-            \ 'textDocument/codeAction': function('<SID>java_fix_codeAction'),
-        \ }
+    \     'command': 'jdtls',
+    \     'response_hooks': {
+    \         'textDocument/codeAction': function('<SID>java_fix_codeAction'),
+    \     }
     \ }
+    let s:java_debug_plugin = expand(glob(
+    \     '~/.local/lib/jdtls/plugins/com.microsoft.java.debug.plugin-*.jar'))
+    let g:lsc_server_commands.java.message_hooks = filereadable(
+    \         s:java_debug_plugin)
+    \     ? {
+    \         'initialize': {
+    \             'initializationOptions': {
+    \                 'bundles': [s:java_debug_plugin]
+    \             }
+    \         }
+    \     }
+    \     : {}
 endif
 if executable('typescript-language-server')
     let g:lsc_server_commands.javascript = 'typescript-language-server --stdio'

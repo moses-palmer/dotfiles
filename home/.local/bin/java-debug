@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+'''
+Generates information for vimspector when debugging Java applications.
+'''
+
+import argparse
+import os
+import shlex
+import subprocess
+import sys
+
+from xml.etree import ElementTree as et
+
+
+#: The string marking pieces of information.
+MARKER = '###'
+
+#: The POM file XML namespace.
+NS = {
+    'mvn': 'http://maven.apache.org/POM/4.0.0'}
+
+
+def generate_classpath_main(scope: str, root: str, relative: str):
+    """Generates the class path for a maven module.
+    """
+    module = maven_module(root, relative)
+    print('\n'.join(
+        shlex.quote(p)
+        for p in [
+            line[len(MARKER):]
+            for line in run(
+                root,
+                'mvn',
+                '--quiet',
+                '--projects={}'.format(module),
+                '--also-make',
+                '-Dmaven.test.skip=true',
+                '-Dexec.classpathScope={}'.format(scope),
+                '-Dexec.executable=echo',
+                '-Dexec.args={}%classpath'.format(MARKER),
+                'package',
+                'exec:exec').splitlines()
+            if line.startswith(MARKER)][-1].split(os.pathsep)
+        if p))
+
+
+def extract_module_main(root: str, relative: str):
+    """Extracts the maven module base directory given a file name.
+    """
+    print(maven_module(root, relative))
+
+
+def run(root: str, *args) -> str:
+    """Executes a command and returns its ``STDOUT``.
+
+    If the command fails, both its ``STDOUT`` and ``STDERR`` are printed, and
+    then this process is terminated.
+
+    :param root: The directory in which to run.
+
+    :param args: The command to execute.
+
+    :return: the output
+    """
+    try:
+        return subprocess.check_output(
+            args,
+            cwd=root,
+            encoding='utf-8',
+            stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        sys.stdout.write(e.stdout)
+        sys.stderr.write(e.stderr)
+        sys.exit(1)
+
+
+def maven_module(root: str, relative: str) -> str:
+    """Extracts the name of the module to which ``relative`` belongs.
+
+    If no POM-file is found, or it is invalid XML, an error message is printed
+    and the application is terminated.
+
+    :param root: The root directory. Search will not continue further that
+    this.
+
+    :param relative: A path relative to ``root`` where to start.
+
+    :return: a POM-file
+    """
+    parts = []
+    current = relative
+    while True:
+        pom_file = pom(root, relative)
+        try:
+            parts.insert(0, et.parse(pom_file).find('mvn:artifactId', NS).text)
+            dirname = os.path.dirname(pom_file)
+            if dirname == root:
+                break
+            else:
+                relative = os.path.relpath(dirname, root)
+        except (AttributeError, et.ParseError):
+            sys.stderr.write('Invalid POM file: "{}"'.format(
+                pom_file))
+            sys.exit(1)
+
+    parts[0] = '.'
+    return '/'.join(parts)
+
+
+def pom(root: str, relative: str) -> str:
+    """Locates the POM-file closest to ``relative`` under ``root``.
+
+    If no POM-file is found, an error message is printed and the application is
+    terminated.
+
+    :param root: The root directory. Search will not continue further that
+    this.
+
+    :param relative: A path relative to ``root`` where to start.
+
+    :return: a POM-file
+    """
+    root = os.path.abspath(root)
+    current = os.path.join(root, relative)
+    while len(current) > len(root):
+        pom = os.path.join(os.path.dirname(current), 'pom.xml')
+        if os.path.isfile(pom):
+            return pom
+        else:
+            current = os.path.dirname(current)
+
+    sys.stderr.write('No POM file found under "{}"'.format(
+        os.path.join(root, reative)))
+    sys.exit(1)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description=__doc__)
+    subparsers = parser.add_subparsers()
+
+    generate_classpath = subparsers.add_parser(
+        'generate-classpath',
+        description=generate_classpath_main.__doc__)
+    generate_classpath.add_argument(
+        '--scope',
+        help='The maven scope for which to generate a class path',
+        default='compile')
+    generate_classpath.add_argument(
+        'root',
+        help='The project root')
+    generate_classpath.add_argument(
+        'relative',
+        help='A path relative to the project root to a file in the module')
+    generate_classpath.set_defaults(main=generate_classpath_main)
+
+    extract_module = subparsers.add_parser(
+        'extract-module',
+        description=extract_module_main.__doc__)
+    extract_module.add_argument(
+        'root',
+        help='The project root')
+    extract_module.add_argument(
+        'relative',
+        help='A path relative to the project root to a file in the module')
+    extract_module.set_defaults(main=extract_module_main)
+
+    arguments = vars(parser.parse_args())
+    main = arguments.pop('main')
+    main(**arguments)
