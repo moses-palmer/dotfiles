@@ -50,27 +50,6 @@ if filereadable(expand('~/.local/lib/jdtls/bin/jdtls'))
         endif
     endfunction
 
-    function! s:java_toggle_test()
-        let l:is_test = expand('%:p') =~ 'src/test/java/.*Test\.java$'
-        let l:is_main = expand('%:p') =~ 'src/main/java/.*\.java$'
-        if l:is_test && !l:is_main
-            execute(':e ' . substitute(
-                \ substitute(expand('%:p'), 'Test\.java$', '.java', 'g'),
-                \ 'src/test/java',
-                \ 'src/main/java',
-                \ 'g'))
-        elseif !l:is_test && l:is_main
-            execute(':e ' . substitute(
-                \ substitute(expand('%:p'), '\.java$', 'Test.java', 'g'),
-                \ 'src/main/java',
-                \ 'src/test/java',
-                \ 'g'))
-        endif
-    endfunction
-
-    autocmd Filetype java nnoremap <buffer> <buffer> gT
-        \ :call <SID>java_toggle_test()<cr>
-
     let g:lsc_server_commands.java = {
         \ 'command': 'jdtls',
         \ 'response_hooks': {
