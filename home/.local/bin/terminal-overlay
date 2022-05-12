@@ -57,8 +57,8 @@ SERVICE_PATH = '/' + SERVICE_NAME.replace('.', '/')
 SERVICE_XML = '''
 <node>
     <interface name="{}">
-        <method name="Hide" />
-        <method name="Show" />
+        <property name="Display" type="i" access="read" />
+        <method name="CycleDisplay" />
         <method name="Toggle" />
         <method name="Exit" />
     </interface>
@@ -93,7 +93,7 @@ class Application(Gtk.Application):
 
         self._screen = Gdk.Screen.get_default()
         self._display = self._screen.get_display()
-        self._monitor = self._display.get_monitor(int(monitor))
+        self._monitor_num = self._locate_monitor(int(monitor))
 
         self._fg_color = Gdk.RGBA()
         if not self._fg_color.parse(fg_color):
@@ -137,14 +137,24 @@ class Application(Gtk.Application):
             else:
                 show()
 
+        def cycle_display():
+            self._monitor_num = self._locate_monitor(
+                (self._monitor_num + 1) % self._display.get_n_monitors())
+            window.fullscreen_on_monitor(
+                self._screen,
+                self._monitor_num)
+
+        def get_display():
+            return self._monitor_num
+
         def exit():
             window.destroy()
 
         self._start_server(
-            Hide=hide,
-            Show=show,
+            CycleDisplay=cycle_display,
+            Toggle=toggle,
             Exit=exit,
-            Toggle=toggle)
+            get_Display=(get_display, 'i'))
 
     def _terminal(self) -> Vte.Terminal:
         """Creates the terminal widget and ensures that it runs the command.
@@ -201,8 +211,7 @@ class Application(Gtk.Application):
         result.stick()
         result.fullscreen_on_monitor(
             self._screen,
-            self._monitor_num())
-
+            self._monitor_num)
 
         def delete_event(*_args):
             result.hide()
@@ -216,20 +225,23 @@ class Application(Gtk.Application):
 
         return result
 
-    def _monitor_num(self) -> int:
+    def _locate_monitor(self, monitor_num: int) -> int:
         """Returns the index of the monitor to use.
 
-        If the index cannot be found, the primary monitory index is returned.
-        If the primary monitor cannot be found, ``0`` is returned.
+        If ``monitor_num`` has a value in the allowed range, this is returned,
+        otherwise the primary monitor is located. If that cannot be found,
+        ``0`` is returned.
+
+        :param monitor_num: The preferred monitor.
         """
-        primary = 0
-        for n in range(self._display.get_n_monitors()):
-            monitor = self._display.get_monitor(n)
-            if monitor == self._monitor:
-                return n
-            elif monitor.is_primary():
-                primary = n
-        return primary
+        count = self._display.get_n_monitors()
+        if monitor_num >= 0 and monitor_num < count:
+            return monitor_num
+        else:
+            for n in range(count):
+                if self._display.get_monitor(n).is_primary():
+                    return n
+            return 0
 
     def _register_actions(self, window: Gtk.Window, terminal: Vte.Terminal):
         """Creates the application actions.
@@ -281,7 +293,10 @@ class Application(Gtk.Application):
                 Gio.DBusNodeInfo.new_for_xml(SERVICE_XML).interfaces[0],
                 lambda _c, _s, _p, _i, meth, *_: Gdk.threads_add_idle(
                     GLib.PRIORITY_DEFAULT_IDLE,
-                    kwargs[meth])))
+                    kwargs[meth]),
+                lambda _c, _s, _p, _i, meth, *_: GLib.Variant(
+                    kwargs['get_' + meth][1],
+                    kwargs['get_' + meth][0]())))
 
 
 if __name__ == '__main__':
