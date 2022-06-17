@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import configparser
 import os
 import sys
 import time
@@ -23,20 +24,11 @@ MONITOR_ENV = 'TERMINAL_OVERLAY_MONITOR'
 #: The default monitor.
 MONITOR_DEFAULT = '-1'
 
-#: The environment variable used to specify the foreground colour.
-FG_COLOR_ENV = 'TERMINAL_OVERLAY_FG_COLOR'
-
 #: The default foreground colour.
 FG_COLOR_DEFAULT = 'rgba(100%, 100%, 100%, 1.0)'
 
-#: The environment variable used to specify the background colour.
-BG_COLOR_ENV = 'TERMINAL_OVERLAY_BG_COLOR'
-
 #: The default background colour.
 BG_COLOR_DEFAULT = 'rgba(20%, 20%, 20%, 0.9)'
-
-#: The environment variable used to specify the initial font scale.
-FONT_SCALE_ENV = 'TERMINAL_OVERLAY_FONT_SCALE'
 
 #: The default font scale.
 FONT_SCALE_DEFAULT = '1.0'
@@ -60,6 +52,7 @@ SERVICE_XML = '''
         <property name="Display" type="i" access="read" />
         <method name="CycleDisplay" />
         <method name="Toggle" />
+        <method name="ReloadConfiguration" />
         <method name="Exit" />
     </interface>
 </node>
@@ -74,9 +67,6 @@ def main(command: [str]):
     try:
         Application(
             os.getenv(MONITOR_ENV, MONITOR_DEFAULT),
-            os.getenv(FG_COLOR_ENV, FG_COLOR_DEFAULT),
-            os.getenv(BG_COLOR_ENV, BG_COLOR_DEFAULT),
-            os.getenv(FONT_SCALE_ENV, FONT_SCALE_DEFAULT),
             command).run([])
     except ValueError as e:
         sys.stderr.write('{}\n'.format(str(e)))
@@ -84,9 +74,7 @@ def main(command: [str]):
 
 
 class Application(Gtk.Application):
-    def __init__(
-            self, monitor: int, fg_color: str, bg_color: str, font_scale: str,
-            command: [str]):
+    def __init__(self, monitor: int,  command: [str]):
         super(Application, self).__init__(
             application_id=SERVICE_NAME,
             flags=Gio.ApplicationFlags.FLAGS_NONE)
@@ -94,22 +82,8 @@ class Application(Gtk.Application):
         self._screen = Gdk.Screen.get_default()
         self._display = self._screen.get_display()
         self._monitor_num = self._locate_monitor(int(monitor))
-
-        self._fg_color = Gdk.RGBA()
-        if not self._fg_color.parse(fg_color):
-            raise ValueError('invalid foreground colour: {}'.format(fg_color))
-
-        self._bg_color = Gdk.RGBA()
-        if not self._bg_color.parse(bg_color):
-            raise ValueError('invalid background colour: {}'.format(fg_color))
-
-        try:
-            self._font_scale = float(font_scale)
-            self._initial_font_scale = self._font_scale
-        except ValueError:
-            raise ValueError('invalid font scale: {}'.format(font_scale))
-
         self._command = command
+        self._load_configuration()
 
     def do_activate(self, *_args):
         Gtk.Application.do_activate(self)
@@ -117,6 +91,7 @@ class Application(Gtk.Application):
         window = self._window()
         self.add_window(window)
         terminal = self._terminal()
+        self._apply_configuration(terminal)
         window.add(terminal)
         self._register_actions(window, terminal)
 
@@ -125,6 +100,10 @@ class Application(Gtk.Application):
 
         def show():
             window.show_all()
+
+        def reload_configuration():
+            self._load_configuration()
+            self._apply_configuration(terminal)
 
         def toggle():
             timestamp = getattr(toggle, 'timestamp', 0)
@@ -153,16 +132,59 @@ class Application(Gtk.Application):
         self._start_server(
             CycleDisplay=cycle_display,
             Toggle=toggle,
+            ReloadConfiguration=reload_configuration,
             Exit=exit,
             get_Display=(get_display, 'i'))
+
+    def _load_configuration(self):
+        """Loads the configuration from the default configuration file.
+
+        This method will update the cached configuration values, but the
+        configuration will not be applied.
+        """
+        configuration = configparser.ConfigParser()
+        configuration.read(os.path.expanduser(
+            '~/.config/terminal-overlay.conf'))
+
+        def number(sec, name, default):
+            value = configuration.get(sec, name, fallback=default)
+            try:
+                return float(value)
+            except ValueError:
+                raise ValueError(
+                    'invalid number value {}.{}: "{}"',
+                    sec, name, value)
+
+        def color(name, default):
+            value = configuration.get('colors', name, fallback=default)
+            result = Gdk.RGBA()
+            if value is not None and not result.parse(value):
+                raise ValueError(
+                    'invalid colour value colors.{}: "{}"'.format(
+                        name, value))
+            else:
+                return result
+
+        self._font_scale = number('font', 'scale', FONT_SCALE_DEFAULT)
+        self._initial_font_scale = self._font_scale
+        self._fg_color = color('foreground-color', FG_COLOR_DEFAULT)
+        self._bg_color = color('background-color', BG_COLOR_DEFAULT)
+        self._palette = [
+            color(str(i), None)
+            for i in range(16)]
+
+    def _apply_configuration(self, terminal):
+        """Applies the configuration to a terminal instance.
+
+        :param terminal: The terminal to modify.
+        """
+        terminal.set_colors(self._fg_color, self._bg_color, self._palette)
+        terminal.set_font_scale(self._font_scale)
 
     def _terminal(self) -> Vte.Terminal:
         """Creates the terminal widget and ensures that it runs the command.
         """
         result = Vte.Terminal()
-        result.set_color_foreground(self._fg_color)
-        result.set_color_background(self._bg_color)
-        result.set_font_scale(self._font_scale)
         result.set_allow_bold(True)
         result.set_audible_bell(False)
         result.set_can_focus(True)
