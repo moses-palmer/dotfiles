@@ -1,0 +1,63 @@
+#!/bin/sh
+## Decompiles a Java class or JAR file.
+##
+## Usage: java-decompile FILE [OUTPUT_DIR]
+##
+## If OUTPUT_DIR is provided, the decompiled Java file is written to this
+## directory with the proper directory structure.
+##
+## Otherwise, if FILE is a class file, the decompiled version is written to
+## STDOUT. If FILE is a JAR file, a temporary directory is created and all
+## contained class files are decompiled to that directory; the base directory
+## path is written to STDOUT.
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+
+##
+# The file to decompile.
+FILE="$1"
+if [ -z "$FILE" ]; then
+    autohelp
+    exit 1
+fi
+
+
+##
+# The path to the CFR JAR file.
+CFR_JAR="$(find ~/.local/lib/cfr/ -name "cfr-"*".jar")"
+if [ ! -f "$CFR_JAR" ]; then
+    cat "$FILE"
+    exit 1
+fi
+
+
+case "$FILE" in
+    zipfile://*)
+        jar_file=$(echo "$FILE" | sed 's;zipfile://\(.*\)::.*;\1;')
+        class_file=$(echo "$FILE" | sed 's;zipfile://.*::\(.*\);\1;')
+        output_dir="$(mktemp --directory)"
+        trap "rm -rf $output_dir" EXIT
+        unzip -qq "$jar_file" "$class_file" -d "$output_dir"
+        exec "$0" "$output_dir/$class_file"
+        ;;
+
+    *.class)
+        if [ -n "$2" ]; then
+            java -jar "$CFR_JAR" --outputdir "$2" "$FILE"
+        else
+            java -jar "$CFR_JAR" "$FILE"
+        fi
+        ;;
+
+    *.jar)
+        if [ -n "$1" ]; then
+            output_dir="$2"
+        else
+            output_dir="$(mktemp --directory)"
+        fi
+        java -jar "$CFR_JAR" --outputdir "$output_dir" "$FILE"
+        echo "$output_dir"
+        ;;
+esac
