@@ -6,6 +6,7 @@
 ## Usage: dex CONTAINER ARG1 [ARGN...]
 
 set -e
+AUTOHELP_PARSE=no
 . ~/.local/lib/bash/autohelp
 
 

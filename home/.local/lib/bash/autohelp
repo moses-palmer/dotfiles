@@ -26,11 +26,13 @@ unknown_command() {
 }
 
 
-for arg in "$@"; do
-    if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
-        autohelp
-        if [ "$#" = "1" ]; then
-            exit
+if [ "$AUTOHELP_PARSE" != "no" ]; then
+    for arg in "$@"; do
+        if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
+            autohelp
+            if [ "$#" = "1" ]; then
+                exit
+            fi
         fi
-    fi
-done
+    done
+fi
