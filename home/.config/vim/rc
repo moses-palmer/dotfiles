@@ -1,7 +1,7 @@
 set expandtab
 set hidden
 set hlsearch
-set ignorecase
+set smartcase
 set incsearch
 set nocompatible
 set shiftwidth=4
