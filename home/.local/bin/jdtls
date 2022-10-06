@@ -3,6 +3,7 @@
 import glob
 import os
 import platform
+import shutil
 import subprocess
 import sys
 
@@ -16,6 +17,14 @@ CACHE_ROOT = os.path.expanduser(
 #: The path to the jdtls installation.
 JDTLS_PATH = os.path.expanduser(
     '~/.local/lib/jdtls')
+
+def clear():
+    cache = cache_dir(os.getcwd())
+    if os.path.isdir(cache):
+        shutil.rmtree(cache)
+    else:
+        print('The cache directory "{}" does not exist.'.format(cache))
+
 
 def main(java_home: str, *args):
     java_executable = os.path.join(java_home, 'bin', 'java')
@@ -42,9 +51,7 @@ def main(java_home: str, *args):
             JDTLS_PATH,
             'config_linux')
 
-    cache_path = os.path.join(
-        CACHE_ROOT,
-        os.path.abspath(os.getcwd()).replace(os.path.sep, '%'))
+    cache = cache_dir(os.getcwd())
 
     subprocess.check_call([
         java_executable,
@@ -61,7 +68,19 @@ def main(java_home: str, *args):
         '--add-opens=java.base/java.util=ALL-UNNAMED',
         '--add-opens=java.base/java.lang=ALL-UNNAMED',
         '-jar', jdtls_jar,
-        '-data', cache_path] + list(args))
+        '-data', cache] + list(args))
+
+
+def cache_dir(project: str) -> str:
+    """The cache directory for a project.
+
+    :param project: The project path.
+
+    :return: the path to the project cache, which may not necessarily exist
+    """
+    return os.path.join(
+        CACHE_ROOT,
+        os.path.abspath(project).replace(os.path.sep, '%'))
 
 
 if __name__ == '__main__':
@@ -72,4 +91,7 @@ if __name__ == '__main__':
             print('$' + name + ' not set')
             sys.exit(1)
 
-    main(env(JAVA_HOME_ENV), *sys.argv[1:])
+    if len(sys.argv) == 2 and sys.argv[-1] == '--clear':
+        clear()
+    else:
+        main(env(JAVA_HOME_ENV), *sys.argv[1:])
