@@ -13,14 +13,15 @@ map! <silent> <S-C-Right> <C-o>:TmuxRight<CR>
 tnoremap <silent> <S-C-Right> <C-w>l
 
 noremap <leader>y :TmuxCopyText<CR>
-noremap <leader>p :TmuxCopyPath<CR>
+noremap <leader>p :TmuxCopyPath 0<CR>
+noremap <leader>P :TmuxCopyPath 1<CR>
 
 command! TmuxLeft call <SID>navigate('h')
 command! TmuxDown call <SID>navigate('j')
 command! TmuxUp call <SID>navigate('k')
 command! TmuxRight call <SID>navigate('l')
 command! -range TmuxCopyText call <SID>tmux_copy_text()
-command! TmuxCopyPath call <SID>tmux_copy_path()
+command! -nargs=1 TmuxCopyPath call <SID>tmux_copy_path(<args>)
 
 
 " Performs a tmux aware window navigation.
@@ -60,8 +61,12 @@ function! s:tmux_copy_text()
 endfunction
 
 
-function! s:tmux_copy_path()
-    let l:s = expand('%:p')
+function! s:tmux_copy_path(absolute)
+    if a:absolute
+        let l:s = expand('%:p')
+    else
+        let l:s = expand('%')
+    endif
     call s:tmux_copy(s)
     echo 'Copied path to tmux clipboard'
 endfunction
