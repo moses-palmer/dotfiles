@@ -1,5 +1,4 @@
 # Start a new editor session in the current directory
-bind-key C-e split-window \
-    -d -h \
-    -c "#{pane_current_path}" \
-    bash -l ~/.local/bin/__tmux-edit
+bind-key C-e run-shell \
+    -b \
+    '~/.local/bin/__tmux-edit "#{pane_current_path}" "#{window_id}" "#{pane_id}"'

@@ -3,12 +3,28 @@
 # We must source this explicitly, since ~/.bashrc bails in command mode
 set -o vi
 source ~/.config/bash/rc
-[ -f .tmux-edit ] && source .tmux-edit
+
+
+if [ -d "$1" ]; then
+    ROOT="$1"
+else
+    ROOT="$(pwd)"
+fi
+if [ -n "$2" ]; then
+    WINDOW="$2"
+else
+    WINDOW="$(tmux display-message -p "#{window_id}")"
+fi
+if [ -n "$3" ]; then
+    PANE="$3"
+else
+    PANE="$(tmux display-message -p "#{pane_id}")"
+fi
 
 
 ##
 # The name of the current project.
-PROJECT="${PROJECT:-$(basename "$(pwd)")}"
+PROJECT="${PROJECT:-$(basename "$ROOT")}"
 
 ##
 # The name of the window option.
@@ -23,62 +39,77 @@ WIDTH="${WIDTH:-132}"
 PROJECT_BASH_HISTFILE="$HOME/.cache/bash/history/$PROJECT"
 
 ##
-# A project local .vimrc file.
-LOCAL_VIM_CONFIG="$(pwd)/.vimrc"
+# A project local bash resource file.
+PROJECT_BASH_RC="$ROOT/.tmux-edit"
+
+##
+# Determines whether the current window is an active edit window.
+#
+# This is true if the tmux window option "@__edit" starts with the string
+# "yes".
+is_edit_window() {
+    tmux show-window-option -v -t "$WINDOW" "$VAR" 2>/dev/null \
+        | grep '^yes' >/dev/null
+}
 
 
-# If the window is not currently an editor window, make it one, otherwise
-# restore the editor pane size
-if [ -z "$(tmux show-window-option -v "$VAR" 2>/dev/null)" ]; then
-    # Name this window after this project
-    tmux rename-window "Project $PROJECT"
-
-    # Rotate the panes with the expectation that this will make the current
-    # pane into the left-most one, and then apply a fixed layout
-    tmux rotate-window
-    tmux set-window-option \
-        main-pane-width "$WIDTH"
-    tmux select-layout \
-        main-vertical
-
-    # Mark this window as an editor window
-    tmux set-window-option "$VAR" "yes"
-
-    # Copy the global history if no project history exists
+##
+# Ensures that a local bash history file exists for the current project.
+ensure_bash_history() {
     if [ ! -f "$PROJECT_BASH_HISTFILE" ]; then
         [ -f ~/.bash_history ] && cp ~/.bash_history "$PROJECT_BASH_HISTFILE"
     fi
+}
 
-    # Launch the replacement shell and kill the old pane
-    true \
-        && tmux split-window \
-            -t 1 \
-            -d -v \
-            -c "$(pwd)" \
-            env HISTFILE="$PROJECT_BASH_HISTFILE" bash -l \
-        && tmux kill-pane \
-            -t 1
 
-    # Finally run vim
-    if [ -f "$LOCAL_VIM_CONFIG" ]; then
-        vim +"source $LOCAL_VIM_CONFIG"
-    else
-        vim
-    fi
+##
+# Launches vim in a new pane.
+launch_editor() {
+    tmux split-window \
+        -b \
+        -c "$ROOT" \
+        -e HISTFILE="$PROJECT_BASH_HISTFILE"  \
+        -f \
+        -h \
+        -t "$PANE" \
+        bash -lic "vim +'if filereadable(\".vimrc\") | source .vimrc'"
+}
 
-    # Pause if there was an error
-    ret="$?"
-    if [ "$ret" != "0" ]; then
-        echo "vim returned $ret..."
-        read
-    fi
 
-    # Unmark this window as an editor window
-    tmux set-window-option \
-        "$VAR" ""
-else
-    tmux set-window-option \
-        main-pane-width "$WIDTH"
-    tmux select-layout \
-        main-vertical
+##
+# Replaces the shell in the original pane.
+replace_shell() {
+    tmux respawn-pane \
+        -c "$ROOT" \
+        -e HISTFILE="$PROJECT_BASH_HISTFILE" \
+        -k \
+        -t "$PANE" \
+        bash -i
+}
+
+
+# If the window is not currently an editor window, make it one
+if ! is_edit_window; then
+    # Make sure we have a local history file
+    ensure_bash_history
+
+    # Launch the editor pane and mark this window as an editor window
+    launch_editor
+    tmux set-window-option -t "$WINDOW" "$VAR" "yes"
+    tmux set-hook pane-exited \
+        "set-window-option -t $WINDOW $VAR ''"
+
+    # Replace the shell in the current pane
+    replace_shell
+
+    # Rename window to make it easier to find
+    tmux rename-window -t "$WINDOW" "<$PROJECT> "
 fi
+
+
+# Apply the fixed layout
+[ -f "$PROJECT_BASH_RC" ] && . "$PROJECT_BASH_RC"
+tmux set-window-option \
+    main-pane-width "$WIDTH"
+tmux select-layout \
+    main-vertical
