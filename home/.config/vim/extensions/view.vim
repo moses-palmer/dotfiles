@@ -64,3 +64,10 @@ endtry
 " Reverse buftabline highlight groups
 highlight! link BufTabLineActive TabLineSel
 highlight! link BufTabLineCurrent PmenuSel
+
+
+" Send current window to sides
+noremap <leader>h <C-w>H
+noremap <leader>j <C-w>J
+noremap <leader>k <C-w>K
+noremap <leader>l <C-w>L
