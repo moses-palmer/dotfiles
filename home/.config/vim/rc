@@ -25,6 +25,11 @@ let mapleader="\<tab>"
 map <leader><leader> :nohlsearch<CR>
 
 
+" Quickly run @a
+nmap <leader>A qa
+nmap <leader>a @a
+
+
 " Enable syntax highlighting; this may not be set in the global resource file
 if has('syntax')
   syntax on
