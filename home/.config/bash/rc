@@ -2,6 +2,9 @@
 # of LINES and COLUMNS.
 shopt -s checkwinsize
 
+# Ensure that the editor is vim
+export EDITOR=vim
+
 
 # The environment files may not have been applied
 if [ "$__ENV_LOADED" != "yes" ]; then
