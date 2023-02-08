@@ -1,88 +1,129 @@
 " Enable the language server
-Plug 'natebosch/vim-lsc'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
-let g:lsc_auto_map = {
-    \ 'GoToDefinition': 'gd',
-    \ 'GoToDefinitionSplit': '<leader>gd',
-    \ 'FindReferences': 'gr',
-    \ 'FindImplementations': 'gI',
-    \ 'FindCodeActions': 'ga',
-    \ 'Rename': 'rr',
-    \ 'ShowHover': v:true,
-    \ 'DocumentSymbol': 'go',
-    \ 'WorkspaceSymbol': 'gS',
-    \ 'SignatureHelp': 'gm',
-    \ 'Completion': 'completefunc',
-    \}
+let g:lsp_diagnostics_float_cursor = 1
+let g:lsp_diagnostics_virtual_text_enabled = 0
 
-" Close the preview window with documentation automatically
-autocmd CompleteDone * silent! pclose
 
-nmap <M-Up> :cprev<CR>
-imap <M-Up> <C-o>:cprev<CR>
-nmap <M-Down> :cnext<CR>
-imap <M-Down> <C-o>:cnext<CR>
-nmap <F3> :call <SID>all_diagnostics()<CR>
-imap <F3> <C-o>:call <SID>all_diagnostics()<CR>
+set foldmethod=expr
+\   foldexpr=lsp#ui#vim#folding#foldexpr()
+\   foldtext=lsp#ui#vim#folding#foldtext()
 
-" Allow mouse navigation; make sure to press the left button to change cursor
-" position before going to definition
-nmap <C-LeftMouse> <LeftMouse>:LSClientGoToDefinition<CR>
-imap <C-LeftMouse> <LeftMouse><C-o>:LSClientGoToDefinition<CR>
-nmap <M-C-LeftMouse> <LeftMouse>:LSClientGoToDefinitionSplit<CR>
-imap <M-C-LeftMouse> <LeftMouse><C-o>:LSClientGoToDefinitionSplit<CR>
 
-" Register language servers
-let g:lsc_server_commands = {}
+function! s:on_lsp_buffer_enabled() abort
+    setlocal omnifunc=lsp#complete
+    setlocal signcolumn=yes
+    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+
+    nmap <buffer> ga <plug>(lsp-code-action-float)
+    nmap <buffer> gA <plug>(lsp-code-lens)
+    nmap <buffer> gd <plug>(lsp-definition)
+    nmap <buffer> <leader>d <plug>(lsp-peek-definition)
+    nmap <buffer> gH <plug>(lsp-call-hierarchy-incoming)
+    nmap <buffer> <leader>H <plug>(lsp-call-hierarchy-outgoing)
+    nmap <buffer> gI <plug>(lsp-implementation)
+    nmap <buffer> gr <plug>(lsp-references)
+    nmap <buffer> gs <plug>(lsp-document-symbol-search)
+    nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
+    nmap <buffer> gt <plug>(lsp-type-definition)
+    nmap <buffer> K <plug>(lsp-hover)
+    nmap <buffer> <leader>K :LspHover --ui=preview<CR>
+    nmap <buffer> <M-Down> <plug>(lsp-next-diagnostic)
+    nmap <buffer> <M-Up> <plug>(lsp-previous-diagnostic)
+    nmap <buffer> rr <plug>(lsp-rename)
+    nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
+    nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
+
+    nmap <F3> :call <SID>all_diagnostics()<CR>
+    imap <F3> <C-o>:call <SID>all_diagnostics()<CR>
+
+    " Allow mouse navigation; make sure to press the left button to change
+    " cursor position before going to definition
+    nmap <C-LeftMouse> <LeftMouse><plug>(lsp-definition)
+    imap <C-LeftMouse> <LeftMouse><C-o><plug>(lsp-definition)
+
+    let g:lsp_format_sync_timeout = 1000
+endfunction
+
+
 if filereadable(expand('~/.local/lib/jdtls/bin/jdtls'))
-    function! s:java_fix_codeAction(actions) abort
-        return map(a:actions, function('<SID>java_fix_codeAction_single'))
-    endfunction
-
-    function! s:java_fix_codeAction_single(idx, edit) abort
-        if !(has_key(a:edit, 'command') && type(a:edit.command) == v:t_dict)
-                \ || a:edit.command.command !=# 'java.apply.workspaceEdit'
-            return a:edit
-        else
-            return {
-                \ 'edit': a:edit.command.arguments[0],
-                \ 'title': a:edit.title}
-        endif
-    endfunction
-
-    let g:lsc_server_commands.java = {
-    \     'command': 'jdtls',
-    \     'response_hooks': {
-    \         'textDocument/codeAction': function('<SID>java_fix_codeAction'),
-    \     }
-    \ }
     let s:java_debug_plugin = expand(glob(
     \     '~/.local/lib/jdtls/plugins/com.microsoft.java.debug.plugin-*.jar'))
-    let g:lsc_server_commands.java.message_hooks = filereadable(
-    \         s:java_debug_plugin)
-    \     ? {
-    \         'initialize': {
-    \             'initializationOptions': {
-    \                 'bundles': [s:java_debug_plugin]
-    \             }
-    \         }
-    \     }
-    \     : {}
+    au User lsp_setup
+    \ call lsp#register_server({
+    \   'name': 'jdtls',
+    \   'cmd': {server_info->['jdtls']},
+    \   'allowlist': ['java'],
+    \   'initialization_options': filereadable(s:java_debug_plugin)
+    \       ? { 'bundles': [s:java_debug_plugin] }
+    \       : {},
+    \ }) |
+    \ call lsp#register_command(
+    \   'java.apply.workspaceEdit',
+    \   function('s:java_apply_workspaceEdit'))
+    autocmd FileType java setlocal omnifunc=lsp#complete
+
+    function! s:java_apply_workspaceEdit(context)
+        let l:command = get(a:context, 'command', {})
+        call lsp#utils#workspace_edit#apply_workspace_edit(
+        \   l:command['arguments'][0])
+    endfunction
 endif
+
 if executable('typescript-language-server')
-    let g:lsc_server_commands.javascript = 'typescript-language-server --stdio'
+    au User lsp_setup call lsp#register_server({
+    \   'name': 'typescript-language-server',
+    \   'cmd': {server_info->['typescript-language-server', '--stdio']},
+    \   'allowlist': ['javascript', 'typescript'],
+    \ })
+    autocmd! FileType javascript setlocal omnifunc=lsp#complete
+    autocmd! FileType typescript setlocal omnifunc=lsp#complete
 endif
+
 if executable('pyls')
-    let g:lsc_server_commands.python = 'pyls'
+    au User lsp_setup call lsp#register_server({
+    \   'name': 'pylsp',
+    \   'cmd': {server_info->['pylsp']},
+    \   'allowlist': ['python'],
+    \ })
+    autocmd FileType python setlocal omnifunc=lsp#complete
 endif
+
 if executable('rust-analyzer')
-    let g:lsc_server_commands.rust = 'rust-analyzer'
+    au User lsp_setup
+    \ call lsp#register_server({
+    \   'name': 'rust-analyzer',
+    \   'cmd': {server_info->['rust-analyzer']},
+    \   'allowlist': ['rust'] }) |
+    \ call lsp#register_command(
+    \   'rust-analyzer.applySourceChange',
+    \   function('s:rust_applySourceChange'))
+    autocmd! FileType rust setlocal omnifunc=lsp#complete
+    autocmd! BufWritePre *.rs call execute('LspDocumentFormatSync')
+
+    function! s:rust_applySourceChange(context)
+        let l:command = get(
+        \   a:context, 'command', {})
+        let l:workspace_edit = get(
+        \   l:command['arguments'][0], 'workspaceEdit', {})
+        if !empty(l:workspace_edit)
+            call lsp#utils#workspace_edit#apply_workspace_edit(l:workspace_edit)
+        endif
+
+        let l:cursor_position = get(
+        \   l:command['arguments'][0], 'cursorPosition', {})
+        if !empty(l:cursor_position)
+            call cursor(lsp#utils#position#lsp_to_vim('%', l:cursor_position))
+        endif
+    endfunction
 endif
 
 
 function! s:all_diagnostics()
     if s:toggle_quickfix_window()
-        LSClientAllDiagnostics
+        LspDocumentDiagnostics
     endif
 endfunction
 
@@ -103,3 +144,9 @@ function! s:toggle_quickfix_window()
 
     return 1
 endfunction
+
+
+augroup lsp_install
+    au!
+    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END

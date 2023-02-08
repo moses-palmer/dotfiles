@@ -8,7 +8,7 @@ endif
 
 
 let s:debug_plugin = expand(glob(
-\     '~/.local/lib/jdtls/plugins/com.microsoft.java.debug.plugin-*.jar'))
+\   '~/.local/lib/jdtls/plugins/com.microsoft.java.debug.plugin-*.jar'))
 if filereadable(s:debug_plugin)
     " Make sure to launch the agent the first time we start debugging
     noremap <silent> <F5> :call <SID>debug()<CR>
@@ -65,17 +65,23 @@ endfunction
 " This function will restore the mapping for <F5> once the server is started.
 function! s:debug()
     function! s:start_and_launch()
-        function! s:on_response(port)
-            echom 'Started Java debug server on port ' . a:port
-            let s:java_debug_port = a:port
-            call s:launch()
+        function! s:on_response(data)
+            if lsp#client#is_error(a:data['response'])
+                echom 'Failed to start debug session: ' . string(a:data)
+            else
+                let s:java_debug_port = a:data['response']['result']
+                echom 'Started Java debug server on port ' . s:java_debug_port
+                call s:launch()
+            endif
         endfunction
 
         " This call instructs the LSP to start the debug plugin
-        call lsc#server#userCall(
-        \     'workspace/executeCommand',
-        \     {'command': 'vscode.java.startDebugSession'},
-        \     {r -> s:on_response(r)})
+        call lsp#send_request('jdtls', {
+        \     'method': 'workspace/executeCommand',
+        \     'params': {'command': 'vscode.java.startDebugSession'},
+        \     'sync': v:true,
+        \     'on_notification': function('s:on_response'),
+        \ })
     endfunction
 
     function! s:launch()
