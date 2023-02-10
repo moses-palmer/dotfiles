@@ -1,1 +1,8 @@
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
+# Find files by default
+export FZF_DEFAULT_COMMAND="rg --files --follow --smart-case --glob \"!.git/*\""
+
+# Find content in files; append "-- ''" to use
+export FZF_SEARCH_COMMAND="rg --column --line-number --no-heading --color=always --smart-case --glob \"!.git/*\""
+
+# Provide a preview and border by default
+export FZF_DEFAULT_OPTS="--ansi --border --info=inline --preview 'bash \"$HOME/.vim/plugged/fzf.vim/bin/preview.sh\" {}'"
