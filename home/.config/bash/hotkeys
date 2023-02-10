@@ -13,9 +13,10 @@ bind '"\C-r": "\C-x1\eI"'
 bind -x '"\C-x1": __search_history';
 
 
-# Find files using Ctrl-P
-__search_files() {
+# Find file names using Ctrl-P
+__search_file_names() {
     item="$(fzf)"
+
     if [ -n "$item" ]; then
         L="$READLINE_LINE"
         P="$READLINE_POINT"
@@ -24,4 +25,22 @@ __search_files() {
     fi
 }
 bind '"\C-p": "\C-x2\eI"'
-bind -x '"\C-x2": __search_files';
+bind -x '"\C-x2": __search_file_names';
+
+
+# Find in files using Ctrl-K
+__search_files() {
+    local fzf_default_command="$FZF_DEFAULT_COMMAND"
+    FZF_DEFAULT_COMMAND="$FZF_SEARCH_COMMAND -- ''"
+    item="$(fzf | cut -d: -f1)"
+    FZF_DEFAULT_COMMAND="$fzf_default_command"
+
+    if [ -n "$item" ]; then
+        L="$READLINE_LINE"
+        P="$READLINE_POINT"
+        READLINE_LINE="${L:0:$P} $item ${L:$P:${#L}}"
+        READLINE_POINT=$(( READLINE_POINT + ${#1} ))
+    fi
+}
+bind '"\C-k": "\C-x3\eI"'
+bind -x '"\C-x3": __search_files';
