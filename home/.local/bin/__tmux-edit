@@ -72,19 +72,34 @@ launch_editor() {
         -f \
         -h \
         -t "$PANE" \
-        bash -lic "vim +'if filereadable(\".vimrc\") | source .vimrc'"
+        bash -lic "[ -f .tmux-edit ] && . .tmux-edit ;
+            vim +'if filereadable(\".vimrc\") | source .vimrc'"
 }
 
 
 ##
 # Replaces the shell in the original pane.
+#
+# To pass the local environment we use --rcfile with a temporary FIFO to make
+# bash load normal startup files in addition to the current environment.
+#
+# We use a FIFO instead of <(...) since the command is executed by tmux and
+# file descriptors are not passed to the command in respawn-pane.
 replace_shell() {
+    rcfile="$(mktemp -u)"
+    mkfifo "$rcfile"
     tmux respawn-pane \
         -c "$ROOT" \
         -e HISTFILE="$PROJECT_BASH_HISTFILE" \
         -k \
         -t "$PANE" \
-        bash -i
+        bash --rcfile "$rcfile" -i
+    cat > "$rcfile" <<___
+[ -f /etc/profile ]       && . /etc/profile
+[ -f ~/.bashrc ]          && . ~/.bashrc
+[ -f "$PROJECT_BASH_RC" ] && . "$PROJECT_BASH_RC"
+___
+    rm "$rcfile"
 }
 
 
