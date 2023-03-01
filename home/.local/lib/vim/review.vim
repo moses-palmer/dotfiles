@@ -356,7 +356,7 @@ function! s:open_at_rev(prefix, path, rev, chunks, lineno)
         \ nobuflisted
         \ nowrap
         \ number
-    if a:rev != '0000000'
+    if match(a:rev, '^0\+$') == -1
         execute('0read !git show ' . a:rev . ' -- ' . a:path)
         execute('file ' . l:file)
         execute('filetype detect')
