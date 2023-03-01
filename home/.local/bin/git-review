@@ -34,7 +34,7 @@ ORIGINAL="$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse HEAD)"
 if ! git diff-index --quiet HEAD --; then
     echo "Your repository contains local changes."
     exit
-elif [ "$1" == "--changes" ]; then
+elif [ "$1" = "--changes" ]; then
     if [ "$#" = "2" ]; then
         remote="$(git default-remote)"
         current="$(git rev-parse "$remote/$2")"
@@ -43,7 +43,7 @@ elif [ "$1" == "--changes" ]; then
         if [ "$current" = "$next" ]; then
             echo "No changes."
         else
-            echo -e "Showing upstream changes to \033[1m$2\033[0m."
+            /bin/echo -e "Showing upstream changes to \033[1m$2\033[0m."
             git diff "$current".."$next"
         fi
         exit 0
@@ -74,13 +74,13 @@ fi
 
 # Check out the branch to review
 if ! git checkout --quiet "$REVIEW_SOURCE"; then
-    echo -e "\033[1m$REVIEW_SOURCE\033[0m not found locally, fetching..."
+    /bin/echo -e "\033[1m$REVIEW_SOURCE\033[0m not found locally, fetching..."
     git fetch
     git checkout --quiet "$REVIEW_SOURCE"
 fi
 
 # Show an ordered commit log with diffs
-echo -e "Reviewing \033[1m$REVIEW_SOURCE\033[0m" \
+/bin/echo -e "Reviewing \033[1m$REVIEW_SOURCE\033[0m" \
     "for merging into \033[1m$REVIEW_TARGET\033[0m."
 VIM_PLUGINS="color-theme:ansi-esc" \
 vim -S ~/.local/lib/vim/review.vim
