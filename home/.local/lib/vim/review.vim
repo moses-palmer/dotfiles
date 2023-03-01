@@ -90,7 +90,7 @@ function! s:load_changes()
     set modifiable<
 
     " Add buffer local mappings to quit
-    nnoremap <buffer> <leader>q :qa<CR>
+    nnoremap <buffer> q :qa<CR>
 endfunction
 
 
@@ -155,7 +155,7 @@ function! s:open_modifications()
     nnoremap <buffer> <Right> :call <SID>for_children("normal l'")<CR>
     nnoremap <buffer> <PageUp> :call <SID>for_children("normal ['")<CR>
     nnoremap <buffer> <PageDown> :call <SID>for_children("normal ]'")<CR>
-    nnoremap <buffer> <leader>q :call <SID>close_modifications()<CR>
+    nnoremap <buffer> q :call <SID>close_modifications()<CR>
     nnoremap <buffer> <F9> :call <SID>toggle_zoom()<CR>
 endfunction
 
@@ -173,7 +173,7 @@ function! s:close_modifications()
 
     " Restore mappings
     mapclear <buffer>
-    nnoremap <buffer> <leader>q :qa<CR>
+    nnoremap <buffer> q :qa<CR>
 endfunction
 
 
@@ -395,7 +395,7 @@ function! s:open_at_rev(prefix, path, rev, chunks, lineno)
     execute('normal ' . a:lineno . 'Gz.')
 
     " Add useful mappings
-    nnoremap <buffer> <leader>q :silent! call <SID>close_modifications()<CR>
+    nnoremap <buffer> q :silent! call <SID>close_modifications()<CR>
     nnoremap <buffer> k <C-y>
     nnoremap <buffer> j <C-e>
     nnoremap <buffer> h zh
