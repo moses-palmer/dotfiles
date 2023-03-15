@@ -5,6 +5,7 @@ Generates information for vimspector when debugging Java applications.
 
 import argparse
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -18,6 +19,9 @@ MARKER = '###'
 #: The POM file XML namespace.
 NS = {
     'mvn': 'http://maven.apache.org/POM/4.0.0'}
+
+#: The regular expression used to extract the relative file name
+FILE_NAME_RE = re.compile(r'src/(?:main|test)/java/(.*)\.java$')
 
 
 def generate_classpath_main(scope: str, root: str, relative: str):
@@ -48,6 +52,13 @@ def extract_module_main(root: str, relative: str):
     """Extracts the maven module base directory given a file name.
     """
     print(maven_module(root, relative))
+
+
+def extract_class_main(relative: str):
+    """Extracts the main class name of a file given a file name.
+    """
+    for m in FILE_NAME_RE.finditer(relative):
+        print(m.group(1).replace('/', '.'))
 
 
 def run(root: str, *args) -> str:
@@ -164,6 +175,14 @@ if __name__ == '__main__':
         'relative',
         help='A path relative to the project root to a file in the module')
     extract_module.set_defaults(main=extract_module_main)
+
+    extract_class = subparsers.add_parser(
+        'extract-class',
+        description=extract_class_main.__doc__)
+    extract_class.add_argument(
+        'relative',
+        help='A path to a file in the module')
+    extract_class.set_defaults(main=extract_class_main)
 
     arguments = vars(parser.parse_args())
     main = arguments.pop('main')

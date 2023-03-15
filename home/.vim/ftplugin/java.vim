@@ -12,26 +12,6 @@ let s:debug_plugin = expand(glob(
 if filereadable(s:debug_plugin)
     " Make sure to launch the agent the first time we start debugging
     noremap <silent> <F5> :call <SID>debug()<CR>
-
-    " Set the test class and module based on the current file.
-    "
-    " This assumes that the current workspace is a maven project, and that its
-    " structure is relatively simple with directories corresponding to module
-    " names. It further assumes that the debug configuration uses the variables
-    " $Module and $TestClass
-    if exists('$JAVA_TEST_RUNNER_JARS') && exists('$JAVA_TEST_RUNNER_CLASS')
-    \     && s:is_maven && expand('%:p') =~ 'src/test/java/.*Test\.java$'
-        let $TestClass = substitute(substitute(
-        \     expand('%p'),
-        \     '^.*src/test/java/\([^.]*\)\.java$',
-        \     {m -> m[1]},
-        \     'g'), '/', '.', 'g')
-        let $Module = substitute(
-        \     expand('%p'),
-        \     '^.\{-}\([^/]*\)/src/test/java/\([^.]*\)\.java$',
-        \     {m -> m[1]},
-        \     'g')
-    endif
 endif
 
 
