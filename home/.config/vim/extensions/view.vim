@@ -61,11 +61,6 @@ catch /^Vim\%((\a\+)\)\=:E185/
 endtry
 
 
-" Reverse buftabline highlight groups
-highlight! link BufTabLineActive TabLineSel
-highlight! link BufTabLineCurrent PmenuSel
-
-
 " Send current window to sides
 noremap <leader>h <C-w>H
 noremap <leader>j <C-w>J

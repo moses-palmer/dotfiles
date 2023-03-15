@@ -1,10 +1,17 @@
 " Display buffers in the tab line
 Plug 'ap/vim-buftabline'
 
+let g:buftabline_separators = v:true
+
 nnoremap <M-Left> :call <SID>previous_buffer()<CR>
 nnoremap <M-Right> :call <SID>next_buffer()<CR>
 imap <M-Left> <C-o>:call <SID>previous_buffer()<CR>
 imap <M-Right> <C-o>:call <SID>next_buffer()<CR>
+
+
+" Reverse buftabline highlight groups
+highlight! link BufTabLineActive TabLineSel
+highlight! link BufTabLineCurrent PmenuSel
 
 
 " Selects the next buffer in the 'file window'.
