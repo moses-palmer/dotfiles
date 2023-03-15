@@ -6,17 +6,21 @@ case "$1" in
         : prefix None
         : key-table off
         : -g status-position bottom
-        if [ "$(echo "$TMUX_VERSION >= 3.0" | bc)" = 1 ]; then
-            : -g status-style bg=colour8,fg=white,overline
-        else
-            : -g status-style bg=colour8,fg=white
-        fi
+        : -g status-style bg=colour8,fg=white
+        : -g status-left-style fg=white,bold
+        : -g status-right-style fg=white,bold
+        : -wg window-status-current-style fg=white,bold,bg=colour246
+        : -wg window-status-style fg=white,bold
         ;;
     off)
         : -u prefix
         : -u key-table
         : -g status-position top
-        : -g status-style bg=green,fg=black,underscore
+        : -g status-style bg=green,fg=black
+        : -g status-left-style fg=black,bold,underscore
+        : -g status-right-style fg=black,bold,underscore
+        : -wg window-status-current-style fg=black,bold,underscore,bg=colour49
+        : -wg window-status-style fg=black,bold,underscore
         ;;
 esac
 

@@ -39,5 +39,12 @@ set-option -g exit-empty off
 # Update status line every 5 seconds
 set-option -g status-interval 5
 
+# Let the status format determine separators
+set-window-option -g window-status-separator ''
+set-option -wg window-status-format ' #I:#W⎹'
+set-option -wg window-status-current-format ' #I:#W⎹'
+set-option -g status-left ''
+set-option -g status-right '⎸❰#H❱ %H:%M'
+
 # Apply the non-nested style
-run-shell -b '__tmux-nested off'
+run-shell  '__tmux-nested off'
