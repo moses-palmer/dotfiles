@@ -9,19 +9,25 @@ set-option -g mouse on
 # (alternate_on) and if so, convert the scroll events to arrow button events.
 #
 # Otherwise, enter copy mode and let the next event initiate scrolling.
-bind -n WheelUpPane \
-    if -Ft= '#{?pane_in_mode,1,#{mouse_any_flag}}' '\
-        send -Mt= \
-        ' '\
-        if -Ft= "#{alternate_on}" \
-            "send -N3 -t= Up" \
-            "copy-mode -et=" \
-    '
-bind -n WheelDownPane \
-    if -Ft = '#{?pane_in_mode,1,#{mouse_any_flag}}' '\
-        send -Mt= \
-        ' '\
-        if -Ft= "#{alternate_on}" \
-            "send -N3 -t= Down" \
-            "send -Mt=" \
-    '
+bind -n WheelUpPane {
+    if -Ft= '#{?pane_in_mode,1,#{mouse_any_flag}}' {
+        send -Mt=
+    } {
+        if -Ft= "#{alternate_on}" {
+            send -N3 -t= Up
+        } {
+            copy-mode -et=
+        }
+    }
+}
+bind -n WheelDownPane {
+    if -Ft= '#{?pane_in_mode,1,#{mouse_any_flag}}' {
+        send -Mt=
+    } {
+        if -Ft= "#{alternate_on}" {
+            send -N3 -t= Down
+        } {
+            send -Mt=
+        }
+    }
+}

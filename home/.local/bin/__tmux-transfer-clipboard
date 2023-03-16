@@ -4,11 +4,7 @@ set -e
 
 
 # Copy the current selection if any
-if [ "$(echo "$TMUX_VERSION >= 2.4" | bc)" = "1" ]; then
-    tmux send -X copy-selection-and-cancel || true
-elif [ "$(echo "$TMUX_VERSION <= 2.3" | bc)" = "1" ]; then
-    tmux send -X copy-selection || true
-fi
+tmux send -X copy-selection-and-cancel || true
 
 
 # Paste it into the clipboard

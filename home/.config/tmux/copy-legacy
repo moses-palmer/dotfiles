@@ -1,3 +1,0 @@
-# Let v and y manage begin-end of vi-copy
-bind-key -t vi-copy v begin-selection
-bind-key -t vi-copy y copy-selection
