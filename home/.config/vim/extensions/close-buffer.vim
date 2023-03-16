@@ -8,7 +8,7 @@ command! KillLeft
 command! KillRight
     \ call lib#for_main_window('call lib#kill_other_buffers(1)')
 
-map <leader>q :KillBufferMoveLeft<CR>
-map <leader>Q :KillLeft<CR>
-map <leader>w :KillBufferMoveRight<CR>
-map <leader>W :KillRight<CR>
+map <silent> <leader>q :KillBufferMoveLeft<CR>
+map <silent> <leader>Q :KillLeft<CR>
+map <silent> <leader>w :KillBufferMoveRight<CR>
+map <silent> <leader>W :KillRight<CR>
