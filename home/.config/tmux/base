@@ -11,6 +11,10 @@ bind-key -n M-j run-shell "~/.local/bin/__tmux-toggle-pane -v"
 bind-key -n M-k run-shell "~/.local/bin/__tmux-toggle-pane -vb"
 bind-key -n M-l run-shell "~/.local/bin/__tmux-toggle-pane -h"
 
+# Easily navigate windows
+bind-key -n S-M-Left previous-window
+bind-key -n S-M-Right next-window
+
 # Yell to all panes
 bind-key -n C-y setw synchronize-panes
 
