@@ -74,12 +74,16 @@ endfunction
 
 " Copies a string to the tmux clipboard.
 function! s:tmux_copy(string)
-    silent call s:tmux('set-buffer ' . shellescape(a:string))
+    silent call s:tmux('load-buffer -', a:string)
 endfunction
 
 
 " Sends a tmux command over the tmux socket.
-function! s:tmux(args)
+function! s:tmux(args, ...)
     let l:socket = split($TMUX, ',')[0]
-    return system('tmux -S ' . l:socket . ' ' . a:args)
+    if a:0 > 0
+        return system('tmux -S ' . l:socket . ' ' . a:args, a:1)
+    else
+        return system('tmux -S ' . l:socket . ' ' . a:args)
+    endif
 endfunction
