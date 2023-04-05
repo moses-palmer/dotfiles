@@ -6,7 +6,6 @@ import sys
 import time
 
 import gi
-gi.require_version('DBus', '1.0')
 gi.require_version('Gdk', '3.0')
 gi.require_version('Gio', '2.0')
 gi.require_version('Gtk', '3.0')
@@ -17,6 +16,18 @@ from gi.repository import GLib, Gdk, Gio, Gtk, Vte
 
 #: The title of the main window.
 TITLE = 'Terminal Overlay'
+
+#: The environment variablw that disables fullscreen.
+NO_FULLSCREEN_ENV = 'TERMINAL_OVERLAY_NO_FULLSCREEN'
+
+#: The default initial display value.
+NO_FULLSCREEN_DEFAULT = 'no'
+
+#: The environment variablw that disables D-BUS remove control.
+NO_REMOTE_ENV = 'TERMINAL_OVERLAY_NO_REMOTE'
+
+#: The default initial display value.
+NO_REMOTE_DEFAULT = 'no'
 
 #: The monitor index to use.
 MONITOR_ENV = 'TERMINAL_OVERLAY_MONITOR'
@@ -66,7 +77,11 @@ TOGGLE_THROTTLE = 0.2
 def main(command: [str]):
     try:
         Application(
-            os.getenv(MONITOR_ENV, MONITOR_DEFAULT),
+            os.getenv(NO_FULLSCREEN_ENV, NO_FULLSCREEN_DEFAULT).lower() in (
+                'true', 'yes'),
+            os.getenv(NO_REMOTE_ENV, NO_REMOTE_DEFAULT).lower() in (
+                'true', 'yes'),
+            int(os.getenv(MONITOR_ENV, MONITOR_DEFAULT)),
             command).run([])
     except ValueError as e:
         sys.stderr.write('{}\n'.format(str(e)))
@@ -74,14 +89,18 @@ def main(command: [str]):
 
 
 class Application(Gtk.Application):
-    def __init__(self, monitor: int,  command: [str]):
+    def __init__(
+            self, no_fullscreen: bool, no_remote: bool, monitor: int,
+            command: [str]):
         super(Application, self).__init__(
             application_id=SERVICE_NAME,
             flags=Gio.ApplicationFlags.FLAGS_NONE)
 
         self._screen = Gdk.Screen.get_default()
         self._display = self._screen.get_display()
-        self._monitor_num = self._locate_monitor(int(monitor))
+        self._fullscreen = not no_fullscreen
+        self._remote = not no_remote
+        self._monitor_num = self._locate_monitor(monitor)
         self._command = command
         self._load_configuration()
 
@@ -129,12 +148,16 @@ class Application(Gtk.Application):
         def exit():
             window.destroy()
 
-        self._start_server(
-            CycleDisplay=cycle_display,
-            Toggle=toggle,
-            ReloadConfiguration=reload_configuration,
-            Exit=exit,
-            get_Display=(get_display, 'i'))
+        if self._remote:
+            self._start_server(
+                CycleDisplay=cycle_display,
+                Toggle=toggle,
+                ReloadConfiguration=reload_configuration,
+                Exit=exit,
+                get_Display=(get_display, 'i'))
+
+        else:
+            window.show_all()
 
     def _load_configuration(self):
         """Loads the configuration from the default configuration file.
@@ -145,6 +168,8 @@ class Application(Gtk.Application):
         configuration = configparser.ConfigParser()
         configuration.read(os.path.expanduser(
             '~/.config/terminal-overlay.conf'))
+        configuration.read(os.path.expanduser(
+            '~/.config/terminal-overlay.overrides.conf'))
 
         def number(sec, name, default):
             value = configuration.get(sec, name, fallback=default)
@@ -219,21 +244,24 @@ class Application(Gtk.Application):
         """Creates the main window.
         """
         result = Gtk.ApplicationWindow(type=Gtk.WindowType.TOPLEVEL)
+
         result.set_title(TITLE)
         result.set_icon_name('terminal')
-        result.set_decorated(False)
-        result.set_skip_taskbar_hint(True)
-        result.set_skip_pager_hint(True)
-        result.set_keep_above(True)
+
         result.set_accept_focus(True)
+        result.set_decorated(False)
         result.set_deletable(False)
-        result.set_type_hint(Gdk.WindowTypeHint.DOCK)
+        result.set_keep_above(True)
+        result.set_skip_pager_hint(True)
+        result.set_skip_taskbar_hint(True)
         result.set_visual(result.get_screen().get_rgba_visual())
 
-        result.stick()
-        result.fullscreen_on_monitor(
-            self._screen,
-            self._monitor_num)
+        if self._fullscreen:
+            result.set_type_hint(Gdk.WindowTypeHint.DOCK)
+            result.stick()
+            result.fullscreen_on_monitor(
+                self._screen,
+                self._monitor_num)
 
         def delete_event(*_args):
             result.hide()
@@ -305,6 +333,8 @@ class Application(Gtk.Application):
     def _start_server(self, **kwargs):
         """Starts the DBus server.
         """
+        gi.require_version('DBus', '1.0')
+
         Gio.bus_own_name(
             Gio.BusType.SESSION,
             SERVICE_NAME,
