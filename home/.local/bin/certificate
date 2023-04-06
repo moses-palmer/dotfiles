@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+
+from typing import Generator, Optional, Union
+
+
+#: Extensions recognised as PKCS12 files.
+PKCS12_EXTENSIONS = ('p12', 'pfx', 'pkcs12')
+
+
+#: The PEM beginning.
+BEGIN = '-----BEGIN CERTIFICATE-----'
+
+#: The PEM end.
+END = '-----END CERTIFICATE-----'
+
+
+def main(args, path: Optional[str]):
+    if path is not None:
+        with open(path, 'rb') as f:
+            data_bytes = f.read()
+    else:
+        data_bytes = sys.stdin.buffer.read()
+
+    if path is not None and path.rsplit('.', 1)[-1] in PKCS12_EXTENSIONS:
+        data_str = subprocess.check_output(
+            ['openssl', 'pkcs12', '-legacy', '-nokeys'],
+            input=data_bytes).decode('utf-8')
+    else:
+        try:
+            data_str = data_bytes.decode('utf-8')
+        except UnicodeDecodeError:
+            data_str = None
+
+    if data_str is not None:
+        try:
+            for certificate in split(data_str):
+                print(stringify(certificate.encode('utf-8'), 'pem', *args))
+        except subprocess.CalledProcessError:
+            # A DER encoded certificate could possibly be valid UTF-8
+            print(stringify(data_bytes, 'der', *args))
+    else:
+        print(stringify(data_bytes, 'der', *args))
+
+
+def split(data: str) -> Generator[str, None, None]:
+    """Splits a list of PEM encoded certificates into separate certificates.
+
+    :param data: The certificate list.
+    """
+    current = []
+    for line in data.splitlines():
+        # Discard data not between start and end
+        if not current and line != BEGIN:
+            continue
+
+        current.append(line)
+
+        if line == END:
+            yield '\n'.join(current)
+            current = []
+
+    # Add missing endings
+    if current:
+        yield '\n'.join(current + [END])
+
+
+def stringify(certificate: bytes, encoding: str, *args) -> str:
+    """Calls OpenSSL to stringify a single certificate.
+
+    :param certificate: The certificate.
+
+    :param encoding: The encoding; either ``'der'`` or ``'pem'``.
+
+    :param args: Arguments to pass directly to OpenSSL.
+
+    :return: a string version of the certificate
+    """
+    child = subprocess.Popen(
+        ['openssl', 'x509', '-legacy', '-noout', '-text', '-inform', encoding]
+            + list(args),
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE)
+    stdout, _ = child.communicate(certificate)
+    return stdout.decode('utf-8')
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description='Prints certificate information.',
+        epilog=' If a file name is passed, the type is guessed from it: file '
+        'names ending with ".p12", ".pfx" and ".pkcs12" are assumed to be '
+        'PKCS12 files. If no file name is passed, it is assumed to be an '
+        'X.509 certificate.'
+        '\n\n'
+        'If certificate data is passed, it must be either PEM or DER encoded, '
+        'or a plain base 64 string which will be wrapped in a PEM format. '
+        'Unknown arguments are passed to OpenSSL')
+
+    parser.add_argument(
+        '--path',
+        help='The path to the certificate. If not passed, STDIN is used.')
+
+    try:
+        known, args = parser.parse_known_args()
+        main(args, **vars(known))
+    except KeyboardInterrupt:
+        print()
+        print('Cancelled')
