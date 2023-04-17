@@ -5,6 +5,8 @@ Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
 let g:lsp_diagnostics_float_cursor = 1
 let g:lsp_diagnostics_virtual_text_enabled = 0
+let g:lsp_document_code_action_signs_hint = {'text': '‼'}
+let g:lsp_format_sync_timeout = 1000
 
 
 set foldmethod=expr
@@ -43,8 +45,6 @@ function! s:on_lsp_buffer_enabled() abort
     " cursor position before going to definition
     nmap <C-LeftMouse> <LeftMouse><plug>(lsp-definition)
     imap <C-LeftMouse> <LeftMouse><C-o><plug>(lsp-definition)
-
-    let g:lsp_format_sync_timeout = 1000
 endfunction
 
 
