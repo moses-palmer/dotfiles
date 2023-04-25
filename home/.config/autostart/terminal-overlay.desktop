@@ -5,4 +5,4 @@ Terminal=false
 Type=Application
 Name=Terminal Overlay
 Icon=org.gnome.Terminal
-Exec=/usr/bin/env sh -c "[ -f ~/.config/terminal-overlay ] && . ~/.config/terminal-overlay ; terminal-overlay tmux attach"
+Exec=terminal-overlay tmux attach

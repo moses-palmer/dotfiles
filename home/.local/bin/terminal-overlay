@@ -17,29 +17,23 @@ from gi.repository import GLib, Gdk, Gio, Gtk, Vte
 #: The title of the main window.
 TITLE = 'Terminal Overlay'
 
-#: The environment variablw that disables fullscreen.
-NO_FULLSCREEN_ENV = 'TERMINAL_OVERLAY_NO_FULLSCREEN'
+#: The default fullscreen mode.
+FULLSCREEN_DEFAULT = True
 
-#: The default initial display value.
-NO_FULLSCREEN_DEFAULT = 'no'
-
-#: The environment variablw that disables D-BUS remove control.
-NO_REMOTE_ENV = 'TERMINAL_OVERLAY_NO_REMOTE'
-
-#: The default initial display value.
-NO_REMOTE_DEFAULT = 'no'
-
-#: The monitor index to use.
-MONITOR_ENV = 'TERMINAL_OVERLAY_MONITOR'
+#: The default remote mode.
+REMOTE_DEFAULT = True
 
 #: The default monitor.
-MONITOR_DEFAULT = '-1'
+MONITOR_DEFAULT = -1
 
 #: The default foreground colour.
 FG_COLOR_DEFAULT = 'rgba(100%, 100%, 100%, 1.0)'
 
 #: The default background colour.
 BG_COLOR_DEFAULT = 'rgba(20%, 20%, 20%, 0.9)'
+
+#: The default font family for the terminal.
+FONT_FAMILY_DEFAULT = ''
 
 #: The default font scale.
 FONT_SCALE_DEFAULT = '1.0'
@@ -76,31 +70,20 @@ TOGGLE_THROTTLE = 0.2
 
 def main(command: [str]):
     try:
-        Application(
-            os.getenv(NO_FULLSCREEN_ENV, NO_FULLSCREEN_DEFAULT).lower() in (
-                'true', 'yes'),
-            os.getenv(NO_REMOTE_ENV, NO_REMOTE_DEFAULT).lower() in (
-                'true', 'yes'),
-            int(os.getenv(MONITOR_ENV, MONITOR_DEFAULT)),
-            command).run([])
+        Application(command).run([])
     except ValueError as e:
         sys.stderr.write('{}\n'.format(str(e)))
         sys.exit(1)
 
 
 class Application(Gtk.Application):
-    def __init__(
-            self, no_fullscreen: bool, no_remote: bool, monitor: int,
-            command: [str]):
+    def __init__(self, command: [str]):
         super(Application, self).__init__(
             application_id=SERVICE_NAME,
             flags=Gio.ApplicationFlags.FLAGS_NONE)
 
         self._screen = Gdk.Screen.get_default()
         self._display = self._screen.get_display()
-        self._fullscreen = not no_fullscreen
-        self._remote = not no_remote
-        self._monitor_num = self._locate_monitor(monitor)
         self._command = command
         self._load_configuration()
 
@@ -171,6 +154,16 @@ class Application(Gtk.Application):
         configuration.read(os.path.expanduser(
             '~/.config/terminal-overlay.overrides.conf'))
 
+        def string(sec, name, default):
+            return configuration.get(sec, name, fallback=default)
+
+        def boolean(sec, name, default):
+            value = configuration.get(sec, name, fallback='')
+            if value:
+                return value.lower() in ('true', 'yes')
+            else:
+                return default
+
         def number(sec, name, default):
             value = configuration.get(sec, name, fallback=default)
             try:
@@ -190,8 +183,16 @@ class Application(Gtk.Application):
             else:
                 return result
 
+        self._fullscreen = boolean('display', 'fullscreen', FULLSCREEN_DEFAULT)
+        self._monitor_num = self._locate_monitor(
+            int(number('display', 'monitor', -1)))
+
+        self._remote = boolean('remote', 'enabled', True)
+
+        self._font_family = string('font', 'family', FONT_FAMILY_DEFAULT)
         self._font_scale = number('font', 'scale', FONT_SCALE_DEFAULT)
         self._initial_font_scale = self._font_scale
+
         self._fg_color = color('foreground-color', FG_COLOR_DEFAULT)
         self._bg_color = color('background-color', BG_COLOR_DEFAULT)
         self._palette = [
@@ -205,6 +206,10 @@ class Application(Gtk.Application):
         """
         terminal.set_colors(self._fg_color, self._bg_color, self._palette)
         terminal.set_font_scale(self._font_scale)
+        if self._font_family:
+            font = terminal.get_font()
+            font.set_family(self._font_family)
+            terminal.set_font(font)
 
     def _terminal(self) -> Vte.Terminal:
         """Creates the terminal widget and ensures that it runs the command.
