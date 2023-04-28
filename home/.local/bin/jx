@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+
+import json
+import sys
+
+from typing import Any, Mapping, Sequence
+
+
+def transform(
+        record: Mapping[str, Any],
+        mapping: Mapping[str, Sequence[str]]):
+    """Transforms a ``dict``.
+
+    The result will have a value for each key in ``mapping`` with a value
+    extracted from ``record``. The value is retrieved by recursively looking up
+    values using the value in ``mapping``.
+
+    If a path does not exist, the result key will be set to ``None``.
+
+    :param record: The source record.
+    :param mapping: A mapping from result key to path in ``record``.
+
+    :return: a new mapping
+    """
+    def extract(*path: str) -> Any:
+        current = record
+        try:
+            for part in path:
+                try:
+                    current = current[part]
+                except Exception as e:
+                    raise e
+        except KeyError:
+            return None
+        else:
+            return current
+
+    return {
+        k: extract(*v)
+        for (k, v) in mapping.items()}
+
+
+# Parse the arguments
+args = sys.argv[1:]
+invalid = [arg for arg in args if '=' not in arg]
+if invalid:
+    sys.stderr.write('All arguments must contain "=": {}\n'.format(invalid))
+    sys.exit(1)
+else:
+    mapping = {
+        k: v.split('.')
+        for (k, v) in (
+            arg.split('=', 1)
+            for arg in args)}
+
+
+# Transform the input
+for line in sys.stdin:
+    try:
+        record = json.loads(line[line.index('{'):])
+    except ValueError:
+        record = json.loads(line)
+    if mapping:
+        data = transform(record, mapping)
+    else:
+        data = record
+    json.dump(data, sys.stdout, indent=4)
+    print()
