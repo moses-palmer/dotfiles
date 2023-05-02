@@ -19,6 +19,7 @@
     logg = log --graph --decorate
     lg = log --graph --decorate --oneline
     ls = ls-tree --name-only HEAD
+    own = !git-own
     reb = rebase -i --rebase-merges
     rep = reset -p
     reshape = !git-reshape

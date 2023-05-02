@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+## Resets the author for multiple commits.
+##
+## The new author and committer is set to the user in the git configuration.
+##
+## Usage: git own [FROM]
+##
+## If FROM is provided, the commits modified are FROM..HEAD, excluding FROM,
+## otherwise all commits from the repository default branch to HEAD are
+## modified.
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" = 1 ]; then
+    FROM="$1"
+elif [ "$#" = 0 ]; then
+    FROM="$(git default-branch)"
+else
+    autohelp
+    exit 1
+fi
+
+
+git rebase --rebase-merges "$FROM" \
+    --exec 'git commit --amend --no-edit --allow-empty --reset-author'
