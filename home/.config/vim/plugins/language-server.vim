@@ -82,10 +82,10 @@ if executable('typescript-language-server')
     autocmd! FileType typescript setlocal omnifunc=lsp#complete
 endif
 
-if executable('pyls')
+if executable('jedi-language-server')
     au User lsp_setup call lsp#register_server({
-    \   'name': 'pylsp',
-    \   'cmd': {server_info->['pylsp']},
+    \   'name': 'jedi-language-server',
+    \   'cmd': {server_info->['jedi-language-server']},
     \   'allowlist': ['python'],
     \ })
     autocmd FileType python setlocal omnifunc=lsp#complete
