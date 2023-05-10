@@ -43,13 +43,12 @@ PROJECT_BASH_HISTFILE="$HOME/.cache/bash/history/$PROJECT"
 PROJECT_BASH_RC="$ROOT/.tmux-edit"
 
 ##
-# Determines whether the current window is an active edit window.
+# Determines whether the current window has an editor pane.
 #
-# This is true if the tmux window option "@__edit" starts with the string
-# "yes".
-is_edit_window() {
-    tmux show-window-option -v -t "$WINDOW" "$VAR" 2>/dev/null \
-        | grep '^yes' >/dev/null
+# This is true if the tmux window option "@__edit" is set to an existing pane.
+has_edit_window() {
+    pane_id="$(tmux show-window-option -v -t "$WINDOW" "$VAR" 2>/dev/null)"
+    [ -n "$pane_id" ] && tmux has-session -t "$pane_id"
 }
 
 
@@ -63,7 +62,7 @@ ensure_bash_history() {
 
 
 ##
-# Launches vim in a new pane.
+# Launches vim in a new pane and outputs its ID to STDOUT.
 launch_editor() {
     tmux split-window \
         -b \
@@ -72,6 +71,7 @@ launch_editor() {
         -f \
         -h \
         -t "$PANE" \
+        -P -F "#{pane_id}" \
         bash -lic "[ -f .tmux-edit ] && . .tmux-edit ;
             vim +'if filereadable(\".vimrc\") | source .vimrc'"
 }
@@ -104,15 +104,15 @@ ___
 
 
 # If the window is not currently an editor window, make it one
-if ! is_edit_window; then
+if ! has_edit_window; then
     # Make sure we have a local history file
     ensure_bash_history
 
     # Launch the editor pane and mark this window as an editor window
-    launch_editor
-    tmux set-window-option -t "$WINDOW" "$VAR" "yes"
-    tmux set-hook pane-exited \
-        "set-window-option -t $WINDOW $VAR ''"
+    tmux set-window-option \
+        -t "$WINDOW" \
+        "$VAR" \
+        "$(launch_editor)"
 
     # Replace the shell in the current pane
     replace_shell
