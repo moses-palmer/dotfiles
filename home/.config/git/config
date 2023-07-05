@@ -11,6 +11,7 @@
     default-remote = !git-default-remote
     div = !git-div
     features = log --first-parent
+    fire = !git-fire
     fix = commit --fixup
     gh-pr = !git-gh-pr
     gh-review = !git-gh-review

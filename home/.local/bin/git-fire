@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+## Constructs a fixup commit from the currently staged changes and then starts
+## an interactive rebase to update the given commit.
+##
+## Usage: git fire COMMIT
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+
+if [ "$#" -lt 1 ]; then
+    autohelp
+    exit 1
+fi
+
+
+commit="$1"
+
+git commit --fixup "$commit"
+git rebase -i --rebase-merges "$commit^"
