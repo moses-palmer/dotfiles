@@ -55,6 +55,7 @@ SERVICE_XML = '''
 <node>
     <interface name="{}">
         <property name="Display" type="i" access="read" />
+        <property name="Scale" type="d" access="readwrite" />
         <method name="CycleDisplay" />
         <method name="Toggle" />
         <method name="ReloadConfiguration" />
@@ -128,6 +129,12 @@ class Application(Gtk.Application):
         def get_display():
             return self._monitor_num
 
+        def get_scale():
+            return terminal.get_font_scale()
+
+        def set_scale(value: float):
+            terminal.set_font_scale(value.get_double())
+
         def exit():
             window.destroy()
 
@@ -137,7 +144,9 @@ class Application(Gtk.Application):
                 Toggle=toggle,
                 ReloadConfiguration=reload_configuration,
                 Exit=exit,
-                get_Display=(get_display, 'i'))
+                get_Display=(get_display, 'i'),
+                get_Scale=(get_scale, 'd'),
+                set_Scale=(set_scale, 'd'))
 
         else:
             window.show_all()
@@ -353,7 +362,9 @@ class Application(Gtk.Application):
                     kwargs[meth]),
                 lambda _c, _s, _p, _i, meth, *_: GLib.Variant(
                     kwargs['get_' + meth][1],
-                    kwargs['get_' + meth][0]())))
+                    kwargs['get_' + meth][0]()),
+                lambda _c, _s, _p, _i, meth, value, *_:
+                    kwargs['set_' + meth][0](value)))
 
 
 if __name__ == '__main__':
