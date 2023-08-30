@@ -127,3 +127,14 @@ function! s:bufsib(nr, dir)
 
     return l:result
 endfunction
+
+
+" Sends a tmux command over the tmux socket.
+function! lib#tmux(args, ...)
+    let l:socket = split($TMUX, ',')[0]
+    if a:0 > 0
+        return system('tmux -S ' . l:socket . ' ' . a:args, a:1)
+    else
+        return system('tmux -S ' . l:socket . ' ' . a:args)
+    endif
+endfunction

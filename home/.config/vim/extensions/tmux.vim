@@ -44,7 +44,7 @@ function! s:navigate(dir)
                 \ a:dir,
                 \ 'hjkl',
                 \ 'LDUR')
-        silent call s:tmux(l:args)
+        silent call lib#tmux(l:args)
     endif
 endfunction
 
@@ -74,16 +74,5 @@ endfunction
 
 " Copies a string to the tmux clipboard.
 function! s:tmux_copy(string)
-    silent call s:tmux('load-buffer -', a:string)
-endfunction
-
-
-" Sends a tmux command over the tmux socket.
-function! s:tmux(args, ...)
-    let l:socket = split($TMUX, ',')[0]
-    if a:0 > 0
-        return system('tmux -S ' . l:socket . ' ' . a:args, a:1)
-    else
-        return system('tmux -S ' . l:socket . ' ' . a:args)
-    endif
+    silent call lib#tmux('load-buffer -', a:string)
 endfunction
