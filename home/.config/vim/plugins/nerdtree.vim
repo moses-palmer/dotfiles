@@ -48,6 +48,7 @@ function! s:close_if_only_control_win_left()
 endfunction
 
 function! s:jump_to_current()
+    execute('NERDTreeRefreshRoot')
     execute('NERDTreeFind')
     execute('vertical resize ' . g:NERDTreeWinSize)
 endfunction
