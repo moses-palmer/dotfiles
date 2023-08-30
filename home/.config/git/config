@@ -18,6 +18,7 @@
     goto = !git-goto
     l = log --oneline
     logg = log --graph --decorate
+    logs = !git-logs
     lg = log --graph --decorate --oneline
     ls = ls-tree --name-only HEAD
     own = !git-own

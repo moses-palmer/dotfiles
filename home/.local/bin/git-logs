@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+## Executes git log limited to staged files.
+##
+## Usage: git logs [OPTIONS...]
+
+set -e
+. ~/.local/lib/bash/autohelp
+
+
+git log "$@" -- `git diff --name-only --staged`
