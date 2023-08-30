@@ -75,6 +75,8 @@
    templatedir = ~/.config/git/templates
 [interactive]
     diffFilter = git-diff-filter
+[merge]
+    conflictstyle = diff3
 [pull]
    rebase = true
 [push]
