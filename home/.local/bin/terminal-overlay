@@ -68,6 +68,9 @@ SERVICE_XML = '''
 #: main application window visibility toggle.
 TOGGLE_THROTTLE = 0.2
 
+#: The prefix used for user actions.
+USER_ACTION_PREFIX = 'user'
+
 
 def main(command: [str]):
     try:
@@ -94,7 +97,7 @@ class Application(Gtk.Application):
         window = self._window()
         self.add_window(window)
         terminal = self._terminal()
-        self._apply_configuration(terminal)
+        self._apply_configuration(window, terminal)
         window.add(terminal)
         self._register_actions(window, terminal)
 
@@ -106,7 +109,7 @@ class Application(Gtk.Application):
 
         def reload_configuration():
             self._load_configuration()
-            self._apply_configuration(terminal)
+            self._apply_configuration(window, terminal)
 
         def toggle():
             timestamp = getattr(toggle, 'timestamp', 0)
@@ -208,10 +211,15 @@ class Application(Gtk.Application):
             color(str(i), None)
             for i in range(16)]
 
-    def _apply_configuration(self, terminal):
-        """Applies the configuration to a terminal instance.
+        try:
+            self._macros = {
+                k: v.encode('ascii').decode('unicode_escape').encode('ascii')
+                for (k, v) in configuration.items('macros')}
+        except configparser.NoSectionError:
+            self._macros = {}
 
-        :param terminal: The terminal to modify.
+    def _apply_configuration(self, window: Gtk.Window, terminal: Vte.Terminal):
+        """Applies the configuration.
         """
         terminal.set_colors(self._fg_color, self._bg_color, self._palette)
         terminal.set_font_scale(self._font_scale)
@@ -219,6 +227,23 @@ class Application(Gtk.Application):
             font = terminal.get_font()
             font.set_family(self._font_family)
             terminal.set_font(font)
+
+        def macro_handler(macro):
+            return lambda *_: os.write(terminal.get_pty().get_fd(), macro)
+
+        for action_description in self.list_action_descriptions():
+            if action_description.startswith(USER_ACTION_PREFIX):
+                self.remove_action(action_description)
+
+        for (index, (accel, macro)) in enumerate(self._macros.items()):
+            action = Gio.SimpleAction(name=USER_ACTION_PREFIX + str(index))
+            name = action.get_name()
+            macro = self._macros[accel]
+            action.connect(
+                'activate',
+                macro_handler(macro))
+            window.add_action(action)
+            self.set_accels_for_action('win.' + name, [accel])
 
     def _terminal(self) -> Vte.Terminal:
         """Creates the terminal widget and ensures that it runs the command.
