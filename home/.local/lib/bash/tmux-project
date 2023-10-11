@@ -1,0 +1,15 @@
+##
+# Determines whether the current window has an editor pane.
+#
+# This is true if the tmux window option designated by $TMUX_PROJECT_VAR is set
+# to an existing pane.
+#
+# Arguments:
+# $1: The ID of the window to check.
+tmux_project_has_edit_window() {
+    local window="$1"
+    local pane_id="$(tmux show-window-option -v \
+        -t "$WINDOW" \
+        "$TMUX_PROJECT_VAR" 2>/dev/null)"
+    [ -n "$pane_id" ] && tmux has-session -t "$pane_id"
+}

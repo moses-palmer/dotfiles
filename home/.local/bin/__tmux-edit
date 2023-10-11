@@ -1,8 +1,13 @@
 #!/bin/bash
 
+. ~/.config/tmux-project
+. ~/.local/lib/bash/tmux-project
+
+
 # We must source this explicitly, since ~/.bashrc bails in command mode
 set -o vi
 source ~/.config/bash/rc
+set -eu
 
 
 if [ -d "$1" ]; then
@@ -27,10 +32,6 @@ fi
 PROJECT="${PROJECT:-$(basename "$ROOT")}"
 
 ##
-# The name of the window option.
-VAR="@__edit"
-
-##
 # The width of the editor pane.
 WIDTH="${WIDTH:-132}"
 
@@ -40,16 +41,7 @@ PROJECT_BASH_HISTFILE="$HOME/.cache/bash/history/$PROJECT"
 
 ##
 # A project local bash resource file.
-PROJECT_BASH_RC="$ROOT/.tmux-edit"
-
-##
-# Determines whether the current window has an editor pane.
-#
-# This is true if the tmux window option "@__edit" is set to an existing pane.
-has_edit_window() {
-    pane_id="$(tmux show-window-option -v -t "$WINDOW" "$VAR" 2>/dev/null)"
-    [ -n "$pane_id" ] && tmux has-session -t "$pane_id"
-}
+PROJECT_BASH_RC="$ROOT/$TMUX_PROJECT_FILE"
 
 
 ##
@@ -72,7 +64,7 @@ launch_editor() {
         -h \
         -t "$PANE" \
         -P -F "#{pane_id}" \
-        bash -lic "[ -f .tmux-edit ] && . .tmux-edit ;
+        bash -lic "[ -f $PROJECT_BASH_RC ] && . $PROJECT_BASH_RC ;
             vim +'if filereadable(\".vimrc\") | source .vimrc'"
 }
 
@@ -102,16 +94,15 @@ ___
     rm "$rcfile"
 }
 
-
 # If the window is not currently an editor window, make it one
-if ! has_edit_window; then
+if ! tmux_project_has_edit_window "$WINDOW"; then
     # Make sure we have a local history file
     ensure_bash_history
 
     # Launch the editor pane and mark this window as an editor window
     tmux set-window-option \
         -t "$WINDOW" \
-        "$VAR" \
+        "$TMUX_PROJECT_VAR" \
         "$(launch_editor)"
 
     # Replace the shell in the current pane

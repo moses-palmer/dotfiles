@@ -1,0 +1,8 @@
+##
+# The project marker and configuration file.
+TMUX_PROJECT_FILE=".tmux-edit"
+
+##
+# The name of the tmux window option used to mark a window as running
+# tmux-edit.
+TMUX_PROJECT_VAR="@__edit"
