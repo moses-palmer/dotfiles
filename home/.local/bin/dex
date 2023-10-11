@@ -1,4 +1,5 @@
 #!/bin/sh
+#
 ## Executes a command inside a named docker container.
 ##
 ## A terminal is allocated.
@@ -25,4 +26,8 @@ fi
 shift
 
 
-docker exec --tty --interactive "$container_id" "$@"
+if [ -t 0 ]; then
+    docker exec --tty --interactive "$container_id" "$@"
+else
+    docker exec "$container_id" "$@"
+fi
