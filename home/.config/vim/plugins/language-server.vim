@@ -23,6 +23,7 @@ function! s:on_lsp_buffer_enabled() abort
     nmap <buffer> gA <plug>(lsp-code-lens)
     nmap <buffer> gd <plug>(lsp-definition)
     nmap <buffer> <leader>d <plug>(lsp-peek-definition)
+    nmap <buffer> <leader>gd :rightbelow vertical LspDefinition<CR>
     nmap <buffer> gH <plug>(lsp-call-hierarchy-incoming)
     nmap <buffer> <leader>H <plug>(lsp-call-hierarchy-outgoing)
     nmap <buffer> gI <plug>(lsp-implementation)
