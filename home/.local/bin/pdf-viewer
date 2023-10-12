@@ -1,0 +1,287 @@
+#!/usr/bin/env python3
+
+import argparse
+import configparser
+import os
+import sys
+import time
+
+import gi
+gi.require_version('Gdk', '3.0')
+gi.require_version('Gio', '2.0')
+gi.require_version('Gtk', '3.0')
+gi.require_version('Poppler', '0.18')
+
+from gi.repository import GLib, Gdk, Gio, Gtk, Poppler, cairo
+
+
+#: The default title.
+DEFAULT_TITLE = 'PDF Viewer'
+
+#: The default remote mode.
+REMOTE_DEFAULT = True
+
+#: The name of the DBus service.
+SERVICE_NAME = 'com.newrainsoftware.PDFViewer'
+
+#: The path of the DBus service.
+SERVICE_PATH = '/' + SERVICE_NAME.replace('.', '/')
+
+#: The DBus service description.
+SERVICE_XML = '''
+<node>
+    <interface name="{}">
+        <!-- The current page; if the value is out of bounds, the nearest page
+             number will be used -->
+        <property name="Page" type="u" access="readwrite" />
+
+        <!-- Move the window to the next monitor -->
+        <method name="CycleDisplay" />
+
+        <!-- Display the previous page if it exists, otherwise display the
+             first page -->
+        <method name="PreviousPage" />
+
+        <!-- Display the next page if it exists, otherwise display the last
+             page -->
+        <method name="NextPage" />
+
+        <!-- Exit the viewer -->
+        <method name="Exit" />
+    </interface>
+</node>
+'''.format(SERVICE_NAME)
+
+
+def main(
+        document: Poppler.Document,
+        background_color: Gdk.RGBA,
+        fullscreen: bool):
+    try:
+        Application(document, background_color, fullscreen).run([])
+    except ValueError as e:
+        sys.stderr.write('{}\n'.format(str(e)))
+        sys.exit(1)
+
+
+class Application(Gtk.Application):
+    def __init__(
+            self,
+            document: Poppler.Document,
+            background_color: Gdk.RGBA,
+            fullscreen: bool):
+        super(Application, self).__init__(
+            application_id=SERVICE_NAME,
+            flags=Gio.ApplicationFlags.FLAGS_NONE)
+
+        self._document = document
+        self._background_color = background_color
+        self._fullscreen = fullscreen
+
+        self._screen = Gdk.Screen.get_default()
+        self._display = self._screen.get_display()
+        self._page = 0
+        self._monitor_num = self._locate_monitor(-1)
+
+    def do_activate(self, *_args):
+        Gtk.Application.do_activate(self)
+
+        window = self._window(self._document)
+        self.add_window(window)
+        view = self._view(self._background_color)
+        window.add(view)
+
+        def cycle_display():
+            self._monitor_num = self._locate_monitor(
+                (self._monitor_num + 1) % self._display.get_n_monitors())
+            window.fullscreen_on_monitor(
+                self._screen,
+                self._monitor_num)
+
+        def previous_page():
+            if self._page > 0:
+                self._page -= 1
+                window.queue_draw()
+
+        def next_page():
+            if self._page < self._document.get_n_pages() - 1:
+                self._page += 1
+                window.queue_draw()
+
+        def exit():
+            window.destroy()
+
+        def get_page():
+            return self._page + 1
+
+        def set_page(value: int):
+            value = value.get_uint32() - 1
+            if value < 0:
+                value = 0
+            elif value >= self._document.get_n_pages():
+                value = self._document.get_n_pages() - 1
+            if value != self._page:
+                self._page = value
+                window.queue_draw()
+            return True
+
+        self._start_server(
+            CycleDisplay=cycle_display,
+            PreviousPage=previous_page,
+            NextPage=next_page,
+            Exit=exit,
+            get_Page=(get_page, 'u'),
+            set_Page=(set_page,))
+
+        window.show_all()
+
+    def _view(self, background_color: Gdk.RGBA) -> Gtk.DrawingArea:
+        """Creates the PDF viewer.
+        """
+        result = Gtk.DrawingArea.new()
+
+        def draw(w, ctx):
+            page = self._current_page()
+            w_size = w.get_allocated_width(), w.get_allocated_height()
+            p_size = page.get_size()
+            ctx.set_source_rgba(
+                    background_color.red,
+                    background_color.green,
+                    background_color.blue)
+            ctx.rectangle(0, 0, *w_size)
+            ctx.fill()
+
+            # Ensure the page fills the centre of the widget
+            scale = min(
+                w_size[0] / p_size[0],
+                w_size[1] / p_size[1])
+            ctx.translate(
+                0.5 * (w_size[0] - scale * p_size[0]),
+                0.5 * (w_size[1] - scale * p_size[1]))
+            ctx.scale(scale, scale)
+
+            page.render(ctx)
+        result.connect('draw', draw)
+
+        return result
+
+    def _window(self, document: Poppler.Document) -> Gtk.ApplicationWindow:
+        """Creates the main window.
+        """
+        result = Gtk.ApplicationWindow(type=Gtk.WindowType.TOPLEVEL)
+
+        result.set_title(document.get_title() or DEFAULT_TITLE)
+
+        result.set_accept_focus(True)
+        result.set_decorated(False)
+        result.set_deletable(False)
+        result.set_keep_above(True)
+        result.set_skip_pager_hint(True)
+        result.set_skip_taskbar_hint(True)
+        result.set_visual(result.get_screen().get_rgba_visual())
+
+        if self._fullscreen:
+            result.set_type_hint(Gdk.WindowTypeHint.DOCK)
+            result.stick()
+            result.fullscreen_on_monitor(
+                self._screen,
+                self._monitor_num)
+
+        def delete_event(*_args):
+            self.quit()
+            return True
+        result.connect('delete-event', delete_event)
+
+        def destroy(*_args):
+            self.quit()
+            return True
+        result.connect('destroy', destroy)
+
+        return result
+
+    def _locate_monitor(self, monitor_num: int) -> int:
+        """Returns the index of the monitor to use.
+
+        If ``monitor_num`` has a value in the allowed range, this is returned,
+        otherwise the primary monitor is located. If that cannot be found,
+        ``0`` is returned.
+
+        :param monitor_num: The preferred monitor.
+        """
+        count = self._display.get_n_monitors()
+        if monitor_num >= 0 and monitor_num < count:
+            return monitor_num
+        else:
+            for n in range(count):
+                if self._display.get_monitor(n).is_primary():
+                    return n
+            return 0
+
+    def _start_server(self, **kwargs):
+        """Starts the DBus server.
+        """
+        gi.require_version('DBus', '1.0')
+
+        Gio.bus_own_name(
+            Gio.BusType.SESSION,
+            SERVICE_NAME,
+            Gio.BusNameOwnerFlags.NONE,
+            lambda conn, *_: Gio.DBusConnection.register_object(
+                conn,
+                SERVICE_PATH,
+                Gio.DBusNodeInfo.new_for_xml(SERVICE_XML).interfaces[0],
+                lambda _c, _s, _p, _i, meth, *_: Gdk.threads_add_idle(
+                    GLib.PRIORITY_DEFAULT_IDLE,
+                    kwargs[meth]),
+                lambda _c, _s, _p, _i, meth, *_: GLib.Variant(
+                    kwargs['get_' + meth][1],
+                    kwargs['get_' + meth][0]()),
+                lambda _c, _s, _p, _i, meth, value, *_:
+                    kwargs['set_' + meth][0](value)))
+
+    def _current_page(self) -> Poppler.Page:
+        """The current page.
+        """
+        return self._document.get_page(self._page)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description='Displays a PDF in fullscreen on a monitor',
+        epilog='''
+The running application does not react to any user input, but provides the
+following D-BUS interface on the object path "{}":
+{}
+        '''.format(SERVICE_PATH, SERVICE_XML))
+
+    def document(s: str) -> Poppler.Document:
+        try:
+            return Poppler.Document.new_from_file('file://{}'.format(
+                os.path.abspath(s)))
+        except Exception as e:
+            raise ValueError('failed to open "{}": {}'.format(s, e))
+    parser.add_argument(
+        'document',
+        help='The PDF document to display.',
+        type=document)
+
+    def background_color(s: str) -> Gdk.RGBA:
+        r = Gdk.RGBA()
+        if not r.parse(s):
+            raise ValueError('invalid colour value: "{}"'.format(s))
+        else:
+            return r
+    parser.add_argument(
+        '--background-color',
+        help='The background colour as a CSS colour value.',
+        type=background_color,
+        default="white")
+
+    parser.add_argument(
+        '--fullscreen',
+        help='Run the application in full screen',
+        action='store_true')
+
+    Gtk.init([])
+    main(**vars(parser.parse_args()))
