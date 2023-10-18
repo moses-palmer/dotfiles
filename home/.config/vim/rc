@@ -22,7 +22,7 @@ let mapleader="\<tab>"
 
 
 " Clear current search on double leader
-map <leader><leader> :nohlsearch<CR>
+map <silent> <leader><leader> :nohlsearch<CR>
 
 
 " Quickly run @a
