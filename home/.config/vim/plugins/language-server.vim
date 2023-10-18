@@ -55,7 +55,7 @@ if filereadable(expand('~/.local/lib/jdtls/bin/jdtls'))
     au User lsp_setup
     \ call lsp#register_server({
     \   'name': 'jdtls',
-    \   'cmd': {server_info->['jdtls']},
+    \   'cmd': [expand('~/.local/lib/jdtls/bin/jdtls')],
     \   'allowlist': ['java'],
     \   'initialization_options': filereadable(s:java_debug_plugin)
     \       ? { 'bundles': [s:java_debug_plugin] }
