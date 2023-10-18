@@ -1,7 +1,9 @@
 from . import Feature, system
 
+DESCRIPTION = 'Vi IMproved'
 
-main = system.package(__name__.rsplit('.')[-1], 'vim')
+
+main = system.package(__name__.rsplit('.')[-1], description=DESCRIPTION)
 
 
 def run(env: Feature, *commands: str):

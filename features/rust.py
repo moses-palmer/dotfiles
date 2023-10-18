@@ -34,7 +34,7 @@ def is_installed(env: Feature):
 def binary(
     name: str,
     crate: str,
-    description: str,
+    description: str=None,
     *args: Union[str, Feature, types.ModuleType],
 ) -> Feature:
     """Defines a cargo installable binary.

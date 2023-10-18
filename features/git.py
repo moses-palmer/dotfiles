@@ -1,7 +1,8 @@
 from . import Feature, system
 
+DESCRIPTION = 'The stupid content tracker'
 
-main = system.package(__name__.rsplit('.')[-1], 'git')
+main = system.package(__name__.rsplit('.')[-1], description=DESCRIPTION)
 
 
 def clone(env: Feature, repository: str, target: str):

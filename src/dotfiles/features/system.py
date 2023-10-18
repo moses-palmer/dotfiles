@@ -3,22 +3,26 @@ import shlex
 from . import Feature, feature
 
 
-def package(binary: str, package=None) -> Feature:
+def package(package: str, binary: str=None, description: str=None) -> Feature:
     """Defines a package feature.
 
-    :param binary: The binary provided by the package. This is used to
-        check whether the feature exists if ``package`` is not specified.
+    :param package: The name of the package. The actual package name can be
+        overridden in the configuration.
 
-    :param package: The name of the package. If this is not specified, the
-        binary name is used as package name.
+    :param binary: The binary provided by the package. This is used to check
+        whether the feature exists if specified.
+
+    :param description: A description of the package.
     """
-    @feature(binary, set(), binary)
+    @feature(description or binary or package, set(), package)
     def installer(env: Feature):
-        install_package(env, package or binary)
+        install_package(env, package)
 
     @installer.checker
     def is_installed(env: Feature) -> bool:
-        if package is not None:
+        if binary is not None:
+            return present(env, binary)
+        else:
             return env.run(
                     *shlex.split(env.configuration['commands']['package_check']),
                     interactive=False,
@@ -26,8 +30,6 @@ def package(binary: str, package=None) -> Feature:
                     check=True,
                     name=env.configuration.get('package_names', {}).get(
                         package, package))
-        else:
-            return present(env, binary)
 
     return installer
 
