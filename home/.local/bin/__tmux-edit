@@ -109,7 +109,7 @@ if ! tmux_project_has_edit_window "$WINDOW"; then
     replace_shell
 
     # Rename window to make it easier to find
-    tmux rename-window -t "$WINDOW" "<$PROJECT>"
+    tmux rename-window -t "$WINDOW" "📂 $PROJECT"
 fi
 
 
