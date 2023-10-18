@@ -105,6 +105,7 @@ class Application(Gtk.Application):
             window.hide()
 
         def show():
+            self._resize_window(window)
             window.show_all()
 
         def reload_configuration():
@@ -125,9 +126,7 @@ class Application(Gtk.Application):
         def cycle_display():
             self._monitor_num = self._locate_monitor(
                 (self._monitor_num + 1) % self._display.get_n_monitors())
-            window.fullscreen_on_monitor(
-                self._screen,
-                self._monitor_num)
+            self._resize_window(window)
 
         def get_display():
             return self._monitor_num
@@ -152,7 +151,7 @@ class Application(Gtk.Application):
                 set_Scale=(set_scale, 'd'))
 
         else:
-            window.show_all()
+            show()
 
     def _load_configuration(self):
         """Loads the configuration from the default configuration file.
@@ -293,13 +292,10 @@ class Application(Gtk.Application):
         result.set_skip_pager_hint(True)
         result.set_skip_taskbar_hint(True)
         result.set_visual(result.get_screen().get_rgba_visual())
+        result.set_position(Gtk.WindowPosition.CENTER)
 
-        if self._fullscreen:
-            result.set_type_hint(Gdk.WindowTypeHint.DOCK)
-            result.stick()
-            result.fullscreen_on_monitor(
-                self._screen,
-                self._monitor_num)
+        result.set_type_hint(Gdk.WindowTypeHint.DOCK)
+        result.stick()
 
         def delete_event(*_args):
             result.hide()
@@ -330,6 +326,20 @@ class Application(Gtk.Application):
                 if self._display.get_monitor(n).is_primary():
                     return n
             return 0
+
+    def _resize_window(self, window: Gtk.Window):
+        """Resizes a window to the geometry of the current monitor.
+
+        :param window: The window to fullscreen.
+        """
+        if self._fullscreen:
+            window.fullscreen_on_monitor(self._screen, self._monitor_num)
+        else:
+            monitor = self._display.get_monitor(self._monitor_num)
+            if monitor:
+                geometry = monitor.get_geometry()
+                window.move(geometry.x, geometry.y)
+                window.resize(geometry.width, geometry.height)
 
     def _register_actions(self, window: Gtk.Window, terminal: Vte.Terminal):
         """Creates the application actions.
