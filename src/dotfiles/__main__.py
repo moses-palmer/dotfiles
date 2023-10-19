@@ -57,6 +57,7 @@ def main(
         os.path.join(ROOT, 'local.conf'),
         d=lambda *parts: platforms.Distribution('', *parts),
         distribution=distribution,
+        python_version=platforms.Version(tuple(sys.version_info[:3])),
         v=lambda s: platforms.Version(s),
         version=version)
 

@@ -1,4 +1,5 @@
 import re
+import shlex
 import sys
 
 from typing import Optional
@@ -58,6 +59,9 @@ def install_package(env: Feature, package: str):
     """
     env.run(
         sys.executable, '-m', MOD, 'install', '--user', '--upgrade',
+        *shlex.split(env.configuration['commands'].get(
+            'pip_install_arguments',
+            '')),
         '${package}',
         interactive=False,
         package=package)

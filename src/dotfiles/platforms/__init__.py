@@ -45,7 +45,12 @@ class Version:
     A version is a sequence of numbers.
     """
     def __init__(self, s):
-        self._version = tuple(int(p) for p in s.split('.'))
+        if isinstance(s, tuple):
+            self._version = s
+        elif isinstance(s, str):
+            self._version = tuple(int(p) for p in s.split('.'))
+        else:
+            raise ValueError(s)
 
     def __str__(self):
         return '.'.join(self._version)
