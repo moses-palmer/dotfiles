@@ -1,2 +1,4 @@
-export FZF_DEFAULT_COMMAND="$FZF_DEFAULT_COMMAND --no-ignore --hidden"
-export FZF_SEARCH_COMMAND="$FZF_SEARCH_COMMAND --no-ignore --hidden"
+if [ -n "${FZF_DEFAULT_COMMAND:-}" ]; then
+    export FZF_DEFAULT_COMMAND="$FZF_DEFAULT_COMMAND --no-ignore --hidden"
+    export FZF_SEARCH_COMMAND="$FZF_SEARCH_COMMAND --no-ignore --hidden"
+fi
