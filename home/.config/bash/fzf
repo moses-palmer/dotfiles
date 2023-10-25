@@ -5,4 +5,4 @@ export FZF_DEFAULT_COMMAND="rg --files --follow --smart-case --glob \"!.git/*\""
 export FZF_SEARCH_COMMAND="rg --column --line-number --no-heading --color=always --smart-case --glob \"!.git/*\""
 
 # Provide a preview and border by default
-export FZF_DEFAULT_OPTS="--ansi --border --info=inline --preview 'bash \"$HOME/.vim/plugged/fzf.vim/bin/preview.sh\" {}'"
+export FZF_DEFAULT_OPTS="--ansi --border --info=inline --preview 'bash \"$HOME/.vim/plugged/fzf.vim/bin/preview.sh\" {}' --bind 'alt-a:select-all,alt-d:deselect-all'"
