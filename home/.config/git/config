@@ -100,3 +100,7 @@
     ignore-space = all
     ignore-case = smart
     main-view = id commit-title:graph=v2
+
+
+[include]
+    path = local
