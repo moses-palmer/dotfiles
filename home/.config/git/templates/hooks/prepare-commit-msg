@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+## Generates a commit message based on the current branch name.
+
+##
+# The file containing the commit message.
+MESSAGE_FILE="$1"
+
+##
+# The source of the message.
+SOURCE="$2"
+
+##
+# The sed script used to extract the ticket ID from the branch name.
+EXTRACT="$(git config --get hooks.extract-ticket-id)"
+
+
+if [ -n "$EXTRACT" ] && [ "$SOURCE" = "template" ]; then
+    TICKET_ID="$(git rev-parse --abbrev-ref HEAD \
+        | sed "$EXTRACT" \
+        | sed 's:/:\\/:g')"
+    sed --in-place --expression="s/\$TICKET_ID/$TICKET_ID/g" "$MESSAGE_FILE"
+fi
