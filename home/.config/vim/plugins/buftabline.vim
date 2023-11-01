@@ -9,11 +9,6 @@ imap <M-Left> <C-o>:call <SID>previous_buffer()<CR>
 imap <M-Right> <C-o>:call <SID>next_buffer()<CR>
 
 
-" Reverse buftabline highlight groups
-highlight! link BufTabLineActive TabLineSel
-highlight! link BufTabLineCurrent PmenuSel
-
-
 " Selects the next buffer in the 'file window'.
 function! s:next_buffer()
     call s:cycle(':bnext')

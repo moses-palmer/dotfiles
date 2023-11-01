@@ -54,8 +54,12 @@ try
         colorscheme onedark
         highlight ColorColumn guibg=#353535
     else
-        colorscheme noctu
+        colorscheme onedark
     endif
+
+    " Reverse buftabline highlight groups
+    highlight! link BufTabLineActive TabLineSel
+    highlight! link BufTabLineCurrent PmenuSel
 catch /^Vim\%((\a\+)\)\=:E185/
     " Ignore
 endtry
