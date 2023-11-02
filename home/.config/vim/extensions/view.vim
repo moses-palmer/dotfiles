@@ -45,6 +45,7 @@ set t_ut=
 
 " Enable mouse
 set mouse=a
+set ttymouse=sgr
 
 
 " Load theme
