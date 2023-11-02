@@ -28,6 +28,23 @@ bind '"\C-p": "\C-x2\eI"'
 bind -x '"\C-x2": __search_file_names';
 
 
+# Find file content using Ctrl-K
+__search_file_content() {
+    item="$(FZF_DEFAULT_COMMAND="$FZF_SEARCH_COMMAND -- ''" fzf \
+        --delimiter=: \
+        --bind='enter:become(echo {2})')"
+
+    if [ -n "$item" ]; then
+        L="$READLINE_LINE"
+        P="$READLINE_POINT"
+        READLINE_LINE="${L:0:$P} $item ${L:$P:${#L}}"
+        READLINE_POINT=$(( READLINE_POINT + ${#1} ))
+    fi
+}
+bind '"\C-p": "\C-x2\eI"'
+bind -x '"\C-x2": __search_file_names';
+
+
 # Find in files using Ctrl-K
 __search_files() {
     local fzf_default_command="$FZF_DEFAULT_COMMAND"
