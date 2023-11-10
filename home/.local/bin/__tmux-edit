@@ -28,6 +28,11 @@ fi
 
 
 ##
+# A project local bash resource file.
+PROJECT_BASH_RC="$ROOT/$TMUX_PROJECT_FILE"
+[ -f "$PROJECT_BASH_RC" ] && . "$PROJECT_BASH_RC"
+
+##
 # The name of the current project.
 PROJECT="${PROJECT:-$(basename "$ROOT")}"
 
@@ -38,10 +43,6 @@ WIDTH="${WIDTH:-132}"
 ##
 # A project local bash history file.
 PROJECT_BASH_HISTFILE="$HOME/.cache/bash/history/$PROJECT"
-
-##
-# A project local bash resource file.
-PROJECT_BASH_RC="$ROOT/$TMUX_PROJECT_FILE"
 
 
 ##
@@ -114,7 +115,6 @@ fi
 
 
 # Apply the fixed layout
-[ -f "$PROJECT_BASH_RC" ] && . "$PROJECT_BASH_RC"
 tmux set-window-option \
     main-pane-width "$WIDTH"
 tmux select-layout \
