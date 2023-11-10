@@ -31,6 +31,6 @@ if [ ! -d "$TARGET" ]; then
 fi
 
 
-ID="$(docker run --rm --detach "$IMAGE")"
+ID="$(docker run --rm --detach --tty "$IMAGE")"
 trap "docker stop $ID" EXIT
 docker cp "$ID:$SOURCE" "$TARGET"
