@@ -9,6 +9,7 @@ let g:NERDTreeIgnore = [
     \ '^__pycache__$',
     \ '\.rs.bk$'
     \ ]
+let g:NERDTreeGitStatusConcealBrackets = 1
 let g:NERDTreeGitStatusIndicatorMapCustom = {
     \ 'Modified'  : '•',
     \ 'Staged'    : '✚',
