@@ -30,7 +30,7 @@ fi
 ##
 # A project local bash resource file.
 PROJECT_BASH_RC="$ROOT/$TMUX_PROJECT_FILE"
-[ -f "$PROJECT_BASH_RC" ] && . "$PROJECT_BASH_RC"
+[ -f "$PROJECT_BASH_RC" ] && TMUX_PROJECT_STAGE=main . "$PROJECT_BASH_RC"
 
 ##
 # The name of the current project.
@@ -65,7 +65,9 @@ launch_editor() {
         -h \
         -t "$PANE" \
         -P -F "#{pane_id}" \
-        bash -lic "[ -f $PROJECT_BASH_RC ] && . $PROJECT_BASH_RC ;
+        bash -lic "
+            export TMUX_PROJECT_STAGE=editor ;
+            [ -f $PROJECT_BASH_RC ] && . $PROJECT_BASH_RC ;
             vim +'if filereadable(\".vimrc\") | source .vimrc'"
 }
 
@@ -88,6 +90,7 @@ replace_shell() {
         -t "$PANE" \
         bash --rcfile "$rcfile" -i
     cat > "$rcfile" <<___
+export TMUX_PROJECT_STAGE=shell
 [ -f /etc/profile ]       && . /etc/profile
 [ -f ~/.bashrc ]          && . ~/.bashrc
 [ -f "$PROJECT_BASH_RC" ] && . "$PROJECT_BASH_RC"
