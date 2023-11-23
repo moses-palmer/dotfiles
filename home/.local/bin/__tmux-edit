@@ -38,7 +38,7 @@ PROJECT="${PROJECT:-$(basename "$ROOT")}"
 
 ##
 # The width of the editor pane.
-WIDTH="${WIDTH:-132}"
+WIDTH="${WIDTH:-60%}"
 
 ##
 # A project local bash history file.
