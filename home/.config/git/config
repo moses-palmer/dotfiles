@@ -41,6 +41,7 @@
 [core]
     attributesFile = ~/.config/git/attributes
     editor = vim
+    excludesFile = ~/.config/git/ignore
     filemode = false
     pager = git-pager
     tabwidth = 4
